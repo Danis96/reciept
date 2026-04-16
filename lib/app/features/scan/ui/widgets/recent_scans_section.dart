@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
@@ -8,11 +9,13 @@ class RecentScansSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.emptyText,
+    required this.emptyHintText,
     required this.receipts,
   });
 
   final String title;
   final String emptyText;
+  final String emptyHintText;
   final List<ReceiptModel> receipts;
 
   @override
@@ -56,6 +59,14 @@ class RecentScansSection extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.secondary,
                     fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  emptyHintText,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.secondary.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -145,20 +156,24 @@ class ScanRecentTile extends StatelessWidget {
   }
 }
 
-// todo fix this (probably real images)
 class _CategoryIconMapper {
   _CategoryIconMapper(this.category);
 
   final String category;
 
   IconData get icon {
-    switch (category.toLowerCase()) {
-      case 'pets':
+    switch (CategoryBudgetCatalog.normalize(category)) {
+      case CategoryBudgetCatalog.pets:
         return Icons.pets_outlined;
-      case 'food':
+      case CategoryBudgetCatalog.groceries:
         return Icons.shopping_cart_outlined;
-      case 'household supplies':
+      case CategoryBudgetCatalog.household:
         return Icons.home_outlined;
+      case CategoryBudgetCatalog.fuel:
+        return Icons.local_gas_station_outlined;
+      case CategoryBudgetCatalog.clothing:
+        return Icons.checkroom_outlined;
+      case CategoryBudgetCatalog.miscellaneous:
       default:
         return Icons.category_outlined;
     }

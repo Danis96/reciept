@@ -17,7 +17,8 @@ class AppRouter {
       case receiptDetails:
         final ReceiptDetailsRouteArgs args =
             settings.arguments! as ReceiptDetailsRouteArgs;
-        return MaterialPageRoute<void>(
+        return _buildTransitionRoute(
+          settings: settings,
           builder: (BuildContext context) {
             return ChangeNotifierProvider<ReceiptDetailsController>(
               create: (BuildContext context) => ReceiptDetailsController(
@@ -27,15 +28,56 @@ class AppRouter {
               child: const ReceiptDetailsPage(),
             );
           },
-          settings: settings,
         );
       case root:
       default:
-        return MaterialPageRoute<void>(
-          builder: (_) => const DashboardShellPage(),
+        return _buildTransitionRoute(
           settings: settings,
+          builder: (_) => const DashboardShellPage(),
         );
     }
+  }
+
+  static PageRouteBuilder<void> _buildTransitionRoute({
+    required RouteSettings settings,
+    required WidgetBuilder builder,
+  }) {
+    return PageRouteBuilder<void>(
+      settings: settings,
+      transitionDuration: const Duration(milliseconds: 260),
+      reverseTransitionDuration: const Duration(milliseconds: 220),
+      pageBuilder:
+          (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) => builder(context),
+      transitionsBuilder:
+          (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) {
+            final Animation<Offset> slide =
+                Tween<Offset>(
+                  begin: const Offset(0, 0.015),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                );
+            return FadeTransition(
+              opacity: CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOut,
+              ),
+              child: SlideTransition(position: slide, child: child),
+            );
+          },
+    );
   }
 }
 

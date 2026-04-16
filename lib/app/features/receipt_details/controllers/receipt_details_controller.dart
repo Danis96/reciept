@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/models/receipt/merchant_model.dart';
 import 'package:reciep/app/models/receipt/payment_info_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
@@ -17,11 +18,13 @@ class ReceiptDetailsController extends ChangeNotifier {
 
   bool _isLoading = false;
   bool _isDeleting = false;
+  bool _isExporting = false;
   String? _error;
   ReceiptModel? _receipt;
 
   bool get isLoading => _isLoading;
   bool get isDeleting => _isDeleting;
+  bool get isExporting => _isExporting;
   String? get error => _error;
   ReceiptModel? get receipt => _receipt;
   String get receiptId => _receiptId;
@@ -50,6 +53,21 @@ class ReceiptDetailsController extends ChangeNotifier {
     await _repository.deleteReceipt(_receiptId);
     _isDeleting = false;
     notifyListeners();
+  }
+
+  Future<String> exportReceipt(ReceiptExportFormat format) async {
+    final ReceiptModel? current = _receipt;
+    if (current == null) {
+      throw StateError('Receipt not loaded.');
+    }
+    _isExporting = true;
+    notifyListeners();
+    try {
+      return await _repository.exportReceipt(receipt: current, format: format);
+    } finally {
+      _isExporting = false;
+      notifyListeners();
+    }
   }
 
   Future<void> updateBasics({

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/features/receipt_details/action_utils/receipt_details_action_utils.dart';
 import 'package:reciep/app/features/receipt_details/controllers/receipt_details_controller.dart';
 import 'package:reciep/app/models/receipt/receipt_item_model.dart';
@@ -61,10 +62,25 @@ class ReceiptDetailsPage extends StatelessWidget {
                   icon: const Icon(Icons.arrow_back),
                 ),
                 actions: <Widget>[
-                  IconButton(
-                    onPressed: () =>
-                        ReceiptDetailsActionUtils.onExport(context, receipt),
-                    icon: const Icon(Icons.download_outlined),
+                  ReceiptDetailsExportMenu(
+                    exporting: controller.isExporting,
+                    onSelected: (ReceiptExportFormat format) async {
+                      final String path =
+                          await ReceiptDetailsActionUtils.onExport(
+                            context,
+                            format: format,
+                          );
+                      if (!context.mounted) {
+                        return;
+                      }
+                      final String formatLabel = switch (format) {
+                        ReceiptExportFormat.csv => 'CSV',
+                        ReceiptExportFormat.json => 'JSON',
+                      };
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('$formatLabel saved: $path')),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -259,6 +275,50 @@ class ReceiptDetailsPage extends StatelessWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Receipt updated.')));
+  }
+}
+
+class ReceiptDetailsExportMenu extends StatelessWidget {
+  const ReceiptDetailsExportMenu({
+    super.key,
+    required this.exporting,
+    required this.onSelected,
+  });
+
+  final bool exporting;
+  final Future<void> Function(ReceiptExportFormat format) onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (exporting) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 14),
+        child: Center(
+          child: SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    return PopupMenuButton<ReceiptExportFormat>(
+      tooltip: 'Export receipt',
+      onSelected: (ReceiptExportFormat format) async => onSelected(format),
+      itemBuilder: (BuildContext context) =>
+          <PopupMenuEntry<ReceiptExportFormat>>[
+            const PopupMenuItem<ReceiptExportFormat>(
+              value: ReceiptExportFormat.csv,
+              child: Text('Export CSV'),
+            ),
+            const PopupMenuItem<ReceiptExportFormat>(
+              value: ReceiptExportFormat.json,
+              child: Text('Export JSON'),
+            ),
+          ],
+      icon: const Icon(Icons.download_outlined),
+    );
   }
 }
 

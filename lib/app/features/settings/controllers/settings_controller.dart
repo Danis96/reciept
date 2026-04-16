@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/models/category_budget_model.dart';
 
 import '../repository/settings_repository.dart';
@@ -54,21 +55,22 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<String> exportCsv() async {
-    _exporting = true;
-    notifyListeners();
-    final String path = await _repository.exportReceiptsAsCsv();
-    _exporting = false;
-    notifyListeners();
-    return path;
+    return _exportReceipts(ReceiptExportFormat.csv);
   }
 
   Future<String> exportJson() async {
+    return _exportReceipts(ReceiptExportFormat.json);
+  }
+
+  Future<String> _exportReceipts(ReceiptExportFormat format) async {
     _exporting = true;
     notifyListeners();
-    final String path = await _repository.exportReceiptsAsJson();
-    _exporting = false;
-    notifyListeners();
-    return path;
+    try {
+      return await _repository.exportAllReceipts(format);
+    } finally {
+      _exporting = false;
+      notifyListeners();
+    }
   }
 
   Future<void> saveBudget({
