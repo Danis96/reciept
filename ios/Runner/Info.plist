@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera is used to capture receipt photos for scanning.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is used to select receipt images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Photo library access is used to manage scanned receipt images.</string>
 </dict>
 </plist>
