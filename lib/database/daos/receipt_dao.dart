@@ -176,10 +176,11 @@ class ReceiptDao extends DatabaseAccessor<AppDatabase> with _$ReceiptDaoMixin {
   }) async {
     final List<QueryRow> rows = await customSelect(
       '''
-      SELECT category, COALESCE(SUM(total_amount), 0) AS spent
-      FROM receipts
-      WHERE created_at >= ? AND created_at < ?
-      GROUP BY category
+      SELECT i.category AS category, COALESCE(SUM(i.final_price), 0) AS spent
+      FROM receipt_items i
+      INNER JOIN receipts r ON r.local_id = i.receipt_local_id
+      WHERE r.created_at >= ? AND r.created_at < ?
+      GROUP BY i.category
       ''',
       variables: <Variable<Object>>[
         Variable<DateTime>(fromInclusive),

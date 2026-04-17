@@ -3,6 +3,7 @@ import 'package:reciep/app/models/receipt/receipt_item_model.dart';
 class ReceiptItem {
   const ReceiptItem({
     required this.name,
+    required this.category,
     required this.quantity,
     required this.finalPrice,
     this.unit,
@@ -12,6 +13,7 @@ class ReceiptItem {
   });
 
   final String name;
+  final String category;
   final String? unit;
   final double quantity;
   final double? unitPrice;
@@ -22,6 +24,7 @@ class ReceiptItem {
   ReceiptItemModel toModel() {
     return ReceiptItemModel(
       name: name,
+      category: category,
       unit: unit,
       quantity: quantity,
       unitPrice: unitPrice,
@@ -34,6 +37,7 @@ class ReceiptItem {
   factory ReceiptItem.fromModel(ReceiptItemModel model) {
     return ReceiptItem(
       name: model.name,
+      category: model.category,
       unit: model.unit,
       quantity: model.quantity,
       unitPrice: model.unitPrice,

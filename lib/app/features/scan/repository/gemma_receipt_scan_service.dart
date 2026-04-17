@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:reciep/app/features/scan/repository/receipt_ai_prompt_builder.dart';
+import 'package:reciep/app/features/scan/repository/receipt_image_compression_service.dart';
 
 class GemmaScanException implements Exception {
   GemmaScanException(this.message);
@@ -19,15 +20,18 @@ class GemmaReceiptScanService {
     required String apiKey,
     String model = 'gemma-4-26b-a4b-it',
     String baseUrl = 'https://generativelanguage.googleapis.com/v1beta',
-    Duration timeout = const Duration(seconds: 45),
+    Duration timeout = const Duration(seconds: 580),
     HttpClient? httpClient,
     ReceiptAiPromptBuilder? promptBuilder,
+    ReceiptImageCompressionService? imageCompressionService,
   }) : _apiKey = apiKey,
        _model = _normalizeModelId(model),
        _baseUrl = baseUrl,
        _timeout = timeout,
        _httpClient = httpClient ?? HttpClient(),
-       _promptBuilder = promptBuilder ?? ReceiptAiPromptBuilder();
+       _promptBuilder = promptBuilder ?? ReceiptAiPromptBuilder(),
+       _imageCompressionService =
+           imageCompressionService ?? const ReceiptImageCompressionService();
 
   final String _apiKey;
   final String _model;
@@ -35,6 +39,7 @@ class GemmaReceiptScanService {
   final Duration _timeout;
   final HttpClient _httpClient;
   final ReceiptAiPromptBuilder _promptBuilder;
+  final ReceiptImageCompressionService _imageCompressionService;
 
   Future<Map<String, dynamic>> scanReceiptImage({
     required String imagePath,
@@ -53,12 +58,13 @@ class GemmaReceiptScanService {
       throw GemmaScanException('Selected image file not found.');
     }
 
-    final List<int> imageBytes = await imageFile.readAsBytes();
-    if (imageBytes.isEmpty) {
+    final PreparedReceiptImage preparedImage = await _imageCompressionService
+        .prepareForUpload(imagePath: imagePath);
+    if (preparedImage.bytes.isEmpty) {
       throw GemmaScanException('Selected image is empty.');
     }
     _logDebug(
-      'Read image bytes. count=${imageBytes.length} mime=${_detectMimeType(imagePath)}',
+      'Prepared image bytes. count=${preparedImage.bytes.length} mime=${preparedImage.mimeType}',
     );
 
     final Uri uri = Uri.parse(
@@ -76,17 +82,18 @@ class GemmaReceiptScanService {
           'parts': <dynamic>[
             <String, dynamic>{'text': prompt},
             <String, dynamic>{
-              'inline_data': <String, dynamic>{
-                'mime_type': _detectMimeType(imagePath),
-                'data': base64Encode(imageBytes),
+              'inlineData': <String, dynamic>{
+                'mimeType': preparedImage.mimeType,
+                'data': base64Encode(preparedImage.bytes),
               },
             },
           ],
         },
       ],
       'generationConfig': <String, dynamic>{
-        'temperature': 0,
-        'responseMimeType': 'application/json',
+        'temperature': 0.1,
+        'topP': 0.8,
+        'maxOutputTokens': 1200,
       },
     };
 
@@ -100,8 +107,10 @@ class GemmaReceiptScanService {
       response = await request.close().timeout(_timeout);
     } on TimeoutException {
       throw GemmaScanException('Gemma API timeout. Please try again.');
-    } on SocketException {
-      throw GemmaScanException('No network connection for Gemma API.');
+    } on SocketException catch (error) {
+      throw GemmaScanException(
+        'Gemma socket error for ${uri.host}: ${error.message} ${error.osError?.message ?? ''}'.trim(),
+      );
     }
 
     final String rawResponse = await utf8.decodeStream(response);
@@ -132,7 +141,7 @@ class GemmaReceiptScanService {
     );
     final String jsonText = _extractTextPayload(decoded);
     _logDebug('Extracted text payload. length=${jsonText.length}');
-    final String cleaned = _stripCodeFence(jsonText);
+    final String cleaned = _sanitizeJsonPayload(jsonText);
     _logDebug('Cleaned payload text. length=${cleaned.length}');
 
     final dynamic structured;
@@ -202,7 +211,7 @@ class GemmaReceiptScanService {
     }
 
     for (final dynamic part in partsDynamic) {
-      if (part is! Map || part['text'] == null) {
+      if (part is! Map || part['thought'] == true || part['text'] == null) {
         continue;
       }
       final String text = part['text'].toString().trim();
@@ -230,7 +239,7 @@ class GemmaReceiptScanService {
     );
   }
 
-  String _stripCodeFence(String text) {
+  String _sanitizeJsonPayload(String text) {
     String cleaned = text.trim();
     if (cleaned.startsWith('```json')) {
       cleaned = cleaned.substring(7).trim();
@@ -240,6 +249,12 @@ class GemmaReceiptScanService {
 
     if (cleaned.endsWith('```')) {
       cleaned = cleaned.substring(0, cleaned.length - 3).trim();
+    }
+
+    final int firstBrace = cleaned.indexOf('{');
+    final int lastBrace = cleaned.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace >= firstBrace) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1).trim();
     }
 
     return cleaned;
@@ -264,23 +279,6 @@ class GemmaReceiptScanService {
     }
 
     return trimmed.length > 220 ? '${trimmed.substring(0, 220)}...' : trimmed;
-  }
-
-  String _detectMimeType(String imagePath) {
-    final String lower = imagePath.toLowerCase();
-    if (lower.endsWith('.png')) {
-      return 'image/png';
-    }
-    if (lower.endsWith('.webp')) {
-      return 'image/webp';
-    }
-    if (lower.endsWith('.heic')) {
-      return 'image/heic';
-    }
-    if (lower.endsWith('.heif')) {
-      return 'image/heif';
-    }
-    return 'image/jpeg';
   }
 
   static String _normalizeModelId(String value) {

@@ -10,10 +10,14 @@ import 'package:reciep/app/features/receipt_details/action_utils/receipt_details
 import 'package:reciep/app/features/receipt_details/controllers/receipt_details_controller.dart';
 import 'package:reciep/app/models/receipt/receipt_item_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/app/widgets/category_asset_image.dart';
 import 'package:reciep/theme/app_spacing.dart';
+import 'package:reciep/theme/category_palette.dart';
 
 class ReceiptDetailsPage extends StatelessWidget {
-  const ReceiptDetailsPage({super.key});
+  const ReceiptDetailsPage({super.key, required this.heroTag});
+
+  final String heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -47,65 +51,79 @@ class ReceiptDetailsPage extends StatelessWidget {
             }
 
             final ReceiptModel receipt = controller.receipt!;
+            final Color accent = CategoryPalette.primaryFor(
+              receipt.category,
+              context,
+            );
             final String rawJsonPretty = const JsonEncoder.withIndent(
               '  ',
             ).convert(receipt.toJson());
 
             return Scaffold(
-              appBar: AppBar(
-                title: const Text(
-                  'Receipt Details',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                leading: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                actions: <Widget>[
-                  ReceiptDetailsExportMenu(
-                    exporting: controller.isExporting,
-                    onSelected: (ReceiptExportFormat format) async {
-                      final String path =
-                          await ReceiptDetailsActionUtils.onExport(
-                            context,
-                            format: format,
-                          );
-                      if (!context.mounted) {
-                        return;
-                      }
-                      final String formatLabel = switch (format) {
-                        ReceiptExportFormat.csv => 'CSV',
-                        ReceiptExportFormat.json => 'JSON',
-                      };
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('$formatLabel saved: $path')),
-                      );
-                    },
-                  ),
-                ],
-              ),
               body: SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    children: <Widget>[
-                      ReceiptImageCard(receipt: receipt),
-                      const SizedBox(height: AppSpacing.md),
-                      ReceiptMetaCard(receipt: receipt),
-                      const SizedBox(height: AppSpacing.md),
-                      ReceiptLineItemsCard(receipt: receipt),
-                      const SizedBox(height: AppSpacing.md),
-                      ReceiptTotalsCard(receipt: receipt),
-                      const SizedBox(height: AppSpacing.md),
-                      ReceiptRawJsonCard(rawJsonPretty: rawJsonPretty),
-                      const SizedBox(height: AppSpacing.md),
-                      ReceiptDetailsActionRow(
-                        deleting: controller.isDeleting,
-                        onEdit: () =>
-                            _showEditDialog(context, controller, receipt),
-                        onDelete: () => _showDeleteDialog(context),
-                      ),
-                    ],
+                child: TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 320),
+                  curve: Curves.easeOutCubic,
+                  tween: Tween<double>(begin: 0, end: 1),
+                  builder: (BuildContext context, double value, Widget? child) {
+                    return Transform.translate(
+                      offset: Offset(0, 18 * (1 - value)),
+                      child: Opacity(opacity: value, child: child),
+                    );
+                  },
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      0,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                    ),
+                    child: Column(
+                      children: <Widget>[
+                        ReceiptDetailsHeader(
+                          receipt: receipt,
+                          accent: accent,
+                          exporting: controller.isExporting,
+                          onBack: () => Navigator.of(context).pop(),
+                          onExportSelected: (ReceiptExportFormat format) async {
+                            final String path =
+                                await ReceiptDetailsActionUtils.onExport(
+                                  context,
+                                  format: format,
+                                );
+                            if (!context.mounted) {
+                              return;
+                            }
+                            final String formatLabel = switch (format) {
+                              ReceiptExportFormat.csv => 'CSV',
+                              ReceiptExportFormat.json => 'JSON',
+                            };
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('$formatLabel saved: $path'),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        ReceiptImageCard(receipt: receipt, heroTag: heroTag),
+                        const SizedBox(height: AppSpacing.md),
+                        ReceiptMetaCard(receipt: receipt),
+                        const SizedBox(height: AppSpacing.md),
+                        ReceiptLineItemsCard(receipt: receipt),
+                        const SizedBox(height: AppSpacing.md),
+                        ReceiptTotalsCard(receipt: receipt),
+                        const SizedBox(height: AppSpacing.md),
+                        ReceiptRawJsonCard(rawJsonPretty: rawJsonPretty),
+                        const SizedBox(height: AppSpacing.md),
+                        ReceiptDetailsActionRow(
+                          deleting: controller.isDeleting,
+                          onEdit: () =>
+                              _showEditDialog(context, controller, receipt),
+                          onDelete: () => _showDeleteDialog(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -278,6 +296,117 @@ class ReceiptDetailsPage extends StatelessWidget {
   }
 }
 
+class ReceiptDetailsHeader extends StatelessWidget {
+  const ReceiptDetailsHeader({
+    super.key,
+    required this.receipt,
+    required this.accent,
+    required this.exporting,
+    required this.onBack,
+    required this.onExportSelected,
+  });
+
+  final ReceiptModel receipt;
+  final Color accent;
+  final bool exporting;
+  final VoidCallback onBack;
+  final Future<void> Function(ReceiptExportFormat format) onExportSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[
+            accent.withValues(alpha: 0.18),
+            Theme.of(context).colorScheme.surface,
+          ],
+        ),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+      ),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Material(
+                color: Colors.white.withValues(alpha: 0.72),
+                shape: const CircleBorder(),
+                child: IconButton(
+                  onPressed: onBack,
+                  icon: const Icon(Icons.arrow_back),
+                ),
+              ),
+              const Spacer(),
+              Material(
+                color: Colors.white.withValues(alpha: 0.72),
+                shape: const CircleBorder(),
+                child: ReceiptDetailsExportMenu(
+                  exporting: exporting,
+                  onSelected: onExportSelected,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: <Widget>[
+              Container(
+                height: 44,
+                width: 44,
+                decoration: BoxDecoration(
+                  color: accent,
+                  shape: BoxShape.circle,
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.26),
+                      blurRadius: 14,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: CategoryAssetImage(
+                    category: receipt.category,
+                    size: 58,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Receipt Details',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    Text(
+                      CategoryBudgetCatalog.labelFor(receipt.category),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: accent,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ReceiptDetailsExportMenu extends StatelessWidget {
   const ReceiptDetailsExportMenu({
     super.key,
@@ -323,9 +452,14 @@ class ReceiptDetailsExportMenu extends StatelessWidget {
 }
 
 class ReceiptImageCard extends StatelessWidget {
-  const ReceiptImageCard({super.key, required this.receipt});
+  const ReceiptImageCard({
+    super.key,
+    required this.receipt,
+    required this.heroTag,
+  });
 
   final ReceiptModel receipt;
+  final String heroTag;
 
   @override
   Widget build(BuildContext context) {
@@ -333,24 +467,27 @@ class ReceiptImageCard extends StatelessWidget {
     final bool hasImage = imagePath != null && imagePath.trim().isNotEmpty;
 
     return _DetailCard(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: AspectRatio(
-          aspectRatio: 4 / 5,
-          child: hasImage
-              ? Image.file(
-                  File(imagePath),
-                  fit: BoxFit.cover,
-                  errorBuilder:
-                      (
-                        BuildContext context,
-                        Object error,
-                        StackTrace? stackTrace,
-                      ) {
-                        return const ReceiptImagePlaceholder();
-                      },
-                )
-              : const ReceiptImagePlaceholder(),
+      child: Hero(
+        tag: heroTag,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: AspectRatio(
+            aspectRatio: 4 / 5,
+            child: hasImage
+                ? Image.file(
+                    File(imagePath),
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (
+                          BuildContext context,
+                          Object error,
+                          StackTrace? stackTrace,
+                        ) {
+                          return const ReceiptImagePlaceholder();
+                        },
+                  )
+                : const ReceiptImagePlaceholder(),
+          ),
         ),
       ),
     );
@@ -426,10 +563,11 @@ class ReceiptMetaCard extends StatelessWidget {
               CircleAvatar(
                 radius: 18,
                 backgroundColor: const Color(0xFFEDEEF2),
-                child: Icon(
-                  _iconForCategory(receipt.category),
-                  size: 18,
-                  color: const Color(0xFF565A70),
+                child: ClipOval(
+                  child: CategoryAssetImage(
+                    category: receipt.category,
+                    size: 36,
+                  ),
                 ),
               ),
             ],
@@ -449,23 +587,6 @@ class ReceiptMetaCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  IconData _iconForCategory(String category) {
-    final String normalized = CategoryBudgetCatalog.normalize(category);
-    switch (normalized) {
-      case CategoryBudgetCatalog.groceries:
-        return Icons.shopping_cart_outlined;
-      case CategoryBudgetCatalog.fuel:
-        return Icons.local_gas_station_outlined;
-      case CategoryBudgetCatalog.household:
-        return Icons.home_outlined;
-      case CategoryBudgetCatalog.clothing:
-        return Icons.checkroom_outlined;
-      case CategoryBudgetCatalog.miscellaneous:
-        return Icons.category_outlined;
-    }
-    return Icons.category_outlined;
   }
 }
 
@@ -517,13 +638,27 @@ class _ItemRow extends StatelessWidget {
     final String name = item.name.trim().isEmpty ? 'Unnamed item' : item.name;
     final bool showQty = item.quantity > 1;
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Expanded(
-          child: Text(
-            showQty ? '$name  x${item.quantity.toStringAsFixed(0)}' : name,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                showQty ? '$name  x${item.quantity.toStringAsFixed(0)}' : name,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                CategoryBudgetCatalog.labelFor(item.category),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
         Text(

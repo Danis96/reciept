@@ -656,7 +656,16 @@ class ScanSuccessRow extends StatelessWidget {
               ),
             ),
           ),
-          Text(value, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(width: AppSpacing.sm),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
         ],
       ),
     );

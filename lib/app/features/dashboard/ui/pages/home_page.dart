@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:reciep/app/features/budgets/ui/widgets/category_budget_manager_sheet.dart';
 import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
 import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
 import 'package:reciep/app/features/history/controllers/history_controller.dart';
 import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
 import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/app/widgets/receipt_paper_card.dart';
+import 'package:reciep/app/widgets/category_asset_image.dart';
 import 'package:reciep/routing/app_router.dart';
 import 'package:reciep/theme/app_spacing.dart';
+import 'package:reciep/theme/category_palette.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -94,18 +98,30 @@ class HomePage extends StatelessWidget {
                             onManageBudgets: () => showModalBottomSheet<void>(
                               context: context,
                               isScrollControlled: true,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.surface,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(20),
-                                ),
-                              ),
+                              useSafeArea: true,
+                              backgroundColor: Colors.transparent,
                               builder: (BuildContext sheetContext) {
-                                return HomeBudgetManagerSheet(
-                                  controller: controller,
-                                  data: data,
+                                return CategoryBudgetManagerSheet(
+                                  supportedCategories:
+                                      controller.supportedBudgetCategories,
+                                  currentAmounts: <String, double>{
+                                    for (final DashboardBudgetProgressModel item
+                                        in data.budgetProgress)
+                                      item.category: item.budgetAmount,
+                                  },
+                                  onSave: (String category, double amount) {
+                                    return DashboardActionUtils.onBudgetSaved(
+                                      context,
+                                      category: category,
+                                      amount: amount,
+                                    );
+                                  },
+                                  onDelete: (String category) {
+                                    return DashboardActionUtils.onBudgetDeleted(
+                                      context,
+                                      category: category,
+                                    );
+                                  },
                                 );
                               },
                             ),
@@ -125,6 +141,10 @@ class HomePage extends StatelessWidget {
                                     AppRouter.receiptDetails,
                                     arguments: ReceiptDetailsRouteArgs(
                                       receiptId: receipt.id,
+                                      heroTag: AppRouter.receiptHeroTag(
+                                        'home',
+                                        receipt.id,
+                                      ),
                                     ),
                                   );
                               if (result == true && context.mounted) {
@@ -302,56 +322,106 @@ class HomeStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: HomeStatCard(
-            icon: Icons.receipt_long_outlined,
-            value: data.totalReceipts.toString(),
-            label: 'Receipts',
-            iconBackground: HomeThemePalette.statIconBackground(
-              context,
-              const Color(0xFF4F6BFF),
-            ),
-            iconColor: HomeThemePalette.statIcon(
-              context,
-              const Color(0xFF4F6BFF),
+    final ThemeData theme = Theme.of(context);
+    final Color dividerColor = const Color(0xFFE7E8EF);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(0),
+        border: Border.all(color: dividerColor),
+      ),
+      child: Column(
+        children: <Widget>[
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  child: HomeStatCard(
+                    icon: const Icon(
+                      Icons.receipt_long_rounded,
+                      size: 21,
+                      color: Colors.white,
+                    ),
+                    value: data.totalReceipts.toString(),
+                    label: 'TOTAL\nSCANS',
+                    accent: const Color(0xFF2F6BFF),
+                  ),
+                ),
+                VerticalDivider(width: 1, thickness: 1, color: dividerColor),
+                Expanded(
+                  child: HomeStatCard(
+                    icon: const Icon(
+                      Icons.trending_up_rounded,
+                      size: 21,
+                      color: Colors.white,
+                    ),
+                    value: data.thisMonthReceipts.toString(),
+                    label: 'THIS MONTH',
+                    accent: const Color(0xFF9C3CF7),
+                  ),
+                ),
+                VerticalDivider(width: 1, thickness: 1, color: dividerColor),
+                Expanded(
+                  child: HomeStatCard(
+                    icon: CategoryAssetImage(
+                      category: data.topCategoryLabel,
+                      size: 24,
+                    ),
+                    value: data.topCategoryLabel,
+                    label: 'TOP\nCATEGORY',
+                    accent: BudgetCategoryColors.primaryFor(
+                      data.topCategoryLabel,
+                      context,
+                    ),
+                    tint: BudgetCategoryColors.primaryFor(
+                      data.topCategoryLabel,
+                      context,
+                    ).withValues(alpha: 0.08),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: HomeStatCard(
-            icon: Icons.show_chart_rounded,
-            value: data.thisMonthReceipts.toString(),
-            label: 'This Month',
-            iconBackground: HomeThemePalette.statIconBackground(
-              context,
-              const Color(0xFFA555F7),
+          Divider(height: 1, thickness: 1, color: dividerColor),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
             ),
-            iconColor: HomeThemePalette.statIcon(
-              context,
-              const Color(0xFFA555F7),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 9,
+                  height: 9,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF2D3040),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    "This Month's Spending",
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF212330),
+                    ),
+                  ),
+                ),
+                Text(
+                  '${DashboardMoney.formatDouble(data.thisMonthSpending)} KM',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF161821),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: HomeStatCard(
-            icon: Icons.checkroom_outlined,
-            value: data.topCategoryLabel,
-            label: 'Top',
-            iconBackground: HomeThemePalette.statIconBackground(
-              context,
-              const Color(0xFF4FAF66),
-            ),
-            iconColor: HomeThemePalette.statIcon(
-              context,
-              const Color(0xFF4FAF66),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -362,51 +432,65 @@ class HomeStatCard extends StatelessWidget {
     required this.icon,
     required this.value,
     required this.label,
-    required this.iconBackground,
-    required this.iconColor,
+    required this.accent,
+    this.tint = Colors.transparent,
   });
 
-  final IconData icon;
+  final Widget icon;
   final String value;
   final String label;
-  final Color iconBackground;
-  final Color iconColor;
+  final Color accent;
+  final Color tint;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        color: Theme.of(context).colorScheme.surface,
-        border: Border.all(color: HomeThemePalette.cardBorder(context)),
-      ),
+    final ThemeData theme = Theme.of(context);
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeOutCubic,
+      height: 164,
+      padding: const EdgeInsets.fromLTRB(10, 16, 10, 14),
+      decoration: BoxDecoration(color: tint),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(
-            height: 30,
-            width: 30,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 380),
+            curve: Curves.easeOutCubic,
+            height: 44,
+            width: 44,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: iconBackground,
+              shape: BoxShape.circle,
+              color: accent,
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: accent.withValues(alpha: 0.32),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            child: Icon(icon, size: 17, color: iconColor),
+            child: Center(child: icon),
           ),
-          const SizedBox(height: AppSpacing.sm),
           Text(
             value,
-            maxLines: 1,
+            maxLines: 2,
+            textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF12131A),
+              height: 1.05,
+            ),
           ),
-          const SizedBox(height: AppSpacing.xxs),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
-              fontWeight: FontWeight.w600,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF6E7284),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.6,
+              height: 1.15,
             ),
           ),
         ],
@@ -503,11 +587,10 @@ class HomeCategoryBudgetsCard extends StatelessWidget {
             ],
           ),
           if (data.budgetProgress.isEmpty)
-            Text(
-              'No category budgets yet. Tap Manage to add monthly budgets.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+            HomeCardEmptyState(
+              imageCategory: 'miscellaneous',
+              title: 'No budgets yet',
+              message: 'Create monthly category budgets from Manage and track each spend bucket here.',
             ),
           if (data.budgetProgress.isNotEmpty)
             ...data.budgetProgress.map(
@@ -529,7 +612,10 @@ class HomeBudgetProgressItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color valueColor = BudgetStateColor.valueColor(item.state, context);
+    final Color categoryColor = BudgetCategoryColors.primaryFor(
+      item.category,
+      context,
+    );
     final String remainingText = item.remainingAmount >= 0
         ? '${DashboardMoney.formatInt(item.remainingAmount)} KM left'
         : '-${DashboardMoney.formatInt(item.remainingAmount.abs())} KM left';
@@ -537,76 +623,149 @@ class HomeBudgetProgressItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Row(
-          children: <Widget>[
-            Icon(BudgetCategoryIcon.iconFor(item.category), size: 18),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: Text(
-                item.label,
-                style: Theme.of(
+        Container(
+          decoration: BoxDecoration(
+            gradient: CategoryPalette.subtleGradientFor(item.category, context),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Container(
+                    height: 28,
+                    width: 28,
+                    decoration: BoxDecoration(
+                      color: BudgetCategoryColors.surfaceFor(
+                        item.category,
+                        context,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: ClipOval(
+                      child: CategoryAssetImage(
+                        category: item.category,
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      item.label,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    remainingText,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: categoryColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xxs),
+              HomeBudgetProgressBar(
+                usageRatio: item.usageRatio,
+                state: item.state,
+                categoryColor: categoryColor,
+                trackColor: BudgetCategoryColors.trackFor(
+                  item.category,
                   context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
-            Text(
-              remainingText,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: valueColor,
-                fontWeight: FontWeight.w700,
+              const SizedBox(height: AppSpacing.xxs),
+              Row(
+                children: <Widget>[
+                  Text(
+                    '${DashboardMoney.formatInt(item.spentAmount)} KM spent',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '${DashboardMoney.formatInt(item.budgetAmount)} KM budget',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xxs),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(999),
-          child: LinearProgressIndicator(
-            value: item.usageRatio.clamp(0, 1),
-            minHeight: 7,
-            backgroundColor: HomeThemePalette.progressTrack(context),
-            valueColor: AlwaysStoppedAnimation<Color>(
-              HomeThemePalette.progressFill(context),
-            ),
+              if (item.state == BudgetUsageState.nearLimit)
+                Text(
+                  'You used ${(item.usageRatio * 100).round()}% of ${item.label} budget',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: categoryColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              if (item.state == BudgetUsageState.exceeded)
+                Text(
+                  'Budget exceeded by ${DashboardMoney.formatInt(item.remainingAmount.abs())} KM',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: HomeThemePalette.danger(context),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+            ],
           ),
         ),
-        const SizedBox(height: AppSpacing.xxs),
-        Row(
-          children: <Widget>[
-            Text(
-              '${DashboardMoney.formatInt(item.spentAmount)} KM spent',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              '${DashboardMoney.formatInt(item.budgetAmount)} KM budget',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        if (item.state == BudgetUsageState.nearLimit)
-          Text(
-            'You used ${(item.usageRatio * 100).round()}% of ${item.label} budget',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: HomeThemePalette.warning(context),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        if (item.state == BudgetUsageState.exceeded)
-          Text(
-            'Budget exceeded by ${DashboardMoney.formatInt(item.remainingAmount.abs())} KM',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: HomeThemePalette.danger(context),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
       ],
+    );
+  }
+}
+
+class HomeBudgetProgressBar extends StatelessWidget {
+  const HomeBudgetProgressBar({
+    super.key,
+    required this.usageRatio,
+    required this.state,
+    required this.categoryColor,
+    required this.trackColor,
+  });
+
+  final double usageRatio;
+  final BudgetUsageState state;
+  final Color categoryColor;
+  final Color trackColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final double clamped = usageRatio.clamp(0, 1).toDouble();
+    final List<Color> fillColors = state == BudgetUsageState.exceeded
+        ? <Color>[categoryColor, HomeThemePalette.danger(context)]
+        : <Color>[categoryColor, categoryColor];
+
+    return Container(
+      height: 7,
+      decoration: BoxDecoration(
+        color: trackColor,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 320),
+              curve: Curves.easeOutCubic,
+              width: constraints.maxWidth * clamped,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                gradient: LinearGradient(colors: fillColors),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -661,298 +820,20 @@ class HomeRecentReceiptsCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           if (data.recentReceipts.isEmpty)
-            Text(
-              'No receipts saved yet.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+            HomeCardEmptyState(
+              imageCategory: 'groceries',
+              title: 'No receipts yet',
+              message: 'Scan first receipt or import one from gallery. Latest receipts will show here.',
             ),
           if (data.recentReceipts.isNotEmpty)
-            ...data.recentReceipts.map(
-              (ReceiptModel receipt) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: HomeReceiptListItem(
-                  receipt: receipt,
-                  onTap: () => onOpenReceipt(receipt),
-                ),
-              ),
+            ReceiptPaperList(
+              receipts: data.recentReceipts,
+              heroTagBuilder: (ReceiptModel receipt) =>
+                  AppRouter.receiptHeroTag('home', receipt.id),
+              onOpenReceipt: onOpenReceipt,
             ),
         ],
       ),
-    );
-  }
-}
-
-class HomeReceiptListItem extends StatelessWidget {
-  const HomeReceiptListItem({
-    super.key,
-    required this.receipt,
-    required this.onTap,
-  });
-
-  final ReceiptModel receipt;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: HomeThemePalette.cardBorder(context)),
-        ),
-        child: Row(
-          children: <Widget>[
-            Container(
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: HomeThemePalette.chipSurface(context),
-              ),
-              child: Icon(
-                BudgetCategoryIcon.iconFor(receipt.category),
-                size: 18,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    receipt.merchant.name.isEmpty
-                        ? 'Store'
-                        : receipt.merchant.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    '${BudgetCategoryLabel.shortLabel(receipt.category)} · ${receipt.items.length} items',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  '${DashboardMoney.formatDouble(receipt.totals.total)} KM',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                Text(
-                  DateFormat('MMM d').format(receipt.createdAt),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class HomeBudgetManagerSheet extends StatefulWidget {
-  const HomeBudgetManagerSheet({
-    super.key,
-    required this.controller,
-    required this.data,
-  });
-
-  final DashboardController controller;
-  final HomeDashboardModel data;
-
-  @override
-  State<HomeBudgetManagerSheet> createState() => _HomeBudgetManagerSheetState();
-}
-
-class _HomeBudgetManagerSheetState extends State<HomeBudgetManagerSheet> {
-  late final Map<String, TextEditingController> _controllers;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final Map<String, String> existing = <String, String>{
-      for (final item in widget.data.budgetProgress)
-        item.category: DashboardMoney.formatInt(item.budgetAmount),
-    };
-
-    _controllers = <String, TextEditingController>{
-      for (final String category in widget.controller.supportedBudgetCategories)
-        category: TextEditingController(text: existing[category] ?? ''),
-    };
-  }
-
-  @override
-  void dispose() {
-    for (final TextEditingController controller in _controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: AppSpacing.md,
-        right: AppSpacing.md,
-        top: AppSpacing.md,
-        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.md,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text(
-                'Manage Category Budgets',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: _saving ? null : () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          ...widget.controller.supportedBudgetCategories.map(
-            (String category) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: HomeBudgetManagerRow(
-                category: category,
-                controller: _controllers[category]!,
-                busy: _saving,
-                onSave: () => _onSave(category),
-                onDelete: () => _onDelete(category),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _onSave(String category) async {
-    final String text = _controllers[category]!.text.trim();
-    final double? parsed = double.tryParse(text);
-    if (parsed == null || parsed < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter valid budget amount.')),
-      );
-      return;
-    }
-
-    setState(() {
-      _saving = true;
-    });
-    await widget.controller.upsertBudget(category: category, amount: parsed);
-    setState(() {
-      _saving = false;
-    });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${BudgetCategoryLabel.shortLabel(category)} budget saved.',
-          ),
-        ),
-      );
-    }
-  }
-
-  Future<void> _onDelete(String category) async {
-    setState(() {
-      _saving = true;
-    });
-    await widget.controller.deleteBudget(category);
-    _controllers[category]!.text = '';
-    setState(() {
-      _saving = false;
-    });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${BudgetCategoryLabel.shortLabel(category)} budget deleted.',
-          ),
-        ),
-      );
-    }
-  }
-}
-
-class HomeBudgetManagerRow extends StatelessWidget {
-  const HomeBudgetManagerRow({
-    super.key,
-    required this.category,
-    required this.controller,
-    required this.busy,
-    required this.onSave,
-    required this.onDelete,
-  });
-
-  final String category;
-  final TextEditingController controller;
-  final bool busy;
-  final Future<void> Function() onSave;
-  final Future<void> Function() onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        SizedBox(
-          width: 100,
-          child: Text(
-            BudgetCategoryLabel.shortLabel(category),
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ),
-        Expanded(
-          child: TextField(
-            controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              isDense: true,
-              border: OutlineInputBorder(),
-              hintText: 'Budget KM',
-            ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        IconButton(
-          onPressed: busy ? null : () => onSave(),
-          icon: const Icon(Icons.save_outlined),
-        ),
-        IconButton(
-          onPressed: busy ? null : () => onDelete(),
-          icon: const Icon(Icons.delete_outline),
-        ),
-      ],
     );
   }
 }
@@ -980,29 +861,6 @@ class TimeGreetingLabel {
       return 'Good Afternoon';
     }
     return 'Good Evening';
-  }
-}
-
-class BudgetCategoryIcon {
-  const BudgetCategoryIcon._();
-
-  static IconData iconFor(String category) {
-    switch (BudgetCategoryLabel.normalized(category)) {
-      case 'groceries':
-        return Icons.shopping_cart_outlined;
-      case 'pets':
-        return Icons.pets_outlined;
-      case 'fuel':
-        return Icons.local_gas_station_outlined;
-      case 'household':
-        return Icons.home_outlined;
-      case 'clothing':
-        return Icons.checkroom_outlined;
-      case 'miscellaneous':
-        return Icons.category_outlined;
-      default:
-        return Icons.category_outlined;
-    }
   }
 }
 
@@ -1049,18 +907,88 @@ class BudgetCategoryLabel {
   }
 }
 
-class BudgetStateColor {
-  const BudgetStateColor._();
+class HomeCardEmptyState extends StatelessWidget {
+  const HomeCardEmptyState({
+    super.key,
+    required this.imageCategory,
+    required this.title,
+    required this.message,
+  });
 
-  static Color valueColor(BudgetUsageState state, BuildContext context) {
-    switch (state) {
-      case BudgetUsageState.underBudget:
-        return HomeThemePalette.success(context);
-      case BudgetUsageState.nearLimit:
-        return HomeThemePalette.warning(context);
-      case BudgetUsageState.exceeded:
-        return HomeThemePalette.danger(context);
-    }
+  final String imageCategory;
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: <Color>[
+            CategoryPalette.surfaceFor(imageCategory, context),
+            Theme.of(context).colorScheme.surface,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: HomeThemePalette.cardBorder(context)),
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 56,
+            height: 56,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.surface,
+            ),
+            child: CategoryAssetImage(category: imageCategory, size: 40),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  message,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BudgetCategoryColors {
+  const BudgetCategoryColors._();
+
+  static Color primaryFor(String category, BuildContext context) {
+    return CategoryPalette.primaryFor(category, context);
+  }
+
+  static Color surfaceFor(String category, BuildContext context) {
+    return CategoryPalette.surfaceFor(category, context);
+  }
+
+  static Color trackFor(String category, BuildContext context) {
+    return CategoryPalette.trackFor(category, context);
   }
 }
 
@@ -1101,12 +1029,58 @@ class HomeThemePalette {
     ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.16 : 0.06);
   }
 
+  static Color receiptBadgeBackground(BuildContext context) {
+    return Theme.of(
+      context,
+    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.12 : 0.08);
+  }
+
+  static Color categoryGroceries(BuildContext context) {
+    return _dark(context) ? const Color(0xFF5FD08A) : const Color(0xFF38A169);
+  }
+
+  static Color categoryHousehold(BuildContext context) {
+    return _dark(context) ? const Color(0xFFC79A72) : const Color(0xFF8B5E3C);
+  }
+
+  static Color categoryPets(BuildContext context) {
+    return _dark(context) ? const Color(0xFFFFD96A) : const Color(0xFFE0B321);
+  }
+
+  static Color categoryClothing(BuildContext context) {
+    return _dark(context) ? const Color(0xFF72AEFF) : const Color(0xFF3A84F7);
+  }
+
+  static Color categoryFuel(BuildContext context) {
+    return _dark(context) ? const Color(0xFFFF9A73) : const Color(0xFFE76F51);
+  }
+
+  static Color categoryMisc(BuildContext context) {
+    return _dark(context) ? const Color(0xFFACB4C8) : const Color(0xFF667085);
+  }
+
   static Color statIconBackground(BuildContext context, Color base) {
-    return base.withValues(alpha: _dark(context) ? 0.28 : 0.14);
+    return base.withValues(alpha: _dark(context) ? 0.26 : 0.16);
   }
 
   static Color statIcon(BuildContext context, Color base) {
     return _dark(context) ? base.withValues(alpha: 0.92) : base;
+  }
+
+  static Color statValue(BuildContext context, Color base) {
+    return _dark(context) ? base.withValues(alpha: 0.94) : base;
+  }
+
+  static Color statCardBackground(BuildContext context, Color base) {
+    if (_dark(context)) {
+      return Color.lerp(Theme.of(context).colorScheme.surface, base, 0.14) ??
+          Theme.of(context).colorScheme.surface;
+    }
+    return base.withValues(alpha: 0.10);
+  }
+
+  static Color statCardCornerAccent(BuildContext context, Color base) {
+    return base.withValues(alpha: _dark(context) ? 0.30 : 0.16);
   }
 
   static Color success(BuildContext context) {

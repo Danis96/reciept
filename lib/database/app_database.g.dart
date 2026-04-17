@@ -1953,6 +1953,18 @@ class $ReceiptItemsTable extends ReceiptItems
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('miscellaneous'),
+  );
   static const VerificationMeta _unitMeta = const VerificationMeta('unit');
   @override
   late final GeneratedColumn<String> unit = GeneratedColumn<String>(
@@ -2025,6 +2037,7 @@ class $ReceiptItemsTable extends ReceiptItems
     receiptLocalId,
     position,
     name,
+    category,
     unit,
     quantity,
     unitPrice,
@@ -2068,6 +2081,12 @@ class $ReceiptItemsTable extends ReceiptItems
       context.handle(
         _nameMeta,
         name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
       );
     }
     if (data.containsKey('unit')) {
@@ -2137,6 +2156,10 @@ class $ReceiptItemsTable extends ReceiptItems
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
       unit: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}unit'],
@@ -2175,6 +2198,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
   final int receiptLocalId;
   final int position;
   final String name;
+  final String category;
   final String? unit;
   final double quantity;
   final double? unitPrice;
@@ -2186,6 +2210,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
     required this.receiptLocalId,
     required this.position,
     required this.name,
+    required this.category,
     this.unit,
     required this.quantity,
     this.unitPrice,
@@ -2200,6 +2225,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
     map['receipt_local_id'] = Variable<int>(receiptLocalId);
     map['position'] = Variable<int>(position);
     map['name'] = Variable<String>(name);
+    map['category'] = Variable<String>(category);
     if (!nullToAbsent || unit != null) {
       map['unit'] = Variable<String>(unit);
     }
@@ -2223,6 +2249,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
       receiptLocalId: Value(receiptLocalId),
       position: Value(position),
       name: Value(name),
+      category: Value(category),
       unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
       quantity: Value(quantity),
       unitPrice: unitPrice == null && nullToAbsent
@@ -2248,6 +2275,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
       receiptLocalId: serializer.fromJson<int>(json['receiptLocalId']),
       position: serializer.fromJson<int>(json['position']),
       name: serializer.fromJson<String>(json['name']),
+      category: serializer.fromJson<String>(json['category']),
       unit: serializer.fromJson<String?>(json['unit']),
       quantity: serializer.fromJson<double>(json['quantity']),
       unitPrice: serializer.fromJson<double?>(json['unitPrice']),
@@ -2264,6 +2292,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
       'receiptLocalId': serializer.toJson<int>(receiptLocalId),
       'position': serializer.toJson<int>(position),
       'name': serializer.toJson<String>(name),
+      'category': serializer.toJson<String>(category),
       'unit': serializer.toJson<String?>(unit),
       'quantity': serializer.toJson<double>(quantity),
       'unitPrice': serializer.toJson<double?>(unitPrice),
@@ -2278,6 +2307,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
     int? receiptLocalId,
     int? position,
     String? name,
+    String? category,
     Value<String?> unit = const Value.absent(),
     double? quantity,
     Value<double?> unitPrice = const Value.absent(),
@@ -2289,6 +2319,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
     receiptLocalId: receiptLocalId ?? this.receiptLocalId,
     position: position ?? this.position,
     name: name ?? this.name,
+    category: category ?? this.category,
     unit: unit.present ? unit.value : this.unit,
     quantity: quantity ?? this.quantity,
     unitPrice: unitPrice.present ? unitPrice.value : this.unitPrice,
@@ -2308,6 +2339,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
           : this.receiptLocalId,
       position: data.position.present ? data.position.value : this.position,
       name: data.name.present ? data.name.value : this.name,
+      category: data.category.present ? data.category.value : this.category,
       unit: data.unit.present ? data.unit.value : this.unit,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
       unitPrice: data.unitPrice.present ? data.unitPrice.value : this.unitPrice,
@@ -2330,6 +2362,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
           ..write('receiptLocalId: $receiptLocalId, ')
           ..write('position: $position, ')
           ..write('name: $name, ')
+          ..write('category: $category, ')
           ..write('unit: $unit, ')
           ..write('quantity: $quantity, ')
           ..write('unitPrice: $unitPrice, ')
@@ -2346,6 +2379,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
     receiptLocalId,
     position,
     name,
+    category,
     unit,
     quantity,
     unitPrice,
@@ -2361,6 +2395,7 @@ class ReceiptItem extends DataClass implements Insertable<ReceiptItem> {
           other.receiptLocalId == this.receiptLocalId &&
           other.position == this.position &&
           other.name == this.name &&
+          other.category == this.category &&
           other.unit == this.unit &&
           other.quantity == this.quantity &&
           other.unitPrice == this.unitPrice &&
@@ -2374,6 +2409,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
   final Value<int> receiptLocalId;
   final Value<int> position;
   final Value<String> name;
+  final Value<String> category;
   final Value<String?> unit;
   final Value<double> quantity;
   final Value<double?> unitPrice;
@@ -2385,6 +2421,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
     this.receiptLocalId = const Value.absent(),
     this.position = const Value.absent(),
     this.name = const Value.absent(),
+    this.category = const Value.absent(),
     this.unit = const Value.absent(),
     this.quantity = const Value.absent(),
     this.unitPrice = const Value.absent(),
@@ -2397,6 +2434,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
     required int receiptLocalId,
     this.position = const Value.absent(),
     this.name = const Value.absent(),
+    this.category = const Value.absent(),
     this.unit = const Value.absent(),
     this.quantity = const Value.absent(),
     this.unitPrice = const Value.absent(),
@@ -2409,6 +2447,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
     Expression<int>? receiptLocalId,
     Expression<int>? position,
     Expression<String>? name,
+    Expression<String>? category,
     Expression<String>? unit,
     Expression<double>? quantity,
     Expression<double>? unitPrice,
@@ -2421,6 +2460,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
       if (receiptLocalId != null) 'receipt_local_id': receiptLocalId,
       if (position != null) 'position': position,
       if (name != null) 'name': name,
+      if (category != null) 'category': category,
       if (unit != null) 'unit': unit,
       if (quantity != null) 'quantity': quantity,
       if (unitPrice != null) 'unit_price': unitPrice,
@@ -2435,6 +2475,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
     Value<int>? receiptLocalId,
     Value<int>? position,
     Value<String>? name,
+    Value<String>? category,
     Value<String?>? unit,
     Value<double>? quantity,
     Value<double?>? unitPrice,
@@ -2447,6 +2488,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
       receiptLocalId: receiptLocalId ?? this.receiptLocalId,
       position: position ?? this.position,
       name: name ?? this.name,
+      category: category ?? this.category,
       unit: unit ?? this.unit,
       quantity: quantity ?? this.quantity,
       unitPrice: unitPrice ?? this.unitPrice,
@@ -2470,6 +2512,9 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
     }
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
@@ -2499,6 +2544,7 @@ class ReceiptItemsCompanion extends UpdateCompanion<ReceiptItem> {
           ..write('receiptLocalId: $receiptLocalId, ')
           ..write('position: $position, ')
           ..write('name: $name, ')
+          ..write('category: $category, ')
           ..write('unit: $unit, ')
           ..write('quantity: $quantity, ')
           ..write('unitPrice: $unitPrice, ')
@@ -4163,6 +4209,7 @@ typedef $$ReceiptItemsTableCreateCompanionBuilder =
       required int receiptLocalId,
       Value<int> position,
       Value<String> name,
+      Value<String> category,
       Value<String?> unit,
       Value<double> quantity,
       Value<double?> unitPrice,
@@ -4176,6 +4223,7 @@ typedef $$ReceiptItemsTableUpdateCompanionBuilder =
       Value<int> receiptLocalId,
       Value<int> position,
       Value<String> name,
+      Value<String> category,
       Value<String?> unit,
       Value<double> quantity,
       Value<double?> unitPrice,
@@ -4232,6 +4280,11 @@ class $$ReceiptItemsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4313,6 +4366,11 @@ class $$ReceiptItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get unit => $composableBuilder(
     column: $table.unit,
     builder: (column) => ColumnOrderings(column),
@@ -4384,6 +4442,9 @@ class $$ReceiptItemsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
 
   GeneratedColumn<String> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
@@ -4465,6 +4526,7 @@ class $$ReceiptItemsTableTableManager
                 Value<int> receiptLocalId = const Value.absent(),
                 Value<int> position = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String> category = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
                 Value<double> quantity = const Value.absent(),
                 Value<double?> unitPrice = const Value.absent(),
@@ -4476,6 +4538,7 @@ class $$ReceiptItemsTableTableManager
                 receiptLocalId: receiptLocalId,
                 position: position,
                 name: name,
+                category: category,
                 unit: unit,
                 quantity: quantity,
                 unitPrice: unitPrice,
@@ -4489,6 +4552,7 @@ class $$ReceiptItemsTableTableManager
                 required int receiptLocalId,
                 Value<int> position = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String> category = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
                 Value<double> quantity = const Value.absent(),
                 Value<double?> unitPrice = const Value.absent(),
@@ -4500,6 +4564,7 @@ class $$ReceiptItemsTableTableManager
                 receiptLocalId: receiptLocalId,
                 position: position,
                 name: name,
+                category: category,
                 unit: unit,
                 quantity: quantity,
                 unitPrice: unitPrice,

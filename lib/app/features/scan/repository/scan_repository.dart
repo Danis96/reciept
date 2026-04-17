@@ -1,7 +1,6 @@
 import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:reciep/app/features/scan/repository/gemma_receipt_mapper.dart';
-import 'package:reciep/app/features/scan/repository/gemma_receipt_response_validator.dart';
 import 'package:reciep/app/features/scan/repository/gemma_receipt_scan_service.dart';
 import 'package:reciep/app/features/scan/repository/scan_failure.dart';
 import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
@@ -54,38 +53,10 @@ class ScanRepository {
       final Map<String, dynamic> aiPayload = await _gemmaService
           .scanReceiptImage(imagePath: imagePath);
 
-      final List<String> payloadErrors = GemmaReceiptResponseValidator.validate(
-        aiPayload,
-      );
-      if (payloadErrors.isNotEmpty) {
-        throw ScanException(
-          ScanFailure(
-            type: ScanFailureType.parseFailure,
-            title: 'Incomplete receipt data',
-            message: 'AI result missing required fields. Try clearer image.',
-            technicalDetails: payloadErrors.join('; '),
-          ),
-        );
-      }
-
       final ReceiptModel scanned = GemmaReceiptMapper.toReceiptModel(
         payload: aiPayload,
         imagePath: imagePath,
       );
-
-      final List<String> modelErrors = ReceiptSaveValidator.validateModel(
-        scanned,
-      );
-      if (modelErrors.isNotEmpty) {
-        throw ScanException(
-          ScanFailure(
-            type: ScanFailureType.parseFailure,
-            title: 'Parse failed',
-            message: 'Parsed receipt invalid. Edit fields and retry.',
-            technicalDetails: modelErrors.join('; '),
-          ),
-        );
-      }
 
       return scanned;
     } on ScanException {

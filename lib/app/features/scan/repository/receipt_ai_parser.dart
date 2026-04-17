@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/models/domain/receipt.dart';
 import 'package:reciep/app/models/domain/receipt_item.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
@@ -168,10 +169,7 @@ class ReceiptAiParser {
         'verification_code',
         'code',
       ]),
-      category:
-          (_firstString(root, <String>['category', 'kategorija']) ??
-                  'miscellaneous')
-              .toLowerCase(),
+      category: _resolveReceiptCategory(root, items),
       confidence: _clamp01(toDoubleValue(root['confidence'], fallback: 0)),
       rawText: _firstString(root, <String>['raw_text', 'ocr_text']),
       rawJson: _encodeRaw(root),
@@ -225,6 +223,10 @@ class ReceiptAiParser {
           name:
               _firstString(item, <String>['name', 'naziv', 'artikl']) ??
               'unknown',
+          category: CategoryBudgetCatalog.normalize(
+            _firstString(item, <String>['category', 'kategorija']) ??
+                'miscellaneous',
+          ),
           unit: _firstString(item, <String>['unit', 'jedinica']),
           quantity: _pickDouble(<dynamic>[
             item['quantity'],
@@ -253,6 +255,32 @@ class ReceiptAiParser {
     }
 
     return parsed;
+  }
+
+  static String _resolveReceiptCategory(
+    Map<String, dynamic> root,
+    List<ReceiptItem> items,
+  ) {
+    if (items.isNotEmpty) {
+      final Map<String, double> spendByCategory = <String, double>{};
+      for (final ReceiptItem item in items) {
+        final String category = CategoryBudgetCatalog.normalize(item.category);
+        spendByCategory[category] =
+            (spendByCategory[category] ?? 0) + item.finalPrice;
+      }
+      if (spendByCategory.isNotEmpty) {
+        return spendByCategory.entries
+            .reduce(
+              (MapEntry<String, double> best, MapEntry<String, double> next) =>
+                  next.value > best.value ? next : best,
+            )
+            .key;
+      }
+    }
+
+    return CategoryBudgetCatalog.normalize(
+      _firstString(root, <String>['category', 'kategorija']) ?? 'miscellaneous',
+    );
   }
 
   static Map<String, dynamic>? _toMap(dynamic input) {

@@ -1,16 +1,15 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
 import 'package:reciep/app/features/history/action_utils/history_action_utils.dart';
 import 'package:reciep/app/features/history/controllers/history_controller.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/app/widgets/category_asset_image.dart';
+import 'package:reciep/app/widgets/receipt_paper_card.dart';
 import 'package:reciep/routing/app_router.dart';
 import 'package:reciep/theme/app_spacing.dart';
+import 'package:reciep/theme/category_palette.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
@@ -63,7 +62,9 @@ class HistoryPage extends StatelessWidget {
                           if (controller.isLoading)
                             const Center(child: CircularProgressIndicator()),
                           if (!controller.isLoading && receipts.isEmpty)
-                            const HistoryEmptyState(),
+                            HistoryEmptyState(
+                              selectedCategory: controller.selectedCategory,
+                            ),
                           if (!controller.isLoading && receipts.isNotEmpty)
                             HistoryReceiptsList(
                               receipts: receipts,
@@ -78,6 +79,10 @@ class HistoryPage extends StatelessWidget {
                                       AppRouter.receiptDetails,
                                       arguments: ReceiptDetailsRouteArgs(
                                         receiptId: receipt.id,
+                                        heroTag: AppRouter.receiptHeroTag(
+                                          'history',
+                                          receipt.id,
+                                        ),
                                       ),
                                     );
                                 if (result == true && context.mounted) {
@@ -207,26 +212,108 @@ class HistoryCategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    final bool isAll = category == 'all';
+    final Color categoryColor = isAll
+        ? Theme.of(context).colorScheme.primary
+        : CategoryPalette.primaryFor(category, context);
+    final Color activeColor = isAll
+        ? HistoryThemePalette.selectedChipBackground(context)
+        : categoryColor;
+    final Color idleColor = isAll
+        ? Theme.of(context).colorScheme.surface
+        : categoryColor.withValues(alpha: 0.18);
+
+    return Material(
+      color: Colors.transparent,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.all(1.2),
         decoration: BoxDecoration(
-          color: selected
-              ? HistoryThemePalette.selectedChipBackground(context)
-              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: HistoryThemePalette.border(context)),
+          border: Border.all(
+            color: isAll
+                ? HistoryThemePalette.border(context)
+                : categoryColor.withValues(alpha: selected ? 0.12 : 0.42),
+          ),
+          boxShadow: <BoxShadow>[
+            if (!selected)
+              BoxShadow(
+                color: categoryColor.withValues(alpha: 0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+          ],
         ),
-        child: Text(
-          HistoryCategoryLabel.labelForChip(category),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: selected
-                ? HistoryThemePalette.selectedChipText(context)
-                : Theme.of(
-                    context,
-                  ).colorScheme.secondary.withValues(alpha: 0.9),
-            fontWeight: FontWeight.w700,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8.8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.8),
+            child: Stack(
+              children: <Widget>[
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 240),
+                  curve: Curves.easeOutCubic,
+                  left: selected ? 0 : 18,
+                  right: selected ? 0 : -18,
+                  top: 0,
+                  bottom: 0,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: activeColor),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 240),
+                  curve: Curves.easeOutCubic,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 7,
+                  ),
+                  color: selected ? Colors.transparent : idleColor,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      if (!isAll) ...<Widget>[
+                        Container(
+                          width: 20,
+                          height: 20,
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: selected
+                                ? Colors.white.withValues(alpha: 0.22)
+                                : Colors.white.withValues(alpha: 0.72),
+                          ),
+                          child: CategoryAssetImage(category: category, size: 16),
+                        ),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(
+                        HistoryCategoryLabel.labelForChip(category),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: selected
+                              ? isAll
+                                    ? HistoryThemePalette.selectedChipText(
+                                        context,
+                                      )
+                                    : CategoryPalette.onPrimaryFor(
+                                        category,
+                                        context,
+                                      )
+                              : isAll
+                              ? Theme.of(
+                                  context,
+                                ).colorScheme.secondary.withValues(alpha: 0.9)
+                              : categoryColor,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -367,270 +454,82 @@ class HistoryReceiptsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: receipts
-          .map(
-            (ReceiptModel receipt) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: HistoryReceiptCard(
-                receipt: receipt,
-                budgetState: controller.budgetStateForCategory(
-                  receipt.category,
-                ),
-                onTap: () => onOpenDetails(receipt),
-              ),
-            ),
-          )
-          .toList(growable: false),
-    );
-  }
-}
-
-class HistoryReceiptCard extends StatelessWidget {
-  const HistoryReceiptCard({
-    super.key,
-    required this.receipt,
-    required this.budgetState,
-    required this.onTap,
-  });
-
-  final ReceiptModel receipt;
-  final BudgetUsageState? budgetState;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: Theme.of(context).colorScheme.surface,
-          border: Border.all(color: HistoryThemePalette.border(context)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            HistoryReceiptThumbnail(receipt: receipt),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          receipt.merchant.name.isEmpty
-                              ? 'Unknown merchant'
-                              : receipt.merchant.name,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          Text(
-                            '${receipt.totals.total.toStringAsFixed(2)} KM',
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w700),
-                          ),
-                          Text(
-                            DateFormat('M/d/yyyy').format(receipt.createdAt),
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.secondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xxs),
-                  Row(
-                    children: <Widget>[
-                      HistoryCategoryBadge(category: receipt.category),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        '${receipt.items.length} items',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  HistoryConfidenceChip(
-                    confidence: receipt.confidence,
-                    budgetState: budgetState,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class HistoryReceiptThumbnail extends StatelessWidget {
-  const HistoryReceiptThumbnail({super.key, required this.receipt});
-
-  final ReceiptModel receipt;
-
-  @override
-  Widget build(BuildContext context) {
-    final String? path = receipt.imagePath;
-    final bool hasPath = path != null && path.trim().isNotEmpty;
-    final String safePath = path ?? '';
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: Container(
-        height: 42,
-        width: 42,
-        color: HistoryThemePalette.thumbnailBackground(context),
-        child: hasPath
-            ? Image.file(
-                File(safePath),
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (
-                      BuildContext context,
-                      Object error,
-                      StackTrace? stackTrace,
-                    ) {
-                      return Icon(
-                        HistoryCategoryLabel.iconFor(receipt.category),
-                        color: HistoryThemePalette.thumbnailIcon(context),
-                        size: 20,
-                      );
-                    },
-              )
-            : Icon(
-                HistoryCategoryLabel.iconFor(receipt.category),
-                color: HistoryThemePalette.thumbnailIcon(context),
-                size: 20,
-              ),
-      ),
-    );
-  }
-}
-
-class HistoryCategoryBadge extends StatelessWidget {
-  const HistoryCategoryBadge({super.key, required this.category});
-
-  final String category;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        color: HistoryThemePalette.inputBackground(context),
-      ),
-      child: Text(
-        HistoryCategoryLabel.labelForBadge(category),
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-        ),
-      ),
-    );
-  }
-}
-
-class HistoryConfidenceChip extends StatelessWidget {
-  const HistoryConfidenceChip({
-    super.key,
-    required this.confidence,
-    required this.budgetState,
-  });
-
-  final double confidence;
-  final BudgetUsageState? budgetState;
-
-  @override
-  Widget build(BuildContext context) {
-    final int percent = confidence <= 1
-        ? (confidence * 100).round().clamp(0, 100)
-        : confidence.round().clamp(0, 100);
-
-    final bool green =
-        percent >= 96 || budgetState == BudgetUsageState.underBudget;
-    final Color textColor = green
-        ? HistoryThemePalette.successText(context)
-        : HistoryThemePalette.warningText(context);
-    final Color bgColor = green
-        ? HistoryThemePalette.successBg(context)
-        : HistoryThemePalette.warningBg(context);
-    final Color borderColor = green
-        ? HistoryThemePalette.successBorder(context)
-        : HistoryThemePalette.warningBorder(context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor),
-      ),
-      child: Text(
-        '$percent% confidence',
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: textColor,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
+    return ReceiptPaperList(
+      receipts: receipts,
+      heroTagBuilder: (ReceiptModel receipt) =>
+          AppRouter.receiptHeroTag('history', receipt.id),
+      enableEntranceAnimation: true,
+      onOpenReceipt: onOpenDetails,
     );
   }
 }
 
 class HistoryEmptyState extends StatelessWidget {
-  const HistoryEmptyState({super.key});
+  const HistoryEmptyState({
+    super.key,
+    required this.selectedCategory,
+  });
+
+  final String selectedCategory;
 
   @override
   Widget build(BuildContext context) {
+    final String category = selectedCategory == 'all'
+        ? CategoryBudgetCatalog.household
+        : selectedCategory;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          colors: <Color>[
+            CategoryPalette.surfaceFor(category, context),
+            Theme.of(context).colorScheme.surface,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         border: Border.all(color: HistoryThemePalette.border(context)),
       ),
-      child: Column(
+      child: Row(
         children: <Widget>[
-          Icon(
-            Icons.receipt_long_outlined,
-            size: 46,
-            color: Theme.of(
-              context,
-            ).colorScheme.secondary.withValues(alpha: 0.75),
+          Container(
+            width: 72,
+            height: 72,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.surface,
+            ),
+            child: CategoryAssetImage(
+              category: category,
+              size: 52,
+            ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'No receipts found',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Try another search, category, or date range.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'No receipts found',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  selectedCategory == 'all'
+                      ? 'Try a different merchant, category, or date range. Your saved receipts will appear here.'
+                      : 'No ${HistoryCategoryLabel.labelForBadge(selectedCategory).toLowerCase()} receipts match the current search or date range.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -681,23 +580,6 @@ class HistoryCategoryLabel {
     return 'Misc';
   }
 
-  static IconData iconFor(String category) {
-    switch (CategoryBudgetCatalog.normalize(category)) {
-      case CategoryBudgetCatalog.groceries:
-        return Icons.shopping_basket_outlined;
-      case CategoryBudgetCatalog.fuel:
-        return Icons.local_gas_station_outlined;
-      case CategoryBudgetCatalog.household:
-        return Icons.home_outlined;
-      case CategoryBudgetCatalog.pets:
-        return Icons.pets_outlined;
-      case CategoryBudgetCatalog.clothing:
-        return Icons.checkroom_outlined;
-      case CategoryBudgetCatalog.miscellaneous:
-        return Icons.category_outlined;
-    }
-    return Icons.category_outlined;
-  }
 }
 
 class HistorySortLabel {

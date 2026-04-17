@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/app/widgets/receipt_paper_card.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
 class RecentScansSection extends StatelessWidget {
@@ -72,110 +71,11 @@ class RecentScansSection extends StatelessWidget {
               ],
             ),
           ),
-        ...receipts.map(
-          (ReceiptModel receipt) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: ScanRecentTile(receipt: receipt),
-          ),
+        ReceiptPaperList(
+          receipts: receipts,
+          expandFirstByDefault: true,
         ),
       ],
     );
-  }
-}
-
-class ScanRecentTile extends StatelessWidget {
-  const ScanRecentTile({super.key, required this.receipt});
-
-  final ReceiptModel receipt;
-
-  @override
-  Widget build(BuildContext context) {
-    final DateFormat dateFormat = DateFormat('M/d/yyyy');
-    final IconData icon = _CategoryIconMapper(receipt.category).icon;
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.sm,
-        ),
-        child: Row(
-          children: <Widget>[
-            Container(
-              height: 38,
-              width: 38,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.primary.withValues(alpha: 0.08),
-              ),
-              child: Icon(icon, size: 20),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    receipt.merchant.name,
-                    style: theme.textTheme.titleMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    receipt.category,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.secondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  '${receipt.totals.total.toStringAsFixed(2)} ${receipt.currency}',
-                  style: theme.textTheme.titleMedium,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  dateFormat.format(receipt.createdAt),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CategoryIconMapper {
-  _CategoryIconMapper(this.category);
-
-  final String category;
-
-  IconData get icon {
-    switch (CategoryBudgetCatalog.normalize(category)) {
-      case CategoryBudgetCatalog.pets:
-        return Icons.pets_outlined;
-      case CategoryBudgetCatalog.groceries:
-        return Icons.shopping_cart_outlined;
-      case CategoryBudgetCatalog.household:
-        return Icons.home_outlined;
-      case CategoryBudgetCatalog.fuel:
-        return Icons.local_gas_station_outlined;
-      case CategoryBudgetCatalog.clothing:
-        return Icons.checkroom_outlined;
-      case CategoryBudgetCatalog.miscellaneous:
-      default:
-        return Icons.category_outlined;
-    }
   }
 }

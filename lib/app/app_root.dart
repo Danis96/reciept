@@ -6,6 +6,7 @@ import 'package:reciep/app/features/budgets/repository/category_budget_repositor
 import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/features/receipt_details/repository/receipt_details_repository.dart';
 import 'package:reciep/app/features/scan/repository/gemma_receipt_scan_service.dart';
+import 'package:reciep/app/features/scan/repository/receipt_image_compression_service.dart';
 
 import '../database/app_database.dart';
 import 'features/dashboard/controllers/dashboard_controller.dart';
@@ -74,11 +75,16 @@ class AppRoot extends StatelessWidget {
                 .read<MonthlyBudgetSyncRepository>(),
           )..refreshHome(),
         ),
+        Provider<ReceiptImageCompressionService>(
+          create: (_) => const ReceiptImageCompressionService(),
+        ),
         Provider<GemmaReceiptScanService>(
-          create: (_) => GemmaReceiptScanService(
+          create: (context) => GemmaReceiptScanService(
             apiKey: _gemmaApiKey,
             model: _gemmaModel,
             baseUrl: _gemmaBaseUrl,
+            imageCompressionService: context
+                .read<ReceiptImageCompressionService>(),
           ),
         ),
         Provider<ScanRepository>(

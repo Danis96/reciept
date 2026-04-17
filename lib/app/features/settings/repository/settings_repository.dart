@@ -118,6 +118,11 @@ class SettingsRepository {
     await _monthlyBudgetSyncRepository.syncCurrentMonth();
   }
 
+  Future<void> deleteCategoryBudget(String category) async {
+    await _categoryBudgetRepository.deleteBudget(category);
+    await _monthlyBudgetSyncRepository.syncCurrentMonth();
+  }
+
   Future<String> exportAllReceipts(ReceiptExportFormat format) async {
     final List<ReceiptModel> receipts = await _getAllReceipts();
     return _receiptExportService.exportReceipts(
