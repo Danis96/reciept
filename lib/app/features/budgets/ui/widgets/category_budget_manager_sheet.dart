@@ -24,7 +24,8 @@ class CategoryBudgetManagerSheet extends StatefulWidget {
       _CategoryBudgetManagerSheetState();
 }
 
-class _CategoryBudgetManagerSheetState extends State<CategoryBudgetManagerSheet> {
+class _CategoryBudgetManagerSheetState
+    extends State<CategoryBudgetManagerSheet> {
   late final Map<String, TextEditingController> _controllers;
   late final Map<String, double> _currentAmounts;
   final Set<String> _busyCategories = <String>{};
@@ -34,7 +35,8 @@ class _CategoryBudgetManagerSheetState extends State<CategoryBudgetManagerSheet>
   void initState() {
     super.initState();
     _currentAmounts = <String, double>{
-      for (final MapEntry<String, double> entry in widget.currentAmounts.entries)
+      for (final MapEntry<String, double> entry
+          in widget.currentAmounts.entries)
         CategoryBudgetCatalog.normalize(entry.key): entry.value,
     };
     _controllers = <String, TextEditingController>{
@@ -72,67 +74,63 @@ class _CategoryBudgetManagerSheetState extends State<CategoryBudgetManagerSheet>
           child: Opacity(opacity: value, child: child),
         );
       },
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.sm,
-          AppSpacing.md,
-          AppSpacing.sm,
-          MediaQuery.of(context).viewInsets.bottom + AppSpacing.sm,
-        ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-            border: Border.all(color: _CategoryBudgetSheetPalette.cardBorder(context)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.14),
-                blurRadius: 24,
-                offset: const Offset(0, 14),
-              ),
-            ],
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+          border: Border.all(
+            color: _CategoryBudgetSheetPalette.cardBorder(context),
           ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.82,
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.14),
+              blurRadius: 24,
+              offset: const Offset(0, 14),
             ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.sm,
-                AppSpacing.md,
-                AppSpacing.md,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(
-                    width: 46,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(999),
+          ],
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.92,
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.sm,
+              AppSpacing.md,
+              AppSpacing.md,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  width: 46,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.onSurface.withValues(
+                      alpha: 0.16,
+                    ),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                CategoryBudgetSheetHeader(activeBudgets: activeBudgets),
+                const SizedBox(height: AppSpacing.md),
+                ...widget.supportedCategories.map(
+                  (String category) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    child: CategoryBudgetSheetRow(
+                      category: category,
+                      controller: _controllers[category]!,
+                      busy: _busyCategories.contains(category),
+                      showSuccess: _successCategories.contains(category),
+                      currentAmount: _currentAmounts[category],
+                      onSave: () => _onSave(category),
+                      onDelete: () => _onDelete(category),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  CategoryBudgetSheetHeader(activeBudgets: activeBudgets),
-                  const SizedBox(height: AppSpacing.md),
-                  ...widget.supportedCategories.map(
-                    (String category) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: CategoryBudgetSheetRow(
-                        category: category,
-                        controller: _controllers[category]!,
-                        busy: _busyCategories.contains(category),
-                        showSuccess: _successCategories.contains(category),
-                        currentAmount: _currentAmounts[category],
-                        onSave: () => _onSave(category),
-                        onDelete: () => _onDelete(category),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -213,17 +211,16 @@ class _CategoryBudgetManagerSheetState extends State<CategoryBudgetManagerSheet>
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${_CategoryBudgetLabel.shortLabel(category)} budget saved.'),
+        content: Text(
+          '${_CategoryBudgetLabel.shortLabel(category)} budget saved.',
+        ),
       ),
     );
   }
 }
 
 class CategoryBudgetSheetHeader extends StatelessWidget {
-  const CategoryBudgetSheetHeader({
-    super.key,
-    required this.activeBudgets,
-  });
+  const CategoryBudgetSheetHeader({super.key, required this.activeBudgets});
 
   final int activeBudgets;
 
@@ -336,7 +333,9 @@ class CategoryBudgetSheetRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: _CategoryBudgetSheetPalette.cardBorder(context)),
+        border: Border.all(
+          color: _CategoryBudgetSheetPalette.cardBorder(context),
+        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
@@ -435,8 +434,8 @@ class CategoryBudgetSheetRow extends StatelessWidget {
             enabled: !busy,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              filled: true,
-              fillColor: CategoryPalette.surfaceFor(category, context),
+              // filled: true,
+              // fillColor: CategoryPalette.surfaceFor(category, context),
               prefixIcon: Icon(Icons.wallet_outlined, color: accent),
               suffixText: 'KM',
               hintText: 'Enter monthly budget',
@@ -469,13 +468,14 @@ class CategoryBudgetSheetRow extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: busy ? null : () => onDelete(),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: _CategoryBudgetSheetPalette.danger(context),
+                    foregroundColor: _CategoryBudgetSheetPalette.danger(
+                      context,
+                    ),
                     side: BorderSide(
                       color: _CategoryBudgetSheetPalette.danger(
                         context,
                       ).withValues(alpha: 0.28),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -491,7 +491,6 @@ class CategoryBudgetSheetRow extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: accent,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -531,6 +530,10 @@ class _CategoryBudgetLabel {
         return 'Pets';
       case CategoryBudgetCatalog.clothing:
         return 'Clothing';
+      case CategoryBudgetCatalog.pharmacy:
+        return 'Pharmacy';
+      case CategoryBudgetCatalog.dental:
+        return 'Dental';
       case CategoryBudgetCatalog.miscellaneous:
         return 'Misc';
     }

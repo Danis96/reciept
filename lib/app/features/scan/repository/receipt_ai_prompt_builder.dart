@@ -1,3 +1,5 @@
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
+
 class ReceiptAiPromptBuilder {
   String build() {
     return [
@@ -38,8 +40,10 @@ class ReceiptAiPromptBuilder {
       '- pets = pet food, litter, pet toys, pet care products.',
       '- clothing = shirts, majica, pants, shoes, jackets, socks, fashion items, accessories worn on body.',
       '- fuel = gorivo, diesel, benzin, petrol, gas for vehicle, fuel station purchases.',
+      '- pharmacy = medicines, vitamins, supplements, bandages, drugstore items, apoteka purchases, health products not specifically dental.',
+      '- dental = toothpaste, toothbrush, floss, mouthwash, dental treatments, dentist receipts, oral care products and services.',
       '- miscellaneous = only if item clearly does not fit any category above.',
-      '- Example item mapping: MAJICA -> clothing, PIZZA -> groceries, GORIVO -> fuel.',
+      '- Example item mapping: MAJICA -> clothing, PIZZA -> groceries, GORIVO -> fuel, PARODONTAX -> dental, BRUFEN -> pharmacy.',
       '- If a receipt mixes categories, still categorize each item separately and keep all items in items[].',
     ].join('\n');
   }
@@ -70,12 +74,6 @@ class ReceiptAiPromptBuilder {
     'finalPrice',
   ];
 
-  static const List<String> _supportedCategories = <String>[
-    'groceries',
-    'household',
-    'pets',
-    'clothing',
-    'fuel',
-    'miscellaneous',
-  ];
+  static const List<String> _supportedCategories =
+      CategoryBudgetCatalog.supportedCategories;
 }

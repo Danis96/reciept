@@ -7,6 +7,8 @@ class CategoryBudgetCatalog {
   static const String pets = 'pets';
   static const String clothing = 'clothing';
   static const String miscellaneous = 'miscellaneous';
+  static const String pharmacy = 'pharmacy';
+  static const String dental = 'dental';
 
   static const List<String> supportedCategories = <String>[
     groceries,
@@ -14,6 +16,8 @@ class CategoryBudgetCatalog {
     pets,
     clothing,
     fuel,
+    pharmacy,
+    dental,
     miscellaneous,
   ];
 
@@ -49,6 +53,31 @@ class CategoryBudgetCatalog {
         value.contains('wear')) {
       return clothing;
     }
+    if (value.contains('pharmacy') ||
+        value.contains('pharma') ||
+        value.contains('apoteka') ||
+        value.contains('apot') ||
+        value.contains('drugstore') ||
+        value.contains('medicine') ||
+        value.contains('medic') ||
+        value.contains('vitamin') ||
+        value.contains('supplement')) {
+      return pharmacy;
+    }
+    if (value.contains('dental') ||
+        value.contains('dent') ||
+        value.contains('tooth') ||
+        value.contains('teeth') ||
+        value.contains('oral') ||
+        value.contains('zubar') ||
+        value.contains('zub') ||
+        value.contains('pasta za zube') ||
+        value.contains('toothpaste') ||
+        value.contains('toothbrush') ||
+        value.contains('floss') ||
+        value.contains('mouthwash')) {
+      return dental;
+    }
     if (value == miscellaneous || value == 'misc' || value == 'other') {
       return miscellaneous;
     }
@@ -67,6 +96,10 @@ class CategoryBudgetCatalog {
         return 'Pets';
       case clothing:
         return 'Clothing';
+      case pharmacy:
+        return 'Pharmacy';
+      case dental:
+        return 'Dental';
       case miscellaneous:
         return 'Miscellaneous';
     }

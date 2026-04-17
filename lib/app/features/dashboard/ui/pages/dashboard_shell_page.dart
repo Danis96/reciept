@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reciep/app/features/history/ui/pages/history_page.dart';
 import 'package:reciep/app/features/scan/ui/pages/scan_page.dart';
@@ -16,21 +17,49 @@ class DashboardShellPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<DashboardController>(
       builder: (context, controller, _) {
-        return Scaffold(
-          body: IndexedStack(
-            index: controller.currentTabIndex,
-            children: const [
-              HomePage(),
-              ScanPage(),
-              HistoryPage(),
-              SettingsPage(),
-            ],
-          ),
-          bottomNavigationBar: BottomNavigationTabs(
-            currentIndex: controller.currentTabIndex,
-            onDestinationSelected: (index) {
-              DashboardActionUtils.onTabSelected(context, index);
-            },
+        final bool isDark = Theme.of(context).brightness == Brightness.dark;
+        final bool homeTab = controller.currentTabIndex == 0;
+
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: homeTab
+              ? const SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
+                  systemNavigationBarColor: Colors.transparent,
+                )
+              : (isDark
+                    ? const SystemUiOverlayStyle(
+                        statusBarColor: Colors.transparent,
+                        statusBarIconBrightness: Brightness.light,
+                        statusBarBrightness: Brightness.dark,
+                        systemNavigationBarColor: Colors.transparent,
+                        systemNavigationBarIconBrightness: Brightness.light,
+                      )
+                    : const SystemUiOverlayStyle(
+                        statusBarColor: Colors.transparent,
+                        statusBarIconBrightness: Brightness.dark,
+                        statusBarBrightness: Brightness.light,
+                        systemNavigationBarColor: Colors.transparent,
+                        systemNavigationBarIconBrightness: Brightness.dark,
+                      )),
+          child: Scaffold(
+            extendBodyBehindAppBar: true,
+            body: IndexedStack(
+              index: controller.currentTabIndex,
+              children: const [
+                HomePage(),
+                ScanPage(),
+                HistoryPage(),
+                SettingsPage(),
+              ],
+            ),
+            bottomNavigationBar: BottomNavigationTabs(
+              currentIndex: controller.currentTabIndex,
+              onDestinationSelected: (index) {
+                DashboardActionUtils.onTabSelected(context, index);
+              },
+            ),
           ),
         );
       },

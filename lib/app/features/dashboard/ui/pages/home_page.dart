@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/budgets/ui/widgets/category_budget_manager_sheet.dart';
 import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
 import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
@@ -68,96 +69,94 @@ class HomePage extends StatelessWidget {
                   recentReceipts: <ReceiptModel>[],
                 );
 
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    HomeSummaryHero(data: data),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.md,
-                        AppSpacing.md,
-                        AppSpacing.md,
-                        AppSpacing.lg,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          HomeStatsRow(data: data),
-                          const SizedBox(height: AppSpacing.md),
-                          HomeQuickActionsRow(
-                            onScanReceipt: () =>
-                                DashboardActionUtils.onScanReceipt(context),
-                            onUploadReceipt: () =>
-                                DashboardActionUtils.onUploadReceipt(context),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          HomeCategoryBudgetsCard(
-                            data: data,
-                            onManageBudgets: () => showModalBottomSheet<void>(
-                              context: context,
-                              isScrollControlled: true,
-                              useSafeArea: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (BuildContext sheetContext) {
-                                return CategoryBudgetManagerSheet(
-                                  supportedCategories:
-                                      controller.supportedBudgetCategories,
-                                  currentAmounts: <String, double>{
-                                    for (final DashboardBudgetProgressModel item
-                                        in data.budgetProgress)
-                                      item.category: item.budgetAmount,
-                                  },
-                                  onSave: (String category, double amount) {
-                                    return DashboardActionUtils.onBudgetSaved(
-                                      context,
-                                      category: category,
-                                      amount: amount,
-                                    );
-                                  },
-                                  onDelete: (String category) {
-                                    return DashboardActionUtils.onBudgetDeleted(
-                                      context,
-                                      category: category,
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          HomeRecentReceiptsCard(
-                            data: data,
-                            onViewAll: () =>
-                                DashboardActionUtils.onTabSelected(context, 2),
-                            onOpenReceipt: (ReceiptModel receipt) async {
-                              final DashboardController dashboardController =
-                                  controller;
-                              final HistoryController historyController =
-                                  context.read<HistoryController>();
-                              final Object? result = await Navigator.of(context)
-                                  .pushNamed(
-                                    AppRouter.receiptDetails,
-                                    arguments: ReceiptDetailsRouteArgs(
-                                      receiptId: receipt.id,
-                                      heroTag: AppRouter.receiptHeroTag(
-                                        'home',
-                                        receipt.id,
-                                      ),
-                                    ),
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  HomeSummaryHero(data: data),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.lg,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        HomeStatsRow(data: data),
+                        const SizedBox(height: AppSpacing.md),
+                        HomeQuickActionsRow(
+                          onScanReceipt: () =>
+                              DashboardActionUtils.onScanReceipt(context),
+                          onUploadReceipt: () =>
+                              DashboardActionUtils.onUploadReceipt(context),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        HomeCategoryBudgetsCard(
+                          data: data,
+                          onManageBudgets: () => showModalBottomSheet<void>(
+                            context: context,
+                            isScrollControlled: true,
+                            useSafeArea: false,
+                            backgroundColor: Colors.transparent,
+                            builder: (BuildContext sheetContext) {
+                              return CategoryBudgetManagerSheet(
+                                supportedCategories:
+                                    controller.supportedBudgetCategories,
+                                currentAmounts: <String, double>{
+                                  for (final DashboardBudgetProgressModel item
+                                      in data.budgetProgress)
+                                    item.category: item.budgetAmount,
+                                },
+                                onSave: (String category, double amount) {
+                                  return DashboardActionUtils.onBudgetSaved(
+                                    context,
+                                    category: category,
+                                    amount: amount,
                                   );
-                              if (result == true && context.mounted) {
-                                await dashboardController.refreshHome();
-                                await historyController.loadHistory();
-                              }
+                                },
+                                onDelete: (String category) {
+                                  return DashboardActionUtils.onBudgetDeleted(
+                                    context,
+                                    category: category,
+                                  );
+                                },
+                              );
                             },
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        HomeRecentReceiptsCard(
+                          data: data,
+                          onViewAll: () =>
+                              DashboardActionUtils.onTabSelected(context, 2),
+                          onOpenReceipt: (ReceiptModel receipt) async {
+                            final DashboardController dashboardController =
+                                controller;
+                            final HistoryController historyController = context
+                                .read<HistoryController>();
+                            final Object? result = await Navigator.of(context)
+                                .pushNamed(
+                                  AppRouter.receiptDetails,
+                                  arguments: ReceiptDetailsRouteArgs(
+                                    receiptId: receipt.id,
+                                    heroTag: AppRouter.receiptHeroTag(
+                                      'home',
+                                      receipt.id,
+                                    ),
+                                  ),
+                                );
+                            if (result == true && context.mounted) {
+                              await dashboardController.refreshHome();
+                              await historyController.loadHistory();
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },
@@ -176,11 +175,12 @@ class HomeSummaryHero extends StatelessWidget {
     final double ratio = (data.thisMonthSpending / safeTotalBudget).clamp(0, 1);
     final int usedPercent = (ratio * 100).round();
     final String greeting = TimeGreetingLabel.forNow(DateTime.now());
+    final double topInset = MediaQuery.paddingOf(context).top;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.md,
-        AppSpacing.md,
+        topInset + AppSpacing.md,
         AppSpacing.md,
         AppSpacing.lg,
       ),
@@ -328,7 +328,7 @@ class HomeStatsRow extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(0),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: dividerColor),
       ),
       child: Column(
@@ -345,7 +345,7 @@ class HomeStatsRow extends StatelessWidget {
                       color: Colors.white,
                     ),
                     value: data.totalReceipts.toString(),
-                    label: 'TOTAL\nSCANS',
+                    label: 'SCANS',
                     accent: const Color(0xFF2F6BFF),
                   ),
                 ),
@@ -369,6 +369,7 @@ class HomeStatsRow extends StatelessWidget {
                       category: data.topCategoryLabel,
                       size: 24,
                     ),
+fontValue: 15,
                     value: data.topCategoryLabel,
                     label: 'TOP\nCATEGORY',
                     accent: BudgetCategoryColors.primaryFor(
@@ -413,7 +414,7 @@ class HomeStatsRow extends StatelessWidget {
                 Text(
                   '${DashboardMoney.formatDouble(data.thisMonthSpending)} KM',
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF161821),
                   ),
                 ),
@@ -434,6 +435,7 @@ class HomeStatCard extends StatelessWidget {
     required this.label,
     required this.accent,
     this.tint = Colors.transparent,
+    this.fontValue = 22,
   });
 
   final Widget icon;
@@ -441,6 +443,7 @@ class HomeStatCard extends StatelessWidget {
   final String label;
   final Color accent;
   final Color tint;
+  final double fontValue;
 
   @override
   Widget build(BuildContext context) {
@@ -449,7 +452,7 @@ class HomeStatCard extends StatelessWidget {
       duration: const Duration(milliseconds: 380),
       curve: Curves.easeOutCubic,
       height: 164,
-      padding: const EdgeInsets.fromLTRB(10, 16, 10, 14),
+      padding: const EdgeInsets.fromLTRB(4, 16, 4, 14),
       decoration: BoxDecoration(color: tint),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -474,11 +477,12 @@ class HomeStatCard extends StatelessWidget {
           ),
           Text(
             value,
-            maxLines: 2,
+            maxLines: 1,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
             style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
+              fontSize: fontValue,
               color: const Color(0xFF12131A),
               height: 1.05,
             ),
@@ -511,6 +515,7 @@ class HomeQuickActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       children: <Widget>[
         Expanded(
@@ -518,8 +523,8 @@ class HomeQuickActionsRow extends StatelessWidget {
             height: 46,
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -534,14 +539,15 @@ class HomeQuickActionsRow extends StatelessWidget {
         SizedBox(
           height: 46,
           width: 46,
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () => onUploadReceipt(),
-            child: const Icon(Icons.ios_share_outlined, size: 18),
+          child: GestureDetector(
+            onTap: () => onUploadReceipt(),
+            child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(),
+                ),
+                child: const Icon(Icons.ios_share_outlined, size: 18)),
           ),
         ),
       ],
@@ -590,7 +596,8 @@ class HomeCategoryBudgetsCard extends StatelessWidget {
             HomeCardEmptyState(
               imageCategory: 'miscellaneous',
               title: 'No budgets yet',
-              message: 'Create monthly category budgets from Manage and track each spend bucket here.',
+              message:
+                  'Create monthly category budgets from Manage and track each spend bucket here.',
             ),
           if (data.budgetProgress.isNotEmpty)
             ...data.budgetProgress.map(
@@ -619,14 +626,15 @@ class HomeBudgetProgressItem extends StatelessWidget {
     final String remainingText = item.remainingAmount >= 0
         ? '${DashboardMoney.formatInt(item.remainingAmount)} KM left'
         : '-${DashboardMoney.formatInt(item.remainingAmount.abs())} KM left';
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
           decoration: BoxDecoration(
-            gradient: CategoryPalette.subtleGradientFor(item.category, context),
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: categoryColor)
           ),
           padding: const EdgeInsets.all(AppSpacing.sm),
           child: Column(
@@ -655,14 +663,14 @@ class HomeBudgetProgressItem extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item.label,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   Text(
                     remainingText,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    style: theme.textTheme.titleMedium?.copyWith(
                       color: categoryColor,
                       fontWeight: FontWeight.w700,
                     ),
@@ -684,16 +692,16 @@ class HomeBudgetProgressItem extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     '${DashboardMoney.formatInt(item.spentAmount)} KM spent',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.secondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Spacer(),
                   Text(
                     '${DashboardMoney.formatInt(item.budgetAmount)} KM budget',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.secondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -702,7 +710,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
               if (item.state == BudgetUsageState.nearLimit)
                 Text(
                   'You used ${(item.usageRatio * 100).round()}% of ${item.label} budget',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     color: categoryColor,
                     fontWeight: FontWeight.w700,
                   ),
@@ -710,7 +718,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
               if (item.state == BudgetUsageState.exceeded)
                 Text(
                   'Budget exceeded by ${DashboardMoney.formatInt(item.remainingAmount.abs())} KM',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     color: HomeThemePalette.danger(context),
                     fontWeight: FontWeight.w700,
                   ),
@@ -823,7 +831,8 @@ class HomeRecentReceiptsCard extends StatelessWidget {
             HomeCardEmptyState(
               imageCategory: 'groceries',
               title: 'No receipts yet',
-              message: 'Scan first receipt or import one from gallery. Latest receipts will show here.',
+              message:
+                  'Scan first receipt or import one from gallery. Latest receipts will show here.',
             ),
           if (data.recentReceipts.isNotEmpty)
             ReceiptPaperList(
@@ -868,42 +877,12 @@ class BudgetCategoryLabel {
   const BudgetCategoryLabel._();
 
   static String shortLabel(String category) {
-    switch (normalized(category)) {
-      case 'groceries':
-        return 'Groceries';
-      case 'fuel':
-        return 'Fuel';
-      case 'household':
-        return 'Household';
-      case 'pets':
-        return 'Pets';
-      case 'clothing':
-        return 'Clothing';
-      case 'miscellaneous':
-        return 'Misc';
-      default:
-        return 'Misc';
-    }
+    final String label = CategoryBudgetCatalog.labelFor(category);
+    return label == 'Miscellaneous' ? 'Misc' : label;
   }
 
   static String normalized(String value) {
-    final String key = value.trim().toLowerCase();
-    if (key.contains('groc') || key.contains('food')) {
-      return 'groceries';
-    }
-    if (key.contains('fuel') || key.contains('gas') || key.contains('car')) {
-      return 'fuel';
-    }
-    if (key.contains('house') || key.contains('home')) {
-      return 'household';
-    }
-    if (key.contains('pet') || key.contains('dog') || key.contains('cat')) {
-      return 'pets';
-    }
-    if (key.contains('cloth')) {
-      return 'clothing';
-    }
-    return 'miscellaneous';
+    return CategoryBudgetCatalog.normalize(value);
   }
 }
 
@@ -925,14 +904,6 @@ class HomeCardEmptyState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: <Color>[
-            CategoryPalette.surfaceFor(imageCategory, context),
-            Theme.of(context).colorScheme.surface,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: HomeThemePalette.cardBorder(context)),
       ),
@@ -956,7 +927,7 @@ class HomeCardEmptyState extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
@@ -964,7 +935,7 @@ class HomeCardEmptyState extends StatelessWidget {
                   message,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
