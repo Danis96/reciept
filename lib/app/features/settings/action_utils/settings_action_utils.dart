@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../controllers/settings_controller.dart';
+import 'package:reciep/app/features/settings/controllers/settings_controller.dart';
+import 'package:reciep/app/features/settings/ui/widgets/shared/settings_simple_message_dialog.dart';
 
 class SettingsActionUtils {
   const SettingsActionUtils._();
 
   static Future<void> onThemeModeChanged(
-    BuildContext context,
-    ThemeMode themeMode,
-  ) {
+      BuildContext context,
+      ThemeMode themeMode,
+      ) {
     return context.read<SettingsController>().updateThemeMode(themeMode);
   }
 
@@ -17,36 +17,43 @@ class SettingsActionUtils {
     return context.read<SettingsController>().updateLanguage(locale);
   }
 
-  static Future<String> onExportCsv(BuildContext context) {
-    return context.read<SettingsController>().exportCsv();
+  static Future<void> exportCsv(BuildContext context) async {
+    final String path = await context.read<SettingsController>().exportCsv();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('CSV saved: $path')));
+    }
   }
 
-  static Future<String> onExportJson(BuildContext context) {
-    return context.read<SettingsController>().exportJson();
+  static Future<void> exportJson(BuildContext context) async {
+    final String path = await context.read<SettingsController>().exportJson();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('JSON saved: $path')));
+    }
   }
 
-  static Future<void> onBudgetSaved(
-    BuildContext context, {
-    required String category,
-    required double amount,
-  }) {
-    return context.read<SettingsController>().saveBudget(
-      category: category,
-      amount: amount,
+  static Future<void> showPrivacyPolicy(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return const SettingsSimpleMessageDialog(
+          title: 'Privacy Policy',
+          message: 'Privacy policy details will be added in a future phase.',
+        );
+      },
     );
   }
 
-  static Future<void> onBudgetsSaved(
-    BuildContext context,
-    Map<String, double> valuesByCategory,
-  ) {
-    return context.read<SettingsController>().saveBudgets(valuesByCategory);
-  }
-
-  static Future<void> onBudgetDeleted(
-    BuildContext context, {
-    required String category,
-  }) {
-    return context.read<SettingsController>().deleteBudget(category);
+  static Future<void> showTermsOfService(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return const SettingsSimpleMessageDialog(
+          title: 'Terms of Service',
+          message: 'Terms of service details will be added in a future phase.',
+        );
+      },
+    );
   }
 }

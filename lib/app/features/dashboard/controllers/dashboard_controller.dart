@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
 import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:reciep/app/features/dashboard/repository/dashboard_category_details_model.dart';
 import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
 
 import '../repository/dashboard_repository.dart';
@@ -31,6 +32,13 @@ class DashboardController extends ChangeNotifier {
 
   List<String> get supportedBudgetCategories =>
       CategoryBudgetCatalog.supportedCategories;
+
+  Future<DashboardCategoryDetailsModel> loadCategoryDetails(
+    String category,
+  ) async {
+    await _monthlyBudgetSyncRepository.syncCurrentMonth();
+    return _repository.loadCategoryDetails(category);
+  }
 
   Future<void> refreshHome() async {
     _isLoading = true;

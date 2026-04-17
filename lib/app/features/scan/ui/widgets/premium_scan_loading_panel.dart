@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/scan/ui/widgets/scan_receipt_image_preview.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
 class PremiumScanLoadingPanel extends StatefulWidget {
@@ -28,7 +28,7 @@ class _PremiumScanLoadingPanelState extends State<PremiumScanLoadingPanel>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 3500),
     )..repeat();
   }
 
@@ -40,18 +40,58 @@ class _PremiumScanLoadingPanelState extends State<PremiumScanLoadingPanel>
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
     final int clampedStep = widget.loadingStep.clamp(0, widget.steps.length);
-    final double progress = widget.steps.isEmpty
-        ? 0
-        : clampedStep / widget.steps.length;
+    final double progress =
+    widget.steps.isEmpty ? 0 : clampedStep / widget.steps.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        PremiumLoadingPreview(
+        _LoadingHeader(
           imagePath: widget.imagePath,
           animation: _controller,
+          // TODO: Replace with l10n
+          headerText: 'Processing with AI',
+          analysisText: 'Analyzing receipt image',
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _LoadingProgressBar(progress: progress, animation: _controller),
+        const SizedBox(height: AppSpacing.md),
+        _LoadingStepsList(
+          steps: widget.steps,
+          loadingStep: clampedStep,
+          animation: _controller,
+        ),
+      ],
+    );
+  }
+}
+
+// --- Decomposed UI Widgets ---
+
+class _LoadingHeader extends StatelessWidget {
+  const _LoadingHeader({
+    required this.imagePath,
+    required this.animation,
+    required this.headerText,
+    required this.analysisText,
+  });
+
+  final String? imagePath;
+  final Animation<double> animation;
+  final String headerText;
+  final String analysisText;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _LoadingPreview(
+          imagePath: imagePath,
+          animation: animation,
+          analysisText: analysisText,
         ),
         const SizedBox(height: AppSpacing.md),
         Row(
@@ -61,59 +101,38 @@ class _PremiumScanLoadingPanelState extends State<PremiumScanLoadingPanel>
               width: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2.1,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  theme.colorScheme.primary,
-                ),
+                valueColor:
+                AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
               ),
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              'Processing with AI',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              headerText,
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        PremiumLoadingProgressBar(progress: progress, animation: _controller),
-        const SizedBox(height: AppSpacing.md),
-        Column(
-          children: List<Widget>.generate(widget.steps.length, (int index) {
-            final bool done = index < clampedStep;
-            final bool active =
-                index == clampedStep && clampedStep < widget.steps.length;
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: index == widget.steps.length - 1 ? 0 : 10,
-              ),
-              child: PremiumLoadingStepRow(
-                title: widget.steps[index],
-                done: done,
-                active: active,
-                animation: _controller,
-              ),
-            );
-          }),
         ),
       ],
     );
   }
 }
 
-class PremiumLoadingPreview extends StatelessWidget {
-  const PremiumLoadingPreview({
-    super.key,
+class _LoadingPreview extends StatelessWidget {
+  const _LoadingPreview({
     required this.imagePath,
     required this.animation,
+    required this.analysisText,
   });
 
   final String? imagePath;
   final Animation<double> animation;
+  final String analysisText;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final String? path = imagePath;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
@@ -121,7 +140,14 @@ class PremiumLoadingPreview extends StatelessWidget {
         children: <Widget>[
           AspectRatio(
             aspectRatio: 3 / 4,
-            child: ScanReceiptImagePreview(imagePath: imagePath),
+            child: path == null
+                ? Container(color: Colors.grey.shade200)
+                : Image.file(
+              File(path),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stack) =>
+              const Center(child: Icon(Icons.broken_image_outlined)),
+            ),
           ),
           Positioned.fill(
             child: AnimatedBuilder(
@@ -135,7 +161,7 @@ class PremiumLoadingPreview extends StatelessWidget {
                       end: Alignment(alignmentX + 0.65, 0.3),
                       colors: <Color>[
                         Colors.transparent,
-                        theme.colorScheme.surface.withValues(alpha: 0.34),
+                        theme.colorScheme.surface.withValues(alpha:0.34),
                         Colors.transparent,
                       ],
                     ),
@@ -151,11 +177,11 @@ class PremiumLoadingPreview extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.34),
+                color: Colors.black.withValues(alpha:0.34),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'Analyzing receipt image',
+                analysisText,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -169,12 +195,8 @@ class PremiumLoadingPreview extends StatelessWidget {
   }
 }
 
-class PremiumLoadingProgressBar extends StatelessWidget {
-  const PremiumLoadingProgressBar({
-    super.key,
-    required this.progress,
-    required this.animation,
-  });
+class _LoadingProgressBar extends StatelessWidget {
+  const _LoadingProgressBar({required this.progress, required this.animation});
 
   final double progress;
   final Animation<double> animation;
@@ -182,68 +204,72 @@ class PremiumLoadingProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-
-    return Container(
-      height: 10,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.secondary.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          final double width = constraints.maxWidth * progress.clamp(0, 1);
-          return Stack(
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double width = constraints.maxWidth * progress.clamp(0, 1);
+        return Container(
+          height: 10,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.secondary.withValues(alpha:0.16),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Stack(
             children: <Widget>[
               AnimatedContainer(
                 duration: const Duration(milliseconds: 280),
                 curve: Curves.easeOutCubic,
                 width: width,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
                   gradient: LinearGradient(
                     colors: <Color>[
-                      theme.colorScheme.primary.withValues(alpha: 0.95),
-                      theme.colorScheme.tertiary.withValues(alpha: 0.92),
+                      theme.colorScheme.primary.withValues(alpha:0.95),
+                      theme.colorScheme.tertiary.withValues(alpha:0.92),
                     ],
                   ),
                 ),
               ),
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: animation,
-                  builder: (BuildContext context, Widget? child) {
-                    final double glow = 0.45 + (animation.value * 0.3);
-                    return Opacity(
-                      opacity: progress > 0 ? glow : 0,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(999),
-                          gradient: const LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: <Color>[
-                              Colors.transparent,
-                              Colors.white70,
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
-class PremiumLoadingStepRow extends StatelessWidget {
-  const PremiumLoadingStepRow({
-    super.key,
+class _LoadingStepsList extends StatelessWidget {
+  const _LoadingStepsList({
+    required this.steps,
+    required this.loadingStep,
+    required this.animation,
+  });
+
+  final List<String> steps;
+  final int loadingStep;
+  final Animation<double> animation;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List<Widget>.generate(steps.length, (int index) {
+        final bool isDone = index < loadingStep;
+        final bool isActive = index == loadingStep && loadingStep < steps.length;
+        return Padding(
+          padding: EdgeInsets.only(bottom: index == steps.length - 1 ? 0 : 10),
+          child: _LoadingStepRow(
+            title: steps[index],
+            done: isDone,
+            active: isActive,
+            animation: animation,
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _LoadingStepRow extends StatelessWidget {
+  const _LoadingStepRow({
     required this.title,
     required this.done,
     required this.active,
@@ -264,27 +290,21 @@ class PremiumLoadingStepRow extends StatelessWidget {
       curve: Curves.easeOutCubic,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: active
-            ? theme.colorScheme.primary.withValues(alpha: 0.10)
-            : Colors.transparent,
+        color: active ? theme.colorScheme.primary.withValues(alpha:0.10) : null,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: <Widget>[
           if (done)
-            const Icon(
-              Icons.check_circle_rounded,
-              color: Color(0xFF20B46A),
-              size: 22,
-            ),
-          if (active)
-            PremiumActiveIndicator(
+            const Icon(Icons.check_circle, color: Color(0xFF20B46A), size: 22)
+          else if (active)
+            _ActiveIndicator(
               animation: animation,
               color: theme.colorScheme.primary,
-            ),
-          if (!done && !active)
+            )
+          else
             Icon(
-              Icons.radio_button_unchecked_rounded,
+              Icons.radio_button_unchecked,
               color: theme.colorScheme.secondary,
               size: 22,
             ),
@@ -296,7 +316,7 @@ class PremiumLoadingStepRow extends StatelessWidget {
                 fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                 color: active
                     ? theme.colorScheme.onSurface
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.86),
+                    : theme.colorScheme.onSurface.withValues(alpha:0.86),
               ),
             ),
           ),
@@ -306,12 +326,8 @@ class PremiumLoadingStepRow extends StatelessWidget {
   }
 }
 
-class PremiumActiveIndicator extends StatelessWidget {
-  const PremiumActiveIndicator({
-    super.key,
-    required this.animation,
-    required this.color,
-  });
+class _ActiveIndicator extends StatelessWidget {
+  const _ActiveIndicator({required this.animation, required this.color});
 
   final Animation<double> animation;
   final Color color;
@@ -328,15 +344,12 @@ class PremiumActiveIndicator extends StatelessWidget {
           return Stack(
             alignment: Alignment.center,
             children: <Widget>[
-              Opacity(
-                opacity: 0.28,
-                child: Container(
-                  height: 19 * pulse,
-                  width: 19 * pulse,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
+              Container(
+                height: 19 * pulse,
+                width: 19 * pulse,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha:0.28),
+                  shape: BoxShape.circle,
                 ),
               ),
               Container(

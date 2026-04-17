@@ -69,6 +69,22 @@ class ReceiptDao extends DatabaseAccessor<AppDatabase> with _$ReceiptDaoMixin {
     return _attachItems(receiptRows);
   }
 
+  Future<List<ReceiptWithItems>> getReceiptsWithItemsBetween({
+    required DateTime fromInclusive,
+    required DateTime toExclusive,
+  }) async {
+    final List<Receipt> receiptRows =
+        await (select(receipts)
+              ..where(
+                (Receipts tbl) =>
+                    tbl.createdAt.isBiggerOrEqualValue(fromInclusive) &
+                    tbl.createdAt.isSmallerThanValue(toExclusive),
+              )
+              ..orderBy([(tbl) => OrderingTerm.desc(tbl.createdAt)]))
+            .get();
+    return _attachItems(receiptRows);
+  }
+
   Future<ReceiptWithItems?> getReceiptWithItemsByReceiptId(
     String receiptId,
   ) async {

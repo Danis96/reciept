@@ -9,7 +9,7 @@ import 'package:reciep/app/models/receipt/receipt_totals_model.dart';
 
 class ScanController extends ChangeNotifier {
   ScanController({required ScanRepository repository})
-    : _repository = repository;
+      : _repository = repository;
 
   final ScanRepository _repository;
 
@@ -22,7 +22,6 @@ class ScanController extends ChangeNotifier {
   bool _busy = false;
   bool _savingDraft = false;
   List<ReceiptModel> _recentReceipts = const <ReceiptModel>[];
-  int _failureEventId = 0;
 
   static const double _lowConfidenceThreshold = 0.65;
 
@@ -35,13 +34,22 @@ class ScanController extends ChangeNotifier {
   bool get hasPendingReceiptDraft => _pendingReceiptDraft != null;
   bool get isLowConfidence =>
       (_pendingReceiptDraft ?? _lastScannedReceipt)?.confidence != null &&
-      ((_pendingReceiptDraft ?? _lastScannedReceipt)!.confidence <
-          _lowConfidenceThreshold);
+          ((_pendingReceiptDraft ?? _lastScannedReceipt)!.confidence <
+              _lowConfidenceThreshold);
   int get loadingStep => _loadingStep;
   bool get busy => _busy;
   bool get savingDraft => _savingDraft;
-  int get failureEventId => _failureEventId;
   List<ReceiptModel> get recentReceipts => _recentReceipts;
+
+  /// Consumes the failure event, returning the failure and clearing it.
+  /// This ensures a failure is only handled once by the UI.
+  ScanFailure? consumeFailure() {
+    final ScanFailure? consumedFailure = _failure;
+    if (consumedFailure != null) {
+      _failure = null;
+    }
+    return consumedFailure;
+  }
 
   Future<void> initialize() async {
     await _loadRecentReceipts();
@@ -240,31 +248,17 @@ class ScanController extends ChangeNotifier {
   }
 
   Future<void> _advanceLoadingSteps() async {
-    _loadingStep = 1;
-    notifyListeners();
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-
-    _loadingStep = 2;
-    notifyListeners();
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-
-    _loadingStep = 3;
-    notifyListeners();
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-
-    _loadingStep = 4;
-    notifyListeners();
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-
-    _loadingStep = 5;
-    notifyListeners();
-    await Future<void>.delayed(const Duration(milliseconds: 220));
+    const List<int> delays = <int>[350, 350, 350, 350, 220];
+    for (int i = 0; i < delays.length; i++) {
+      _loadingStep = i + 1;
+      notifyListeners();
+      await Future<void>.delayed(Duration(milliseconds: delays[i]));
+    }
   }
 
   void _setFailure(ScanFailure failure) {
     _failure = failure;
     _state = ScanViewState.error;
-    _failureEventId++;
   }
 
   void _clearFailure() {

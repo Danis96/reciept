@@ -1,5 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reciep/app/features/dashboard/repository/dashboard_category_details_model.dart';
+import 'package:reciep/app/features/dashboard/ui/widgets/category_budget_details_sheet.dart';
 import 'package:reciep/app/features/scan/controllers/scan_controller.dart';
 
 import '../controllers/dashboard_controller.dart';
@@ -39,5 +41,27 @@ class DashboardActionUtils {
     required String category,
   }) {
     return context.read<DashboardController>().deleteBudget(category);
+  }
+
+  static Future<void> onBudgetCategoryPressed(
+    BuildContext context, {
+    required String category,
+  }) async {
+    final DashboardCategoryDetailsModel details = await context
+        .read<DashboardController>()
+        .loadCategoryDetails(category);
+    if (!context.mounted) {
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: false,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext sheetContext) {
+        return CategoryBudgetDetailsSheet(details: details);
+      },
+    );
   }
 }

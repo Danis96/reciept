@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
-
-import '../controllers/history_controller.dart';
+import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:reciep/app/features/history/controllers/history_controller.dart';
+import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/routing/app_router.dart';
 
 class HistoryActionUtils {
   const HistoryActionUtils._();
@@ -24,5 +27,41 @@ class HistoryActionUtils {
 
   static void onDateRangeChanged(BuildContext context, DateTimeRange? range) {
     context.read<HistoryController>().setDateRange(range);
+  }
+
+  static Future<void> showDateRangePicker(BuildContext context) async {
+    final HistoryController controller = context.read<HistoryController>();
+    final DateTime now = DateTime.now();
+
+    final DateTimeRange? range = await material.showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(now.year + 1),
+      initialDateRange: controller.dateRange,
+    );
+
+    if (!context.mounted) {
+      return;
+    }
+
+    onDateRangeChanged(context, range);
+  }
+
+  static Future<void> onOpenDetails(
+      BuildContext context,
+      ReceiptModel receipt,
+      ) async {
+    final Object? result = await Navigator.of(context).pushNamed(
+      AppRouter.receiptDetails,
+      arguments: ReceiptDetailsRouteArgs(
+        receiptId: receipt.id,
+        heroTag: AppRouter.receiptHeroTag('history', receipt.id),
+      ),
+    );
+    if (result == true && context.mounted) {
+      // Refresh both history and dashboard data
+      await context.read<HistoryController>().loadHistory();
+      await context.read<DashboardController>().refreshHome();
+    }
   }
 }

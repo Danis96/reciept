@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:reciep/app/features/scan/action_utils/scan_action_utils.dart';
 import 'package:reciep/app/features/scan/controllers/scan_controller.dart';
 import 'package:reciep/app/features/scan/controllers/scan_view_state.dart';
-import 'package:reciep/app/features/scan/repository/scan_failure.dart';
 import 'package:reciep/app/features/scan/ui/widgets/recent_scans_section.dart';
 import 'package:reciep/app/features/scan/ui/widgets/scan_header_section.dart';
 import 'package:reciep/app/features/scan/ui/widgets/scan_surface_card.dart';
@@ -11,25 +10,16 @@ import 'package:reciep/app/helpers/extensions/build_context_x.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
-class ScanPage extends StatefulWidget {
+class ScanPage extends StatelessWidget {
   const ScanPage({super.key});
 
   @override
-  State<ScanPage> createState() => _ScanPageState();
-}
-
-class _ScanPageState extends State<ScanPage> {
-  int _handledFailureEventId = 0;
-
-  @override
   Widget build(BuildContext context) {
-    return Selector<ScanController, _FailureSignal>(
-      selector: (_, ScanController controller) => _FailureSignal(
-        eventId: controller.failureEventId,
-        failure: controller.failure,
-      ),
-      builder: (BuildContext context, _FailureSignal signal, Widget? _) {
-        _handleFailurePopup(signal);
+    return Consumer<ScanController>(
+      builder: (BuildContext context, ScanController controller, Widget? _) {
+        // Listen for failure events and trigger the popup from action utils
+        ScanActionUtils.handleFailure(context, controller);
+
         return const SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.all(AppSpacing.md),
@@ -47,20 +37,6 @@ class _ScanPageState extends State<ScanPage> {
         );
       },
     );
-  }
-
-  void _handleFailurePopup(_FailureSignal signal) {
-    final ScanFailure? failure = signal.failure;
-    if (failure == null || signal.eventId == _handledFailureEventId) {
-      return;
-    }
-    _handledFailureEventId = signal.eventId;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      ScanActionUtils.showErrorPopup(context, failure);
-    });
   }
 }
 
@@ -92,60 +68,56 @@ class _ScanSurfaceSection extends StatelessWidget {
         lowConfidence: controller.isLowConfidence,
         savingDraft: controller.savingDraft,
       ),
-      shouldRebuild:
-          (_ScanSurfaceViewData previous, _ScanSurfaceViewData next) =>
-              previous != next,
       builder:
           (BuildContext context, _ScanSurfaceViewData data, Widget? child) =>
-              ScanSurfaceCard(
-                state: ScanSurfaceStateMapper(data.state).value,
-                imagePath: data.imagePath,
-                loadingStep: data.loadingStep,
-                errorMessage: data.errorMessage,
-                result: data.result,
-                hasDraft: data.hasDraft,
-                lowConfidence: data.lowConfidence,
-                savingDraft: data.savingDraft,
-                onGallery: () => ScanActionUtils.onOpenGallery(context),
-                onCamera: () => ScanActionUtils.onOpenCamera(context),
-                onScan: () => ScanActionUtils.onScan(context),
-                onRetry: () => ScanActionUtils.onRetryScan(context),
-                onReset: () => ScanActionUtils.onReset(context),
-                onScanAnother: () => ScanActionUtils.onScanAnother(context),
-                onEditDraft: () => ScanActionUtils.onEditDraft(context),
-                onSaveDraft: () => ScanActionUtils.onSaveDraft(context),
-                scanButtonText: context.l10n.scanReceiptButton,
-                retryLabel: context.l10n.scanRetry,
-                pickAnotherImageLabel: context.l10n.scanPickAnotherImage,
-                resetLabel: context.l10n.scanReset,
-                scanAnotherLabel: context.l10n.scanAnother,
-                saveReceiptLabel: context.l10n.scanSaveReceipt,
-                editBeforeSaveLabel: context.l10n.scanEditBeforeSave,
-                savingLabel: context.l10n.scanSaving,
-                lowConfidenceWarningLabel:
-                    context.l10n.scanLowConfidenceWarning,
-                successTitle: context.l10n.scanSuccessTitle,
-                errorTitle: context.l10n.scanErrorTitle,
-                errorFallback: context.l10n.scanErrorFallback,
-                merchantLabel: context.l10n.scanMerchant,
-                totalLabel: context.l10n.scanTotal,
-                dateLabel: context.l10n.scanDate,
-                categoryLabel: context.l10n.scanCategory,
-                itemsLabel: context.l10n.scanItems,
-                confidenceLabel: context.l10n.scanConfidence,
-                uploadTitle: context.l10n.scanUploadTitle,
-                uploadSubtitle: context.l10n.scanUploadSubtitle,
-                cameraTitle: context.l10n.scanCameraTitle,
-                cameraSubtitle: context.l10n.scanCameraSubtitle,
-                supportFormatsText: context.l10n.scanSupportFormats,
-                loadingSteps: <String>[
-                  context.l10n.scanStepUploading,
-                  context.l10n.scanStepReading,
-                  context.l10n.scanStepDetecting,
-                  context.l10n.scanStepCategorizing,
-                  context.l10n.scanStepFinalizing,
-                ],
-              ),
+          ScanSurfaceCard(
+            state: ScanSurfaceStateMapper(data.state).value,
+            imagePath: data.imagePath,
+            loadingStep: data.loadingStep,
+            errorMessage: data.errorMessage,
+            result: data.result,
+            hasDraft: data.hasDraft,
+            lowConfidence: data.lowConfidence,
+            savingDraft: data.savingDraft,
+            onGallery: () => ScanActionUtils.onOpenGallery(context),
+            onCamera: () => ScanActionUtils.onOpenCamera(context),
+            onScan: () => ScanActionUtils.onScan(context),
+            onRetry: () => ScanActionUtils.onRetryScan(context),
+            onReset: () => ScanActionUtils.onReset(context),
+            onScanAnother: () => ScanActionUtils.onScanAnother(context),
+            onEditDraft: () => ScanActionUtils.onEditDraft(context),
+            onSaveDraft: () => ScanActionUtils.onSaveDraft(context),
+            scanButtonText: context.l10n.scanReceiptButton,
+            retryLabel: context.l10n.scanRetry,
+            pickAnotherImageLabel: context.l10n.scanPickAnotherImage,
+            resetLabel: context.l10n.scanReset,
+            scanAnotherLabel: context.l10n.scanAnother,
+            saveReceiptLabel: context.l10n.scanSaveReceipt,
+            editBeforeSaveLabel: context.l10n.scanEditBeforeSave,
+            savingLabel: context.l10n.scanSaving,
+            lowConfidenceWarningLabel: context.l10n.scanLowConfidenceWarning,
+            successTitle: context.l10n.scanSuccessTitle,
+            errorTitle: context.l10n.scanErrorTitle,
+            errorFallback: context.l10n.scanErrorFallback,
+            merchantLabel: context.l10n.scanMerchant,
+            totalLabel: context.l10n.scanTotal,
+            dateLabel: context.l10n.scanDate,
+            categoryLabel: context.l10n.scanCategory,
+            itemsLabel: context.l10n.scanItems,
+            confidenceLabel: context.l10n.scanConfidence,
+            uploadTitle: context.l10n.scanUploadTitle,
+            uploadSubtitle: context.l10n.scanUploadSubtitle,
+            cameraTitle: context.l10n.scanCameraTitle,
+            cameraSubtitle: context.l10n.scanCameraSubtitle,
+            supportFormatsText: context.l10n.scanSupportFormats,
+            loadingSteps: <String>[
+              context.l10n.scanStepUploading,
+              context.l10n.scanStepReading,
+              context.l10n.scanStepDetecting,
+              context.l10n.scanStepCategorizing,
+              context.l10n.scanStepFinalizing,
+            ],
+          ),
     );
   }
 }
@@ -159,34 +131,14 @@ class _RecentScanSection extends StatelessWidget {
       selector: (_, ScanController controller) => controller.recentReceipts,
       builder:
           (BuildContext context, List<ReceiptModel> receipts, Widget? child) =>
-              RecentScansSection(
-                title: context.l10n.scanRecentTitle,
-                emptyText: context.l10n.noReceiptsYet,
-                emptyHintText: context.l10n.scanRecentEmptyHint,
-                receipts: receipts,
-              ),
+          RecentScansSection(
+            title: context.l10n.scanRecentTitle,
+            emptyText: context.l10n.noReceiptsYet,
+            emptyHintText: context.l10n.scanRecentEmptyHint,
+            receipts: receipts,
+          ),
     );
   }
-}
-
-class _FailureSignal {
-  const _FailureSignal({required this.eventId, required this.failure});
-
-  final int eventId;
-  final ScanFailure? failure;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    return other is _FailureSignal &&
-        other.eventId == eventId &&
-        other.failure == failure;
-  }
-
-  @override
-  int get hashCode => Object.hash(eventId, failure);
 }
 
 class _ScanSurfaceViewData {
@@ -240,7 +192,7 @@ class _ScanSurfaceViewData {
 }
 
 class ScanSurfaceStateMapper {
-  ScanSurfaceStateMapper(this.state);
+  const ScanSurfaceStateMapper(this.state);
 
   final ScanViewState state;
 

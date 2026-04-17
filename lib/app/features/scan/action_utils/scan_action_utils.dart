@@ -11,6 +11,24 @@ import 'package:reciep/app/models/receipt/receipt_model.dart';
 class ScanActionUtils {
   const ScanActionUtils._();
 
+  static void handleFailure(
+      BuildContext context,
+      ScanController controller,
+      ) {
+    final ScanFailure? failure = controller.consumeFailure();
+    if (failure == null) {
+      return;
+    }
+
+    // Use a post-frame callback to safely show a dialog during a build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) {
+        return;
+      }
+      showErrorPopup(context, failure);
+    });
+  }
+
   static Future<void> onOpenGallery(BuildContext context) {
     return context.read<ScanController>().pickFromGallery();
   }
@@ -83,62 +101,64 @@ class ScanActionUtils {
           builder: (BuildContext _, StateSetter setState) {
             return AlertDialog(
               title: Text(context.l10n.scanEditParsedReceipt),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    controller: merchantController,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.scanEditMerchant,
-                      border: OutlineInputBorder(),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    TextField(
+                      controller: merchantController,
+                      decoration: InputDecoration(
+                        labelText: context.l10n.scanEditMerchant,
+                        border: const OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedCategory,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.scanEditCategory,
-                      border: OutlineInputBorder(),
-                    ),
-                    items: CategoryBudgetCatalog.supportedCategories
-                        .map(
-                          (String category) => DropdownMenuItem<String>(
-                            value: category,
-                            child: Text(
-                              CategoryBudgetCatalog.labelFor(category),
-                            ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: selectedCategory,
+                      decoration: InputDecoration(
+                        labelText: context.l10n.scanEditCategory,
+                        border: const OutlineInputBorder(),
+                      ),
+                      items: CategoryBudgetCatalog.supportedCategories
+                          .map(
+                            (String category) => DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            CategoryBudgetCatalog.labelFor(category),
                           ),
-                        )
-                        .toList(growable: false),
-                    onChanged: (String? value) {
-                      if (value == null) {
-                        return;
-                      }
-                      setState(() {
-                        selectedCategory = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: paymentController,
-                    decoration: InputDecoration(
-                      labelText: context.l10n.scanEditPaymentMethod,
-                      border: OutlineInputBorder(),
+                        ),
+                      )
+                          .toList(growable: false),
+                      onChanged: (String? value) {
+                        if (value == null) {
+                          return;
+                        }
+                        setState(() {
+                          selectedCategory = value;
+                        });
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: totalController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: paymentController,
+                      decoration: InputDecoration(
+                        labelText: context.l10n.scanEditPaymentMethod,
+                        border: const OutlineInputBorder(),
+                      ),
                     ),
-                    decoration: InputDecoration(
-                      labelText: context.l10n.scanEditTotal,
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: totalController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.scanEditTotal,
+                        border: const OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               actions: <Widget>[
                 TextButton(
@@ -184,9 +204,9 @@ class ScanActionUtils {
   }
 
   static Future<void> showErrorPopup(
-    BuildContext context,
-    ScanFailure failure,
-  ) async {
+      BuildContext context,
+      ScanFailure failure,
+      ) async {
     if (!context.mounted) {
       return;
     }
@@ -203,7 +223,7 @@ class ScanActionUtils {
               borderRadius: BorderRadius.circular(22),
               gradient: LinearGradient(
                 colors: <Color>[
-                  colorScheme.errorContainer.withValues(alpha: 0.8),
+                  colorScheme.errorContainer.withValues(alpha:0.8),
                   colorScheme.surface,
                 ],
                 begin: Alignment.topLeft,
@@ -219,9 +239,7 @@ class ScanActionUtils {
                   children: <Widget>[
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: colorScheme.error.withValues(
-                        alpha: 0.16,
-                      ),
+                      backgroundColor: colorScheme.error.withValues(alpha:0.16),
                       child: Icon(
                         Icons.warning_amber_rounded,
                         color: colorScheme.error,
