@@ -143,6 +143,7 @@ class _HistorySearchBarState extends State<HistorySearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     return TextField(
       controller: _controller,
       onChanged: widget.onChanged,
@@ -154,10 +155,8 @@ class _HistorySearchBarState extends State<HistorySearchBar> {
           borderSide: BorderSide.none,
         ),
         hintText: 'Search by merchant or category...',
-        hintStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-          color: Theme.of(
-            context,
-          ).colorScheme.secondary.withValues(alpha: 0.78),
+        hintStyle: theme.textTheme.titleMedium?.copyWith(
+          color: theme.colorScheme.secondary.withValues(alpha: 0.78),
           fontWeight: FontWeight.w600,
         ),
         prefixIcon: const Icon(Icons.search),
@@ -212,15 +211,16 @@ class HistoryCategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final bool isAll = category == 'all';
     final Color categoryColor = isAll
-        ? Theme.of(context).colorScheme.primary
+        ? theme.colorScheme.primary
         : CategoryPalette.primaryFor(category, context);
     final Color activeColor = isAll
         ? HistoryThemePalette.selectedChipBackground(context)
         : categoryColor;
     final Color idleColor = isAll
-        ? Theme.of(context).colorScheme.surface
+        ? theme.colorScheme.surface
         : categoryColor.withValues(alpha: 0.18);
 
     return Material(
@@ -285,13 +285,16 @@ class HistoryCategoryChip extends StatelessWidget {
                                 ? Colors.white.withValues(alpha: 0.22)
                                 : Colors.white.withValues(alpha: 0.72),
                           ),
-                          child: CategoryAssetImage(category: category, size: 16),
+                          child: CategoryAssetImage(
+                            category: category,
+                            size: 16,
+                          ),
                         ),
                         const SizedBox(width: 6),
                       ],
                       Text(
                         HistoryCategoryLabel.labelForChip(category),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        style: theme.textTheme.bodyMedium?.copyWith(
                           color: selected
                               ? isAll
                                     ? HistoryThemePalette.selectedChipText(
@@ -302,9 +305,7 @@ class HistoryCategoryChip extends StatelessWidget {
                                         context,
                                       )
                               : isAll
-                              ? Theme.of(
-                                  context,
-                                ).colorScheme.secondary.withValues(alpha: 0.9)
+                              ? theme.colorScheme.secondary.withValues(alpha: 0.9)
                               : categoryColor,
                           fontWeight: FontWeight.w800,
                         ),
@@ -465,10 +466,7 @@ class HistoryReceiptsList extends StatelessWidget {
 }
 
 class HistoryEmptyState extends StatelessWidget {
-  const HistoryEmptyState({
-    super.key,
-    required this.selectedCategory,
-  });
+  const HistoryEmptyState({super.key, required this.selectedCategory});
 
   final String selectedCategory;
 
@@ -483,15 +481,7 @@ class HistoryEmptyState extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        gradient: LinearGradient(
-          colors: <Color>[
-            CategoryPalette.surfaceFor(category, context),
-            Theme.of(context).colorScheme.surface,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: HistoryThemePalette.border(context)),
+        border: Border.all(color: CategoryPalette.surfaceFor(category, context)),
       ),
       child: Row(
         children: <Widget>[
@@ -503,10 +493,7 @@ class HistoryEmptyState extends StatelessWidget {
               shape: BoxShape.circle,
               color: Theme.of(context).colorScheme.surface,
             ),
-            child: CategoryAssetImage(
-              category: category,
-              size: 52,
-            ),
+            child: CategoryAssetImage(category: category, size: 52),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -517,7 +504,7 @@ class HistoryEmptyState extends StatelessWidget {
                   'No receipts found',
                   style: Theme.of(
                     context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
@@ -526,7 +513,7 @@ class HistoryEmptyState extends StatelessWidget {
                       : 'No ${HistoryCategoryLabel.labelForBadge(selectedCategory).toLowerCase()} receipts match the current search or date range.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
@@ -555,6 +542,10 @@ class HistoryCategoryLabel {
         return 'Pets';
       case CategoryBudgetCatalog.clothing:
         return 'Clothing';
+      case CategoryBudgetCatalog.pharmacy:
+        return 'Pharmacy';
+      case CategoryBudgetCatalog.dental:
+        return 'Dental';
       case CategoryBudgetCatalog.miscellaneous:
         return 'Misc';
     }
@@ -574,12 +565,15 @@ class HistoryCategoryLabel {
         return 'Pets';
       case CategoryBudgetCatalog.clothing:
         return 'Clothing';
+      case CategoryBudgetCatalog.pharmacy:
+        return 'Pharmacy';
+      case CategoryBudgetCatalog.dental:
+        return 'Dental';
       case CategoryBudgetCatalog.miscellaneous:
         return 'Misc';
     }
     return 'Misc';
   }
-
 }
 
 class HistorySortLabel {

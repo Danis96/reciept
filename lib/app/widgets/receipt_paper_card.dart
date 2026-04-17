@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/models/receipt/receipt_item_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/app/widgets/category_asset_image.dart';
@@ -42,7 +43,10 @@ class _ReceiptPaperListState extends State<ReceiptPaperList> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.receipts != widget.receipts) {
       _expandedReceiptIds = _expandedReceiptIds
-          .where((String id) => widget.receipts.any((ReceiptModel item) => item.id == id))
+          .where(
+            (String id) =>
+            widget.receipts.any((ReceiptModel item) => item.id == id),
+      )
           .toSet();
       if (widget.expandFirstByDefault &&
           _expandedReceiptIds.isEmpty &&
@@ -55,7 +59,9 @@ class _ReceiptPaperListState extends State<ReceiptPaperList> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: widget.receipts.asMap().entries.map((MapEntry<int, ReceiptModel> entry) {
+      children: widget.receipts.asMap().entries.map((
+          MapEntry<int, ReceiptModel> entry,
+          ) {
         final int index = entry.key;
         final ReceiptModel receipt = entry.value;
         final bool expanded = _expandedReceiptIds.contains(receipt.id);
@@ -127,7 +133,10 @@ class ReceiptPaperCard extends StatelessWidget {
         : receipt.merchant.name.trim().toUpperCase();
     final int itemCount = receipt.items.length;
     final int quantityCount = receipt.items
-        .fold<double>(0, (double sum, ReceiptItemModel item) => sum + item.quantity)
+        .fold<double>(
+      0,
+          (double sum, ReceiptItemModel item) => sum + item.quantity,
+    )
         .round();
 
     return Material(
@@ -164,12 +173,12 @@ class ReceiptPaperCard extends StatelessWidget {
                     heroTag == null
                         ? ReceiptPaperText.header(merchant)
                         : Hero(
-                            tag: heroTag!,
-                            child: Material(
-                              color: Colors.transparent,
-                              child: ReceiptPaperText.header(merchant),
-                            ),
-                          ),
+                      tag: heroTag!,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: ReceiptPaperText.header(merchant),
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     ReceiptPaperText.meta(
                       DateFormat('EEE, MMM d, yyyy').format(receipt.createdAt),
@@ -179,7 +188,10 @@ class ReceiptPaperCard extends StatelessWidget {
                       DateFormat('hh:mm a').format(receipt.createdAt),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    Divider(color: ReceiptPaperPalette.border(context), height: 1),
+                    Divider(
+                      color: ReceiptPaperPalette.border(context),
+                      height: 1,
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     ReceiptCategoryBadge(category: receipt.category),
                     const SizedBox(height: AppSpacing.md),
@@ -188,42 +200,51 @@ class ReceiptPaperCard extends StatelessWidget {
                       value: '$quantityCount x',
                       emphasized: false,
                     ),
-                    if (expanded) ...<Widget>[
-                      const SizedBox(height: AppSpacing.xs),
-                      ...receipt.items.take(2).map(
-                        (ReceiptItemModel item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: ReceiptItemRow(item: item),
-                        ),
-                      ),
-                      if (receipt.items.length > 2)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                          child: ReceiptPaperText.muted(
-                            '+${receipt.items.length - 2} more items',
+
+                    // ── Animated expandable items + subtotal/tax section ──
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 320),
+                      curve: Curves.easeInOutCubic,
+                      alignment: Alignment.topCenter,
+                      child: Column(
+                        children: expanded
+                            ? <Widget>[
+                          const SizedBox(height: AppSpacing.xs),
+                          ...receipt.items.map(
+                                (ReceiptItemModel item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: ReceiptItemRow(item: item),
+                            ),
                           ),
-                        ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Divider(color: ReceiptPaperPalette.border(context), height: 1),
-                      const SizedBox(height: AppSpacing.xs),
-                      ReceiptTotalsRow(
-                        label: 'SUBTOTAL:',
-                        value:
+                          const SizedBox(height: AppSpacing.xs),
+                          Divider(
+                            color: ReceiptPaperPalette.border(context),
+                            height: 1,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          ReceiptTotalsRow(
+                            label: 'SUBTOTAL:',
+                            value:
                             '${ReceiptPaperMoney.format(receipt.totals.subtotal ?? 0)} ${ReceiptPaperMoney.currencyLabel(receipt.currency)}',
-                        emphasized: false,
-                      ),
-                      const SizedBox(height: 4),
-                      ReceiptTotalsRow(
-                        label: 'TAX:',
-                        value:
+                            emphasized: false,
+                          ),
+                          const SizedBox(height: 4),
+                          ReceiptTotalsRow(
+                            label: 'TAX:',
+                            value:
                             '${ReceiptPaperMoney.format(receipt.totals.vatAmount ?? 0)} ${ReceiptPaperMoney.currencyLabel(receipt.currency)}',
-                        emphasized: false,
+                            emphasized: false,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                        ]
+                            : const <Widget>[SizedBox(height: AppSpacing.xs)],
                       ),
-                      const SizedBox(height: AppSpacing.xs),
-                    ] else
-                      const SizedBox(height: AppSpacing.xs),
+                    ),
+
                     Divider(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.72,
+                      ),
                       height: 1,
                       thickness: 1.4,
                     ),
@@ -231,37 +252,87 @@ class ReceiptPaperCard extends StatelessWidget {
                     ReceiptTotalsRow(
                       label: 'TOTAL:',
                       value:
-                          '${ReceiptPaperMoney.format(receipt.totals.total)} ${ReceiptPaperMoney.currencyLabel(receipt.currency)}',
+                      '${ReceiptPaperMoney.format(receipt.totals.total)} ${ReceiptPaperMoney.currencyLabel(receipt.currency)}',
                       emphasized: true,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     ReceiptConfidencePill(confidence: receipt.confidence),
                     const SizedBox(height: AppSpacing.sm),
-                    TextButton.icon(
+
+                    // ── Animated toggle button ──
+                    TextButton(
                       onPressed: onToggleExpanded,
                       style: TextButton.styleFrom(
-                        foregroundColor: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.52,
-                        ),
+                        foregroundColor: theme.colorScheme.onSurface
+                            .withValues(alpha: 0.52),
                         textStyle: ReceiptPaperText.buttonStyle(context),
                       ),
-                      iconAlignment: IconAlignment.end,
-                      icon: Icon(
-                        expanded
-                            ? Icons.keyboard_arrow_up_rounded
-                            : Icons.keyboard_arrow_down_rounded,
-                        size: 18,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 200),
+                            crossFadeState: expanded
+                                ? CrossFadeState.showSecond
+                                : CrossFadeState.showFirst,
+                            firstChild: Text(
+                              'SHOW MORE',
+                              style: ReceiptPaperText.buttonStyle(context)
+                                  .copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.52),
+                              ),
+                            ),
+                            secondChild: Text(
+                              'SHOW LESS',
+                              style: ReceiptPaperText.buttonStyle(context)
+                                  .copyWith(
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.52),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          AnimatedRotation(
+                            turns: expanded ? 0.5 : 0.0,
+                            duration: const Duration(milliseconds: 320),
+                            curve: Curves.easeInOutCubic,
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              size: 18,
+                            ),
+                          ),
+                        ],
                       ),
-                      label: Text(expanded ? 'SHOW LESS' : 'SHOW MORE'),
                     ),
-                    if (expanded) ...<Widget>[
-                      const SizedBox(height: AppSpacing.sm),
-                      Divider(color: ReceiptPaperPalette.border(context), height: 1),
-                      const SizedBox(height: AppSpacing.sm),
-                      ReceiptPaperText.footer('RECEIPT ID: ${receipt.id}'),
-                      const SizedBox(height: 4),
-                      const ReceiptPaperText.footer('THANK YOU!'),
-                    ],
+
+                    // ── Animated footer (Receipt ID + Thank You) ──
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeInOutCubic,
+                      alignment: Alignment.topCenter,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 240),
+                        opacity: expanded ? 1.0 : 0.0,
+                        child: expanded
+                            ? Column(
+                          children: <Widget>[
+                            const SizedBox(height: AppSpacing.sm),
+                            Divider(
+                              color: ReceiptPaperPalette.border(context),
+                              height: 1,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            ReceiptPaperText.footer(
+                                'RECEIPT ID: ${receipt.id}'),
+                            const SizedBox(height: 4),
+                            const ReceiptPaperText.footer('THANK YOU!'),
+                          ],
+                        )
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -280,17 +351,22 @@ class ReceiptPerforation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: 8,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List<Widget>.generate(
           22,
-          (int index) => Container(
+              (int index) => Container(
             width: 4,
             height: 4,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.18),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.18),
             ),
           ),
         ),
@@ -435,13 +511,13 @@ class ReceiptPaperText extends StatelessWidget {
   final TextStyle? style;
 
   const ReceiptPaperText.header(String text)
-    : this._(text: text, textAlign: TextAlign.center, style: null);
+      : this._(text: text, textAlign: TextAlign.center, style: null);
   const ReceiptPaperText.meta(String text)
-    : this._(text: text, textAlign: TextAlign.center, style: null);
+      : this._(text: text, textAlign: TextAlign.center, style: null);
   const ReceiptPaperText.muted(String text)
-    : this._(text: text, textAlign: TextAlign.left, style: null);
+      : this._(text: text, textAlign: TextAlign.left, style: null);
   const ReceiptPaperText.footer(String text)
-    : this._(text: text, textAlign: TextAlign.center, style: null);
+      : this._(text: text, textAlign: TextAlign.center, style: null);
 
   @override
   Widget build(BuildContext context) {
@@ -449,7 +525,8 @@ class ReceiptPaperText extends StatelessWidget {
     if (resolvedStyle == null) {
       if (textAlign == TextAlign.center && text.contains('STORE')) {
         resolvedStyle = headerStyle(context);
-      } else if (textAlign == TextAlign.center && text.contains('RECEIPT ID:')) {
+      } else if (textAlign == TextAlign.center &&
+          text.contains('RECEIPT ID:')) {
         resolvedStyle = footerStyle(context);
       } else if (textAlign == TextAlign.center && text == 'THANK YOU!') {
         resolvedStyle = footerStyle(context);
@@ -512,33 +589,33 @@ class ReceiptPaperText extends StatelessWidget {
   }
 
   static TextStyle item(BuildContext context) {
-    return base(context).copyWith(fontSize: 15, fontWeight: FontWeight.w700);
+    return base(context).copyWith(fontSize: 13, fontWeight: FontWeight.w700);
   }
 
   static TextStyle itemValue(BuildContext context) {
-    return base(context).copyWith(fontSize: 15, fontWeight: FontWeight.w800);
+    return base(context).copyWith(fontSize: 14, fontWeight: FontWeight.w800);
   }
 
   static TextStyle rowLabel(BuildContext context) {
-    return base(context).copyWith(fontSize: 16, fontWeight: FontWeight.w800);
+    return base(context).copyWith(fontSize: 14, fontWeight: FontWeight.w800);
   }
 
   static TextStyle rowValue(BuildContext context) {
-    return base(context).copyWith(fontSize: 16, fontWeight: FontWeight.w800);
+    return base(context).copyWith(fontSize: 14, fontWeight: FontWeight.w800);
   }
 
   static TextStyle total(BuildContext context) {
     return base(context).copyWith(
-      fontSize: 21,
+      fontSize: 19,
       height: 1.0,
-      fontWeight: FontWeight.w900,
+      fontWeight: FontWeight.w800,
       letterSpacing: 0.6,
     );
   }
 
   static TextStyle confidence(BuildContext context, {required Color color}) {
     return base(context).copyWith(
-      fontSize: 12,
+      fontSize: 11,
       fontWeight: FontWeight.w900,
       letterSpacing: 0.8,
       color: color,
@@ -547,7 +624,7 @@ class ReceiptPaperText extends StatelessWidget {
 
   static TextStyle buttonStyle(BuildContext context) {
     return base(context).copyWith(
-      fontSize: 13,
+      fontSize: 11,
       fontWeight: FontWeight.w800,
       letterSpacing: 0.8,
     );
@@ -562,10 +639,7 @@ class ReceiptPaperMoney {
   }
 
   static String currencyLabel(String currency) {
-    if (currency.trim().toUpperCase() == 'BAM') {
-      return 'KM';
-    }
-    return currency.trim().toUpperCase();
+    return 'KM';
   }
 }
 
@@ -573,23 +647,8 @@ class ReceiptPaperCategoryLabel {
   const ReceiptPaperCategoryLabel._();
 
   static String labelFor(String category) {
-    final String key = category.trim().toLowerCase();
-    if (key.contains('groc') || key.contains('food')) {
-      return 'Groceries';
-    }
-    if (key.contains('fuel') || key.contains('gas') || key.contains('car')) {
-      return 'Fuel';
-    }
-    if (key.contains('house') || key.contains('home')) {
-      return 'Household';
-    }
-    if (key.contains('pet') || key.contains('dog') || key.contains('cat')) {
-      return 'Pets';
-    }
-    if (key.contains('cloth')) {
-      return 'Clothing';
-    }
-    return 'Misc';
+    final String label = CategoryBudgetCatalog.labelFor(category);
+    return label == 'Miscellaneous' ? 'Misc' : label;
   }
 }
 

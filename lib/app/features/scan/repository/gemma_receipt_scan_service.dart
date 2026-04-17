@@ -20,7 +20,7 @@ class GemmaReceiptScanService {
     required String apiKey,
     String model = 'gemma-4-26b-a4b-it',
     String baseUrl = 'https://generativelanguage.googleapis.com/v1beta',
-    Duration timeout = const Duration(seconds: 580),
+    Duration timeout = const Duration(seconds: 1080),
     HttpClient? httpClient,
     ReceiptAiPromptBuilder? promptBuilder,
     ReceiptImageCompressionService? imageCompressionService,

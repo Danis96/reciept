@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/budgets/ui/widgets/category_budget_manager_sheet.dart';
 import 'package:reciep/app/features/settings/action_utils/settings_action_utils.dart';
 import 'package:reciep/app/features/settings/controllers/settings_controller.dart';
 
@@ -67,44 +65,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                     ),
                     const SizedBox(height: 14),
-                    SettingsBudgetCard(
-                      monthlyBudget: controller.monthlyBudget,
-                      onManagePressed: () async {
-                        await showModalBottomSheet<void>(
-                          context: context,
-                          isScrollControlled: true,
-                          useSafeArea: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (BuildContext sheetContext) {
-                            return CategoryBudgetManagerSheet(
-                              supportedCategories:
-                                  controller.supportedBudgetCategories,
-                              currentAmounts: <String, double>{
-                                for (final budget in controller.categoryBudgets)
-                                  budget.category: budget.budgetAmount,
-                              },
-                              onSave: (String category, double amount) {
-                                return SettingsActionUtils.onBudgetSaved(
-                                  context,
-                                  category: category,
-                                  amount: amount,
-                                );
-                              },
-                              onDelete: (String category) {
-                                return SettingsActionUtils.onBudgetDeleted(
-                                  context,
-                                  category: category,
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    const SizedBox(height: 14),
+                    const SettingsLegalCard(),
                     const SizedBox(height: 14),
                     const SettingsAboutCard(appVersion: _appVersion),
                     const SizedBox(height: 14),
-                    const SettingsLegalCard(),
                   ],
                 ),
               ),
@@ -400,62 +365,6 @@ class SettingsActionRowButton extends StatelessWidget {
             const Icon(Icons.chevron_right_rounded, size: 20),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SettingsBudgetCard extends StatelessWidget {
-  const SettingsBudgetCard({
-    super.key,
-    required this.monthlyBudget,
-    required this.onManagePressed,
-  });
-
-  final double monthlyBudget;
-  final VoidCallback onManagePressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SettingsCardFrame(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const SettingsSectionHeader(
-            icon: Icons.attach_money_rounded,
-            title: 'Budget Settings',
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Monthly Budget (KM)',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            height: 50,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: SettingsPagePalette.fieldBackground(context),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text(
-              NumberFormat('0').format(monthlyBudget),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SettingsActionRowButton(
-            title: 'Manage Category Budgets',
-            onTap: onManagePressed,
-          ),
-        ],
       ),
     );
   }

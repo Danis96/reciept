@@ -29,6 +29,14 @@ class CategoryPalette {
         return _dark(context)
             ? const Color(0xFFFF9A73)
             : const Color(0xFFE76F51);
+      case CategoryBudgetCatalog.pharmacy:
+        return _dark(context)
+            ? const Color(0xFF61D3C6)
+            : const Color(0xFF0E9384);
+      case CategoryBudgetCatalog.dental:
+        return _dark(context)
+            ? const Color(0xFF8FD3FF)
+            : const Color(0xFF2D9CDB);
       case CategoryBudgetCatalog.miscellaneous:
         return _dark(context)
             ? const Color(0xFFACB4C8)
@@ -44,7 +52,7 @@ class CategoryPalette {
     return primaryFor(
       category,
       context,
-    ).withValues(alpha: _dark(context) ? 0.22 : 0.12);
+    ).withValues(alpha: _dark(context) ? 0.22 : 0.32);
   }
 
   static Color onPrimaryFor(String category, BuildContext context) {
@@ -68,7 +76,7 @@ class CategoryPalette {
     BuildContext context,
   ) {
     final Color base = primaryFor(category, context);
-    final Color start = base.withValues(alpha: _dark(context) ? 0.18 : 0.10);
+    final Color start = base.withValues(alpha: _dark(context) ? 0.18 : 0.5);
     final Color end = Theme.of(
       context,
     ).colorScheme.surface.withValues(alpha: _dark(context) ? 0.96 : 1);
