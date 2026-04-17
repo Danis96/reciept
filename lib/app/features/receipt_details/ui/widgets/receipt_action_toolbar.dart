@@ -25,6 +25,8 @@ class ReceiptActionToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Align(
       alignment: Alignment.centerRight,
       child: Wrap(
@@ -40,14 +42,11 @@ class ReceiptActionToolbar extends StatelessWidget {
           ),
           ActionButton(
             icon: Icons.delete_outline_rounded,
-            iconColor: const Color(0xFFFF4D4F),
-            borderColor: const Color(0xFFFFD9D9),
+            iconColor: colorScheme.error,
+            borderColor: colorScheme.error.withValues(alpha: 0.28),
             onTap: deleting ? null : onDelete,
           ),
-          ActionButton(
-            icon: Icons.share_outlined,
-            onTap: onShare,
-          ),
+          ActionButton(icon: Icons.share_outlined, onTap: onShare),
           ReceiptExportButton(
             exporting: exporting,
             onSelected: onExportSelected,
@@ -63,17 +62,22 @@ class ActionButton extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onTap,
-    this.iconColor = const Color(0xFF64748B),
-    this.borderColor = const Color(0xFFDDE5F0),
+    this.iconColor,
+    this.borderColor,
   });
 
   final IconData icon;
   final VoidCallback? onTap;
-  final Color iconColor;
-  final Color borderColor;
+  final Color? iconColor;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color resolvedIconColor = iconColor ?? colorScheme.onSurfaceVariant;
+    final Color resolvedBorderColor =
+        borderColor ?? colorScheme.outlineVariant.withValues(alpha: 0.7);
+
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: onTap,
@@ -81,14 +85,18 @@ class ActionButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: onTap == null ? const Color(0xFFF8FAFC) : Colors.white,
+          color: onTap == null
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+              : colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor),
+          border: Border.all(color: resolvedBorderColor),
         ),
         child: Icon(
           icon,
           size: 18,
-          color: onTap == null ? iconColor.withValues(alpha: 0.35) : iconColor,
+          color: onTap == null
+              ? resolvedIconColor.withValues(alpha: 0.35)
+              : resolvedIconColor,
         ),
       ),
     );
@@ -107,42 +115,46 @@ class ReceiptExportButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return PopupMenuButton<ReceiptExportFormat>(
       tooltip: 'Export receipt',
       onSelected: onSelected,
       itemBuilder: (BuildContext context) =>
-      <PopupMenuEntry<ReceiptExportFormat>>[
-        const PopupMenuItem<ReceiptExportFormat>(
-          value: ReceiptExportFormat.csv,
-          child: Text('Export CSV'),
-        ),
-        const PopupMenuItem<ReceiptExportFormat>(
-          value: ReceiptExportFormat.json,
-          child: Text('Export JSON'),
-        ),
-      ],
+          <PopupMenuEntry<ReceiptExportFormat>>[
+            const PopupMenuItem<ReceiptExportFormat>(
+              value: ReceiptExportFormat.csv,
+              child: Text('Export CSV'),
+            ),
+            const PopupMenuItem<ReceiptExportFormat>(
+              value: ReceiptExportFormat.json,
+              child: Text('Export JSON'),
+            ),
+          ],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFDDE5F0)),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+          ),
         ),
         child: exporting
-            ? const Padding(
-          padding: EdgeInsets.all(9),
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: Color(0xFF64748B),
-          ),
-        )
-            : const Icon(
-          Icons.file_download_outlined,
-          size: 18,
-          color: Color(0xFF64748B),
-        ),
+            ? Padding(
+                padding: const EdgeInsets.all(9),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              )
+            : Icon(
+                Icons.file_download_outlined,
+                size: 18,
+                color: colorScheme.onSurfaceVariant,
+              ),
       ),
     );
   }

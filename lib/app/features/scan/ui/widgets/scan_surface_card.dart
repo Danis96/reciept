@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:reciep/app/features/scan/ui/widgets/premium_scan_loading_panel.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/theme/app_colors.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
 enum ScanSurfaceState { idle, imageSelected, loading, success, error }
@@ -480,7 +481,7 @@ class _SuccessView extends StatelessWidget {
 
     final DateFormat dateFormat = DateFormat('M/d/yyyy');
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color successColor = colorScheme.primary;
+    final Color successColor = AppColors.success;
 
     return Container(
       decoration: BoxDecoration(
@@ -528,7 +529,7 @@ class _SuccessView extends StatelessWidget {
           _ScanSuccessRow(
               label: totalLabel,
               value:
-              '${receipt.totals.total.toStringAsFixed(2)} ${receipt.currency}'),
+              '${receipt.totals.total.toStringAsFixed(2)} KM'),
           _ScanSuccessRow(
               label: dateLabel, value: dateFormat.format(receipt.createdAt)),
           _ScanSuccessRow(label: categoryLabel, value: receipt.category),
@@ -548,9 +549,9 @@ class _SuccessView extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                     onPressed: savingDraft ? null : onEditDraft,
-                    child: Text(editBeforeSaveLabel),
+                    child: Text('Edit'),
                   ),
                 ),
               ],
@@ -663,7 +664,7 @@ class _ScanSuccessRow extends StatelessWidget {
               textAlign: TextAlign.end,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: textTheme.titleMedium,
+              style: textTheme.titleMedium!.copyWith(fontSize: 13),
             ),
           ),
         ],

@@ -11,7 +11,9 @@ class ReceiptItemsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return ReceiptCardShell(
       child: Column(
@@ -21,7 +23,7 @@ class ReceiptItemsCard extends StatelessWidget {
             'Items',
             style: textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF273142),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 14),
@@ -29,12 +31,12 @@ class ReceiptItemsCard extends StatelessWidget {
             Text(
               'No items available.',
               style: textTheme.bodyLarge?.copyWith(
-                color: const Color(0xFF64748B),
+                color: colorScheme.onSurfaceVariant,
               ),
             )
           else
             ...receipt.items.asMap().entries.map(
-                  (MapEntry<int, ReceiptItemModel> entry) => ReceiptItemListRow(
+              (MapEntry<int, ReceiptItemModel> entry) => ReceiptItemListRow(
                 item: entry.value,
                 showDivider: entry.key != receipt.items.length - 1,
                 currency: receipt.currency,
@@ -60,7 +62,9 @@ class ReceiptItemListRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
     return Padding(
       padding: EdgeInsets.only(bottom: showDivider ? 14 : 0),
       child: Column(
@@ -73,7 +77,7 @@ class ReceiptItemListRow extends StatelessWidget {
                   item.name.trim().isEmpty ? 'Unnamed item' : item.name.trim(),
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: const Color(0xFF273142),
+                    color: colorScheme.onSurface,
                     height: 1.3,
                   ),
                 ),
@@ -83,7 +87,7 @@ class ReceiptItemListRow extends StatelessWidget {
                 money(item.finalPrice, currency),
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF273142),
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -94,14 +98,17 @@ class ReceiptItemListRow extends StatelessWidget {
             child: Text(
               'Qty: ${qty(item.quantity)}',
               style: textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF6B7A99),
+                color: colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          if (showDivider) ...const <Widget>[
-            SizedBox(height: 14),
-            Divider(color: Color(0xFFE7EDF6), height: 1),
+          if (showDivider) ...<Widget>[
+            const SizedBox(height: 14),
+            Divider(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+              height: 1,
+            ),
           ],
         ],
       ),

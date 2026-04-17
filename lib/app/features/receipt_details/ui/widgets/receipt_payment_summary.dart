@@ -10,6 +10,8 @@ class ReceiptPaymentSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return ReceiptCardShell(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -18,7 +20,7 @@ class ReceiptPaymentSummaryCard extends StatelessWidget {
             'Payment Summary',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF273142),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 18),
@@ -32,7 +34,10 @@ class ReceiptPaymentSummaryCard extends StatelessWidget {
             value: money(receipt.totals.vatAmount ?? 0, receipt.currency),
           ),
           const SizedBox(height: 14),
-          const Divider(color: Color(0xFFE7EDF6), height: 1),
+          Divider(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+            height: 1,
+          ),
           const SizedBox(height: 14),
           PaymentSummaryRow(
             label: 'Total',
@@ -59,16 +64,18 @@ class PaymentSummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
     final TextStyle? style = emphasize
         ? textTheme.titleLarge?.copyWith(
-      fontWeight: FontWeight.w800,
-      color: const Color(0xFF111827),
-    )
+            fontWeight: FontWeight.w800,
+            color: colorScheme.onSurface,
+          )
         : textTheme.titleMedium?.copyWith(
-      fontWeight: FontWeight.w500,
-      color: const Color(0xFF273142),
-    );
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
+          );
 
     return Row(
       children: <Widget>[

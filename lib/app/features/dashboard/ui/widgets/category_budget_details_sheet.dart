@@ -27,60 +27,57 @@ class CategoryBudgetDetailsSheet extends StatelessWidget {
         ? '${DashboardMoney.formatInt(details.remainingAmount)} KM left'
         : '${DashboardMoney.formatInt(details.remainingAmount.abs())} KM over';
 
-    return SafeArea(
-      top: false,
-      child: Container(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.88,
-        ),
-        decoration: BoxDecoration(
-          color: surfaceColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          children: <Widget>[
-            const SizedBox(height: AppSpacing.xs),
-            Container(
-              width: 44,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.secondary.withValues(alpha: 0.24),
-                borderRadius: BorderRadius.circular(999),
-              ),
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.88,
+      ),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: <Widget>[
+          const SizedBox(height: AppSpacing.xs),
+          Container(
+            width: 44,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.secondary.withValues(alpha: 0.24),
+              borderRadius: BorderRadius.circular(999),
             ),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.md,
+                AppSpacing.md,
+                MediaQuery.viewInsetsOf(context).bottom + AppSpacing.lg,
+              ),
+              children: <Widget>[
+                CategoryBudgetDetailsHero(
+                  details: details,
+                  categoryColor: categoryColor,
+                  safeRatio: safeRatio,
+                  monthLabel: monthLabel,
+                  remainingText: remainingText,
                 ),
-                children: <Widget>[
-                  CategoryBudgetDetailsHero(
-                    details: details,
-                    categoryColor: categoryColor,
-                    safeRatio: safeRatio,
-                    monthLabel: monthLabel,
-                    remainingText: remainingText,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  CategoryBudgetDetailsStats(
-                    details: details,
-                    categoryColor: categoryColor,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  CategoryBudgetDetailsItemsCard(
-                    details: details,
-                    categoryColor: categoryColor,
-                  ),
-                ],
-              ),
+                const SizedBox(height: AppSpacing.md),
+                CategoryBudgetDetailsStats(
+                  details: details,
+                  categoryColor: categoryColor,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                CategoryBudgetDetailsItemsCard(
+                  details: details,
+                  categoryColor: categoryColor,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -111,11 +108,8 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        gradient: CategoryPalette.subtleGradientFor(details.category, context),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: categoryColor.withValues(alpha: 0.28),
-        ),
+        border: Border.all(color: categoryColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +138,7 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
                     Text(
                       details.label,
                       style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.w800),
+                          ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
@@ -170,7 +164,7 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
           Text(
             '${DashboardMoney.formatInt(details.spentAmount)} KM spent',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: AppSpacing.xxs),
@@ -249,27 +243,27 @@ class CategoryBudgetDetailsStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: tone.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: tone.withValues(alpha: 0.18)),
+        border: Border.all(color: tone.withValues(alpha: 0.38)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.secondary,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -381,11 +375,7 @@ class CategoryBudgetDetailsItemRow extends StatelessWidget {
         : '${item.quantity.toStringAsFixed(item.quantity == item.quantity.roundToDouble() ? 0 : 2)} ${item.unit}';
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: categoryColor.withValues(alpha: 0.06),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -406,7 +396,7 @@ class CategoryBudgetDetailsItemRow extends StatelessWidget {
                 Text(
                   item.name,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),

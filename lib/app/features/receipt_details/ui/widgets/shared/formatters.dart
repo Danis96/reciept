@@ -1,5 +1,5 @@
 String money(double value, String currency) {
-  final String code = currency.trim().isEmpty ? 'KM' : currency.trim();
+  final String code = 'KM';
   return '${value.toStringAsFixed(2)} $code';
 }
 
