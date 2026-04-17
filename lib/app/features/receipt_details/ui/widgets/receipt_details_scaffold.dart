@@ -1,0 +1,79 @@
+import 'package:flutter/material.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
+import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_action_toolbar.dart';
+import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_items_card.dart';
+import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_overview_card.dart';
+import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_payment_summary.dart';
+import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_top_bar.dart';
+import 'package:reciep/app/models/receipt/receipt_model.dart';
+
+class ReceiptDetailsScaffold extends StatelessWidget {
+  const ReceiptDetailsScaffold({
+    super.key,
+    required this.receipt,
+    required this.deleting,
+    required this.exporting,
+    required this.onViewImage,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onShare,
+    required this.onExportSelected,
+  });
+
+  final ReceiptModel receipt;
+  final bool deleting;
+  final bool exporting;
+  final VoidCallback onViewImage;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+  final VoidCallback onShare;
+  final Future<void> Function(ReceiptExportFormat format) onExportSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        const ReceiptTopBar(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              18,
+              16,
+              28 + MediaQuery.of(context).padding.bottom,
+            ),
+            child: Column(
+              children: <Widget>[
+                ReceiptActionToolbar(
+                  hasImage: receipt.imagePath != null &&
+                      receipt.imagePath!.trim().isNotEmpty,
+                  deleting: deleting,
+                  exporting: exporting,
+                  onViewImage: onViewImage,
+                  onEdit: onEdit,
+                  onDelete: onDelete,
+                  onShare: onShare,
+                  onExportSelected: onExportSelected,
+                ),
+                const SizedBox(height: 22),
+                ReceiptOverviewCard(receipt: receipt),
+                const SizedBox(height: 16),
+                ReceiptItemsCard(receipt: receipt),
+                const SizedBox(height: 16),
+                ReceiptPaymentSummaryCard(receipt: receipt),
+                const SizedBox(height: 24),
+                Text(
+                  'Keep this receipt for your records',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF95A4C6),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

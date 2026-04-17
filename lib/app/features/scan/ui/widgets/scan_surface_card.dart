@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/app/features/scan/ui/widgets/premium_scan_loading_panel.dart';
-import 'package:reciep/app/features/scan/ui/widgets/scan_receipt_image_preview.dart';
+import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/theme/app_spacing.dart';
+
+enum ScanSurfaceState { idle, imageSelected, loading, success, error }
 
 class ScanSurfaceCard extends StatelessWidget {
   const ScanSurfaceCard({
@@ -93,99 +96,6 @@ class ScanSurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        if (state == ScanSurfaceState.idle)
-          ScanIdleContent(
-            onGallery: onGallery,
-            onCamera: onCamera,
-            uploadTitle: uploadTitle,
-            uploadSubtitle: uploadSubtitle,
-            cameraTitle: cameraTitle,
-            cameraSubtitle: cameraSubtitle,
-            supportFormatsText: supportFormatsText,
-          ),
-        if (state == ScanSurfaceState.imageSelected)
-          _ScanAnimatedStateWrapper(
-            state: state,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: ScanImageSelectedContent(
-                  imagePath: imagePath,
-                  onScan: onScan,
-                  onReset: onReset,
-                  scanButtonText: scanButtonText,
-                  resetLabel: resetLabel,
-                ),
-              ),
-            ),
-          ),
-        if (state == ScanSurfaceState.loading)
-          _ScanAnimatedStateWrapper(
-            state: state,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: PremiumScanLoadingPanel(
-                  imagePath: imagePath,
-                  loadingStep: loadingStep,
-                  steps: loadingSteps,
-                ),
-              ),
-            ),
-          ),
-        if (state == ScanSurfaceState.success)
-          _ScanAnimatedStateWrapper(
-            state: state,
-            child: ScanSuccessContent(
-              result: result,
-              title: successTitle,
-              hasDraft: hasDraft,
-              lowConfidence: lowConfidence,
-              lowConfidenceWarningLabel: lowConfidenceWarningLabel,
-              savingDraft: savingDraft,
-              savingLabel: savingLabel,
-              saveReceiptLabel: saveReceiptLabel,
-              editBeforeSaveLabel: editBeforeSaveLabel,
-              onScanAnother: onScanAnother,
-              onEditDraft: onEditDraft,
-              onSaveDraft: onSaveDraft,
-              scanAnotherLabel: scanAnotherLabel,
-              merchantLabel: merchantLabel,
-              totalLabel: totalLabel,
-              dateLabel: dateLabel,
-              categoryLabel: categoryLabel,
-              itemsLabel: itemsLabel,
-              confidenceLabel: confidenceLabel,
-            ),
-          ),
-        if (state == ScanSurfaceState.error)
-          _ScanAnimatedStateWrapper(
-            state: state,
-            child: ScanErrorContent(
-              title: errorTitle,
-              message: errorMessage ?? errorFallback,
-              onRetry: onRetry,
-              retryLabel: retryLabel,
-              onReset: onReset,
-              resetLabel: pickAnotherImageLabel,
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ScanAnimatedStateWrapper extends StatelessWidget {
-  const _ScanAnimatedStateWrapper({required this.state, required this.child});
-
-  final ScanSurfaceState state;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 260),
       switchInCurve: Curves.easeOutCubic,
@@ -200,47 +110,80 @@ class _ScanAnimatedStateWrapper extends StatelessWidget {
           child: SlideTransition(position: slide, child: child),
         );
       },
-      child: KeyedSubtree(key: ValueKey<ScanSurfaceState>(state), child: child),
+      child: _buildContent(context),
     );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    switch (state) {
+      case ScanSurfaceState.idle:
+        return _IdleView(
+          key: const ValueKey(ScanSurfaceState.idle),
+          onGallery: onGallery,
+          onCamera: onCamera,
+          uploadTitle: uploadTitle,
+          uploadSubtitle: uploadSubtitle,
+          cameraTitle: cameraTitle,
+          cameraSubtitle: cameraSubtitle,
+          supportFormatsText: supportFormatsText,
+        );
+      case ScanSurfaceState.imageSelected:
+        return _ImageSelectedView(
+          key: ValueKey(imagePath),
+          imagePath: imagePath,
+          onScan: onScan,
+          onReset: onReset,
+          scanButtonText: scanButtonText,
+          resetLabel: resetLabel,
+        );
+      case ScanSurfaceState.loading:
+        return _LoadingView(
+          key: const ValueKey(ScanSurfaceState.loading),
+          imagePath: imagePath,
+          loadingStep: loadingStep,
+          steps: loadingSteps,
+        );
+      case ScanSurfaceState.success:
+        return _SuccessView(
+          key: ValueKey(result?.id),
+          result: result,
+          title: successTitle,
+          hasDraft: hasDraft,
+          lowConfidence: lowConfidence,
+          lowConfidenceWarningLabel: lowConfidenceWarningLabel,
+          savingDraft: savingDraft,
+          savingLabel: savingLabel,
+          saveReceiptLabel: saveReceiptLabel,
+          editBeforeSaveLabel: editBeforeSaveLabel,
+          onScanAnother: onScanAnother,
+          onEditDraft: onEditDraft,
+          onSaveDraft: onSaveDraft,
+          scanAnotherLabel: scanAnotherLabel,
+          merchantLabel: merchantLabel,
+          totalLabel: totalLabel,
+          dateLabel: dateLabel,
+          categoryLabel: categoryLabel,
+          itemsLabel: itemsLabel,
+          confidenceLabel: confidenceLabel,
+        );
+      case ScanSurfaceState.error:
+        return _ErrorView(
+          key: const ValueKey(ScanSurfaceState.error),
+          title: errorTitle,
+          message: errorMessage ?? errorFallback,
+          onRetry: onRetry,
+          retryLabel: retryLabel,
+          onReset: onReset,
+          resetLabel: pickAnotherImageLabel,
+        );
+    }
   }
 }
 
-class _UploadDecorCircle extends StatelessWidget {
-  const _UploadDecorCircle({
-    required this.alignment,
-    required this.size,
-    this.offset = Offset.zero,
-  });
+// --- View Widgets ---
 
-  final Alignment alignment;
-  final double size;
-  final Offset offset;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: alignment,
-      child: Transform.translate(
-        offset: offset,
-        child: Container(
-          height: size,
-          width: size,
-          decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.secondary.withValues(alpha: 0.08),
-            shape: BoxShape.circle,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-enum ScanSurfaceState { idle, imageSelected, loading, success, error }
-
-class ScanIdleContent extends StatelessWidget {
-  const ScanIdleContent({
+class _IdleView extends StatelessWidget {
+  const _IdleView({
     super.key,
     required this.onGallery,
     required this.onCamera,
@@ -262,6 +205,7 @@ class ScanIdleContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -270,12 +214,12 @@ class ScanIdleContent extends StatelessWidget {
           onTap: onGallery,
           child: CustomPaint(
             painter: _DashedRoundedBorderPainter(
-              color: theme.colorScheme.secondary.withValues(alpha: 0.45),
+              color: colorScheme.secondary.withValues(alpha: 0.45),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: Stack(
-                children: <Widget>[
+                children: [
                   const _UploadDecorCircle(
                     alignment: Alignment.bottomLeft,
                     size: 108,
@@ -294,14 +238,12 @@ class ScanIdleContent extends StatelessWidget {
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
+                        children: [
                           Container(
                             height: 70,
                             width: 70,
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.secondary.withValues(
-                                alpha: 0.16,
-                              ),
+                              color: colorScheme.secondary.withValues(alpha:0.16),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: const Icon(Icons.upload_outlined, size: 34),
@@ -309,16 +251,14 @@ class ScanIdleContent extends StatelessWidget {
                           const SizedBox(height: AppSpacing.md),
                           Text(
                             uploadTitle,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: theme.textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             uploadSubtitle,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.secondary,
-                            ),
+                            style: theme.textTheme.bodyMedium
+                                ?.copyWith(color: colorScheme.secondary),
                           ),
                         ],
                       ),
@@ -333,23 +273,19 @@ class ScanIdleContent extends StatelessWidget {
         GestureDetector(
           onTap: onCamera,
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.md,
-            ),
+            padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: theme.colorScheme.secondary.withValues(alpha: 0.26),
-              ),
+              border:
+              Border.all(color: colorScheme.secondary.withValues(alpha:0.26)),
             ),
             child: Row(
-              children: <Widget>[
+              children: [
                 Container(
                   height: 48,
                   width: 48,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.secondary.withValues(alpha: 0.12),
+                    color: colorScheme.secondary.withValues(alpha:0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(Icons.camera_alt_outlined),
@@ -358,25 +294,23 @@ class ScanIdleContent extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
+                    children: [
                       Text(
                         cameraTitle,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: theme.textTheme.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         cameraSubtitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.secondary,
-                        ),
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: colorScheme.secondary),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                Icon(Icons.arrow_forward, color: theme.colorScheme.secondary),
+                Icon(Icons.arrow_forward, color: colorScheme.secondary),
               ],
             ),
           ),
@@ -386,7 +320,7 @@ class ScanIdleContent extends StatelessWidget {
           child: Text(
             supportFormatsText,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.secondary,
+              color: colorScheme.secondary,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -396,46 +330,8 @@ class ScanIdleContent extends StatelessWidget {
   }
 }
 
-class _DashedRoundedBorderPainter extends CustomPainter {
-  _DashedRoundedBorderPainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const double radius = 18;
-    const double dashWidth = 7;
-    const double dashSpace = 5;
-    const double strokeWidth = 1.3;
-
-    final RRect rrect = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      const Radius.circular(radius),
-    );
-    final Path path = Path()..addRRect(rrect);
-    final Paint paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-
-    for (final metric in path.computeMetrics()) {
-      double distance = 0;
-      while (distance < metric.length) {
-        final double end = (distance + dashWidth).clamp(0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, end), paint);
-        distance += dashWidth + dashSpace;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedRoundedBorderPainter oldDelegate) {
-    return oldDelegate.color != color;
-  }
-}
-
-class ScanImageSelectedContent extends StatelessWidget {
-  const ScanImageSelectedContent({
+class _ImageSelectedView extends StatelessWidget {
+  const _ImageSelectedView({
     super.key,
     required this.imagePath,
     required this.onScan,
@@ -452,43 +348,87 @@ class ScanImageSelectedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: AspectRatio(
-            aspectRatio: 3 / 4,
-            child: ScanReceiptImagePreview(imagePath: imagePath),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Row(
-          children: <Widget>[
-            Expanded(
-              flex: 3,
-              child: ElevatedButton(
-                onPressed: onScan,
-                child: Text(scanButtonText),
+    if (imagePath == null) {
+      return const SizedBox.shrink();
+    }
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 3 / 4,
+                child: Image.file(
+                  File(imagePath!),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Center(
+                    child: Icon(Icons.broken_image, size: 48),
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              flex: 2,
-              child: OutlinedButton(
-                onPressed: onReset,
-                child: Text(resetLabel),
-              ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: onScan,
+                    child: Text(scanButtonText),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton(onPressed: onReset, child: Text(resetLabel)),
+                ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
 
-class ScanSuccessContent extends StatelessWidget {
-  const ScanSuccessContent({
+class _LoadingView extends StatelessWidget {
+  const _LoadingView({
+    super.key,
+    required this.imagePath,
+    required this.loadingStep,
+    required this.steps,
+  });
+
+  final String? imagePath;
+  final int loadingStep;
+  final List<String> steps;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: PremiumScanLoadingPanel(
+          imagePath: imagePath,
+          loadingStep: loadingStep,
+          steps: steps,
+        ),
+      ),
+    );
+  }
+}
+
+class _SuccessView extends StatelessWidget {
+  const _SuccessView({
     super.key,
     required this.result,
     required this.title,
@@ -533,80 +473,73 @@ class ScanSuccessContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ReceiptModel receipt = result!;
+    final ReceiptModel? receipt = result;
+    if (receipt == null) {
+      return const SizedBox.shrink();
+    }
+
     final DateFormat dateFormat = DateFormat('M/d/yyyy');
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final Color successColor = colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: successColor.withValues(alpha: 0.55),
-          width: 1.2,
-        ),
+        border: Border.all(color: successColor.withValues(alpha:0.55), width: 1.2),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        children: [
           Row(
-            children: <Widget>[
+            children: [
               Icon(Icons.check_circle_outline, color: successColor),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: successColor,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(color: successColor, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
           ),
-          if (lowConfidence) ...<Widget>[
+          if (lowConfidence) ...[
             const SizedBox(height: AppSpacing.sm),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: colorScheme.secondary.withValues(alpha: 0.15),
+                color: colorScheme.secondary.withValues(alpha:0.15),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: colorScheme.secondary.withValues(alpha: 0.5),
-                ),
+                border: Border.all(color: colorScheme.secondary.withValues(alpha:0.5)),
               ),
               child: Text(
                 lowConfidenceWarningLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.secondary,
-                  fontWeight: FontWeight.w700,
-                ),
+                    color: colorScheme.secondary, fontWeight: FontWeight.w700),
               ),
             ),
           ],
           const SizedBox(height: AppSpacing.md),
-          ScanSuccessRow(label: merchantLabel, value: receipt.merchant.name),
-          ScanSuccessRow(
-            label: totalLabel,
-            value:
-                '${receipt.totals.total.toStringAsFixed(2)} ${receipt.currency}',
-          ),
-          ScanSuccessRow(
-            label: dateLabel,
-            value: dateFormat.format(receipt.createdAt),
-          ),
-          ScanSuccessRow(label: categoryLabel, value: receipt.category),
-          ScanSuccessRow(label: itemsLabel, value: '${receipt.items.length}'),
-          ScanSuccessRow(
-            label: confidenceLabel,
-            value: '${(receipt.confidence * 100).round()}%',
-          ),
+          _ScanSuccessRow(label: merchantLabel, value: receipt.merchant.name),
+          _ScanSuccessRow(
+              label: totalLabel,
+              value:
+              '${receipt.totals.total.toStringAsFixed(2)} ${receipt.currency}'),
+          _ScanSuccessRow(
+              label: dateLabel, value: dateFormat.format(receipt.createdAt)),
+          _ScanSuccessRow(label: categoryLabel, value: receipt.category),
+          _ScanSuccessRow(label: itemsLabel, value: '${receipt.items.length}'),
+          _ScanSuccessRow(
+              label: confidenceLabel,
+              value: '${(receipt.confidence * 100).round()}%'),
           const SizedBox(height: AppSpacing.md),
           if (hasDraft)
             Row(
-              children: <Widget>[
+              children: [
                 Expanded(
                   child: ElevatedButton(
                     onPressed: savingDraft ? null : onSaveDraft,
@@ -636,44 +569,8 @@ class ScanSuccessContent extends StatelessWidget {
   }
 }
 
-class ScanSuccessRow extends StatelessWidget {
-  const ScanSuccessRow({super.key, required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ScanErrorContent extends StatelessWidget {
-  const ScanErrorContent({
+class _ErrorView extends StatelessWidget {
+  const _ErrorView({
     super.key,
     required this.title,
     required this.message,
@@ -693,28 +590,27 @@ class ScanErrorContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color errorColor = colorScheme.error;
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: colorScheme.error.withValues(alpha: 0.55),
-          width: 1.2,
-        ),
+        border: Border.all(color: errorColor.withValues(alpha:0.55), width: 1.2),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
+        children: [
           Row(
-            children: <Widget>[
-              Icon(Icons.error_outline, color: colorScheme.error),
+            children: [
+              Icon(Icons.error_outline, color: errorColor),
               const SizedBox(width: AppSpacing.xs),
               Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(color: colorScheme.error),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(color: errorColor, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -722,24 +618,126 @@ class ScanErrorContent extends StatelessWidget {
           Text(message),
           const SizedBox(height: AppSpacing.md),
           Row(
-            children: <Widget>[
+            children: [
               Expanded(
-                child: ElevatedButton(
-                  onPressed: onRetry,
-                  child: Text(retryLabel),
-                ),
+                child: ElevatedButton(onPressed: onRetry, child: Text(retryLabel)),
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: OutlinedButton(
-                  onPressed: onReset,
-                  child: Text(resetLabel),
-                ),
+                child: OutlinedButton(onPressed: onReset, child: Text(resetLabel)),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+}
+
+// --- Helper Widgets ---
+
+class _ScanSuccessRow extends StatelessWidget {
+  const _ScanSuccessRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            label,
+            style: textTheme.bodyMedium?.copyWith(color: colorScheme.secondary),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.titleMedium,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UploadDecorCircle extends StatelessWidget {
+  const _UploadDecorCircle({
+    required this.alignment,
+    required this.size,
+    this.offset = Offset.zero,
+  });
+
+  final Alignment alignment;
+  final double size;
+  final Offset offset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: Transform.translate(
+        offset: offset,
+        child: Container(
+          height: size,
+          width: size,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha:0.08),
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DashedRoundedBorderPainter extends CustomPainter {
+  const _DashedRoundedBorderPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double radius = 18;
+    const double dashWidth = 7;
+    const double dashSpace = 5;
+    const double strokeWidth = 1.3;
+
+    final RRect rrect = RRect.fromRectAndRadius(
+      Offset.zero & size,
+      const Radius.circular(radius),
+    );
+
+    final Path path = Path()..addRRect(rrect);
+    final Paint paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
+
+    final pathMetrics = path.computeMetrics();
+    for (final metric in pathMetrics) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final double end = (distance + dashWidth).clamp(0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end), paint);
+        distance += dashWidth + dashSpace;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedRoundedBorderPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }

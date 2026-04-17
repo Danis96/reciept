@@ -95,6 +95,11 @@ class HomePage extends StatelessWidget {
                         const SizedBox(height: AppSpacing.md),
                         HomeCategoryBudgetsCard(
                           data: data,
+                          onOpenCategory: (String category) =>
+                              DashboardActionUtils.onBudgetCategoryPressed(
+                                context,
+                                category: category,
+                              ),
                           onManageBudgets: () => showModalBottomSheet<void>(
                             context: context,
                             isScrollControlled: true,
@@ -560,10 +565,12 @@ class HomeCategoryBudgetsCard extends StatelessWidget {
     super.key,
     required this.data,
     required this.onManageBudgets,
+    required this.onOpenCategory,
   });
 
   final HomeDashboardModel data;
   final VoidCallback onManageBudgets;
+  final ValueChanged<String> onOpenCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -603,7 +610,10 @@ class HomeCategoryBudgetsCard extends StatelessWidget {
             ...data.budgetProgress.map(
               (DashboardBudgetProgressModel budget) => Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: HomeBudgetProgressItem(item: budget),
+                child: HomeBudgetProgressItem(
+                  item: budget,
+                  onTap: () => onOpenCategory(budget.category),
+                ),
               ),
             ),
         ],
@@ -613,9 +623,14 @@ class HomeCategoryBudgetsCard extends StatelessWidget {
 }
 
 class HomeBudgetProgressItem extends StatelessWidget {
-  const HomeBudgetProgressItem({super.key, required this.item});
+  const HomeBudgetProgressItem({
+    super.key,
+    required this.item,
+    required this.onTap,
+  });
 
   final DashboardBudgetProgressModel item;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -628,13 +643,15 @@ class HomeBudgetProgressItem extends StatelessWidget {
         : '-${DashboardMoney.formatInt(item.remainingAmount.abs())} KM left';
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: categoryColor)
+            border: Border.all(color: categoryColor),
           ),
           padding: const EdgeInsets.all(AppSpacing.sm),
           child: Column(
@@ -726,7 +743,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

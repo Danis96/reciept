@@ -1,6 +1,8 @@
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
 import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:reciep/app/features/dashboard/repository/dashboard_category_details_model.dart';
+import 'package:reciep/app/features/dashboard/repository/dashboard_category_item_model.dart';
 import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
 import 'package:reciep/app/models/category_budget_model.dart';
 import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
@@ -66,6 +68,68 @@ class DashboardRepository {
       topCategoryLabel: topCategoryLabel,
       budgetProgress: progress,
       recentReceipts: recentReceipts,
+    );
+  }
+
+  Future<DashboardCategoryDetailsModel> loadCategoryDetails(
+    String category,
+  ) async {
+    final DateTime now = DateTime.now();
+    final DateTime monthStart = DateTime(now.year, now.month);
+    final DateTime monthEnd = DateTime(now.year, now.month + 1);
+    final String normalizedCategory = CategoryBudgetCatalog.normalize(category);
+
+    final CategoryBudgetModel? budget = await _categoryBudgetRepository
+        .getBudgetByCategory(normalizedCategory);
+    final DashboardBudgetProgressModel progress = _toBudgetProgress(
+      budget ??
+          CategoryBudgetModel(
+            category: normalizedCategory,
+            budgetAmount: 0,
+            spentAmount: 0,
+            currency: 'KM',
+            period: 'monthly',
+            updatedAt: now,
+          ),
+    );
+
+    final List<ReceiptWithItems> receipts = await _receiptDao
+        .getReceiptsWithItemsBetween(
+          fromInclusive: monthStart,
+          toExclusive: monthEnd,
+        );
+    final List<DashboardCategoryItemModel> items =
+        receipts
+            .expand(
+              (ReceiptWithItems row) => row.items
+                  .where(
+                    (ReceiptItem item) =>
+                        CategoryBudgetCatalog.normalize(item.category) ==
+                        normalizedCategory,
+                  )
+                  .map(
+                    (ReceiptItem item) => DashboardCategoryItemModel(
+                      name: item.name,
+                      merchantName: row.receipt.merchantName,
+                      purchasedAt: row.receipt.createdAt,
+                      amount: item.finalPrice,
+                      quantity: item.quantity,
+                      unit: item.unit,
+                    ),
+                  ),
+            )
+            .toList(growable: false);
+
+    return DashboardCategoryDetailsModel(
+      category: progress.category,
+      label: progress.label,
+      budgetAmount: progress.budgetAmount,
+      spentAmount: progress.spentAmount,
+      remainingAmount: progress.remainingAmount,
+      usageRatio: progress.usageRatio,
+      state: progress.state,
+      itemCount: items.length,
+      items: items,
     );
   }
 
