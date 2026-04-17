@@ -31,6 +31,9 @@ class ReceiptDetailsScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Column(
       children: <Widget>[
         const ReceiptTopBar(),
@@ -45,7 +48,8 @@ class ReceiptDetailsScaffold extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 ReceiptActionToolbar(
-                  hasImage: receipt.imagePath != null &&
+                  hasImage:
+                      receipt.imagePath != null &&
                       receipt.imagePath!.trim().isNotEmpty,
                   deleting: deleting,
                   exporting: exporting,
@@ -64,8 +68,8 @@ class ReceiptDetailsScaffold extends StatelessWidget {
                 const SizedBox(height: 24),
                 Text(
                   'Keep this receipt for your records',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF95A4C6),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

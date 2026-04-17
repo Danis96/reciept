@@ -13,12 +13,14 @@ class ReceiptOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final String receiptNumber =
-    receipt.receiptInfo.number?.trim().isNotEmpty == true
+        receipt.receiptInfo.number?.trim().isNotEmpty == true
         ? receipt.receiptInfo.number!.trim()
         : 'RCP-${DateFormat('yyyy-MM-dd').format(receipt.createdAt)}-${receipt.id.substring(0, receipt.id.length >= 3 ? 3 : receipt.id.length).padLeft(3, '0')}';
 
-    final textTheme = Theme.of(context).textTheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return ReceiptCardShell(
       child: Column(
@@ -36,7 +38,7 @@ class ReceiptOverviewCard extends StatelessWidget {
                       receiptNumber,
                       style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF273142),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -47,14 +49,17 @@ class ReceiptOverviewCard extends StatelessWidget {
                 money(receipt.totals.total, receipt.currency),
                 style: textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF111827),
+                  color: colorScheme.onSurface,
                   letterSpacing: -0.6,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(color: Color(0xFFE7EDF6), height: 1),
+          Divider(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+            height: 1,
+          ),
           const SizedBox(height: 14),
           ReceiptInfoRow(
             icon: Icons.calendar_today_outlined,
@@ -99,7 +104,9 @@ class ReceiptInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -115,7 +122,7 @@ class ReceiptInfoRow extends StatelessWidget {
                 value,
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF1E293B),
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -133,7 +140,9 @@ class ReceiptCategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +151,7 @@ class ReceiptCategoryRow extends StatelessWidget {
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(14),
           ),
           child: ClipRRect(
@@ -161,7 +170,7 @@ class ReceiptCategoryRow extends StatelessWidget {
                 CategoryBudgetCatalog.labelFor(category),
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: const Color(0xFF1E293B),
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -179,14 +188,16 @@ class InfoIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: 28,
       height: 28,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Icon(icon, size: 16, color: const Color(0xFF64748B)),
+      child: Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
     );
   }
 }
@@ -198,11 +209,13 @@ class CardLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final TextTheme textTheme = theme.textTheme;
     return Text(
       text,
       style: textTheme.bodyMedium?.copyWith(
-        color: const Color(0xFF6B7A99),
+        color: colorScheme.onSurfaceVariant,
         fontWeight: FontWeight.w500,
       ),
     );

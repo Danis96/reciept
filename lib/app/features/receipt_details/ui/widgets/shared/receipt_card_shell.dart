@@ -7,16 +7,21 @@ class ReceiptCardShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFDDE5F0)),
-        boxShadow: const <BoxShadow>[
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+        ),
+        boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Color(0x0A0F172A),
+            color: theme.shadowColor.withValues(alpha: 0.08),
             blurRadius: 14,
             offset: Offset(0, 4),
           ),

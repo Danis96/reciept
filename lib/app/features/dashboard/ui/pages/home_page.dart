@@ -21,150 +21,145 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardController>(
-      builder:
-          (
-            BuildContext context,
-            DashboardController controller,
-            Widget? child,
+      builder: (
+          BuildContext context,
+          DashboardController controller,
+          Widget? child,
           ) {
-            if (controller.isLoading && controller.homeData == null) {
-              return const SafeArea(
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
+        if (controller.isLoading && controller.homeData == null) {
+          return const SafeArea(
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-            if (controller.errorMessage != null &&
-                controller.homeData == null) {
-              return SafeArea(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        controller.errorMessage!,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      FilledButton(
-                        onPressed: () => controller.refreshHome(),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            final HomeDashboardModel data =
-                controller.homeData ??
-                const HomeDashboardModel(
-                  totalReceipts: 0,
-                  thisMonthReceipts: 0,
-                  thisMonthSpending: 0,
-                  totalBudget: 0,
-                  remainingBudget: 0,
-                  topCategoryLabel: 'No spending',
-                  budgetProgress: <DashboardBudgetProgressModel>[],
-                  recentReceipts: <ReceiptModel>[],
-                );
-
-            return SingleChildScrollView(
+        if (controller.errorMessage != null && controller.homeData == null) {
+          return SafeArea(
+            child: Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  HomeSummaryHero(data: data),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.md,
-                      AppSpacing.lg,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        HomeStatsRow(data: data),
-                        const SizedBox(height: AppSpacing.md),
-                        HomeQuickActionsRow(
-                          onScanReceipt: () =>
-                              DashboardActionUtils.onScanReceipt(context),
-                          onUploadReceipt: () =>
-                              DashboardActionUtils.onUploadReceipt(context),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        HomeCategoryBudgetsCard(
-                          data: data,
-                          onOpenCategory: (String category) =>
-                              DashboardActionUtils.onBudgetCategoryPressed(
-                                context,
-                                category: category,
-                              ),
-                          onManageBudgets: () => showModalBottomSheet<void>(
-                            context: context,
-                            isScrollControlled: true,
-                            useSafeArea: false,
-                            backgroundColor: Colors.transparent,
-                            builder: (BuildContext sheetContext) {
-                              return CategoryBudgetManagerSheet(
-                                supportedCategories:
-                                    controller.supportedBudgetCategories,
-                                currentAmounts: <String, double>{
-                                  for (final DashboardBudgetProgressModel item
-                                      in data.budgetProgress)
-                                    item.category: item.budgetAmount,
-                                },
-                                onSave: (String category, double amount) {
-                                  return DashboardActionUtils.onBudgetSaved(
-                                    context,
-                                    category: category,
-                                    amount: amount,
-                                  );
-                                },
-                                onDelete: (String category) {
-                                  return DashboardActionUtils.onBudgetDeleted(
-                                    context,
-                                    category: category,
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        HomeRecentReceiptsCard(
-                          data: data,
-                          onViewAll: () =>
-                              DashboardActionUtils.onTabSelected(context, 2),
-                          onOpenReceipt: (ReceiptModel receipt) async {
-                            final DashboardController dashboardController =
-                                controller;
-                            final HistoryController historyController = context
-                                .read<HistoryController>();
-                            final Object? result = await Navigator.of(context)
-                                .pushNamed(
-                                  AppRouter.receiptDetails,
-                                  arguments: ReceiptDetailsRouteArgs(
-                                    receiptId: receipt.id,
-                                    heroTag: AppRouter.receiptHeroTag(
-                                      'home',
-                                      receipt.id,
-                                    ),
-                                  ),
-                                );
-                            if (result == true && context.mounted) {
-                              await dashboardController.refreshHome();
-                              await historyController.loadHistory();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+                  Text(
+                    controller.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  FilledButton(
+                    onPressed: () => controller.refreshHome(),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
+            ),
+          );
+        }
+
+        final HomeDashboardModel data = controller.homeData ??
+            const HomeDashboardModel(
+              totalReceipts: 0,
+              thisMonthReceipts: 0,
+              thisMonthSpending: 0,
+              totalBudget: 0,
+              remainingBudget: 0,
+              topCategoryLabel: 'No spending',
+              budgetProgress: <DashboardBudgetProgressModel>[],
+              recentReceipts: <ReceiptModel>[],
             );
-          },
+
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              HomeSummaryHero(data: data),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                  AppSpacing.lg,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    HomeQuickActionsRow(
+                      onScanReceipt: () =>
+                          DashboardActionUtils.onScanReceipt(context),
+                      onUploadReceipt: () =>
+                          DashboardActionUtils.onUploadReceipt(context),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    HomeCategoryBudgetsCard(
+                      data: data,
+                      onOpenCategory: (String category) =>
+                          DashboardActionUtils.onBudgetCategoryPressed(
+                            context,
+                            category: category,
+                          ),
+                      onManageBudgets: () => showModalBottomSheet<void>(
+                        context: context,
+                        isScrollControlled: true,
+                        useSafeArea: false,
+                        backgroundColor: Colors.transparent,
+                        builder: (BuildContext sheetContext) {
+                          return CategoryBudgetManagerSheet(
+                            supportedCategories:
+                            controller.supportedBudgetCategories,
+                            currentAmounts: <String, double>{
+                              for (final DashboardBudgetProgressModel item
+                              in data.budgetProgress)
+                                item.category: item.budgetAmount,
+                            },
+                            onSave: (String category, double amount) {
+                              return DashboardActionUtils.onBudgetSaved(
+                                context,
+                                category: category,
+                                amount: amount,
+                              );
+                            },
+                            onDelete: (String category) {
+                              return DashboardActionUtils.onBudgetDeleted(
+                                context,
+                                category: category,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    HomeRecentReceiptsCard(
+                      data: data,
+                      onViewAll: () =>
+                          DashboardActionUtils.onTabSelected(context, 2),
+                      onOpenReceipt: (ReceiptModel receipt) async {
+                        final DashboardController dashboardController =
+                            controller;
+                        final HistoryController historyController =
+                        context.read<HistoryController>();
+                        final Object? result =
+                        await Navigator.of(context).pushNamed(
+                          AppRouter.receiptDetails,
+                          arguments: ReceiptDetailsRouteArgs(
+                            receiptId: receipt.id,
+                            heroTag: AppRouter.receiptHeroTag(
+                              'home',
+                              receipt.id,
+                            ),
+                          ),
+                        );
+                        if (result == true && context.mounted) {
+                          await dashboardController.refreshHome();
+                          await historyController.loadHistory();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -176,7 +171,8 @@ class HomeSummaryHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double safeTotalBudget = data.totalBudget <= 0 ? 1 : data.totalBudget;
+    final double safeTotalBudget =
+    data.totalBudget <= 0 ? 1 : data.totalBudget;
     final double ratio = (data.thisMonthSpending / safeTotalBudget).clamp(0, 1);
     final int usedPercent = (ratio * 100).round();
     final String greeting = TimeGreetingLabel.forNow(DateTime.now());
@@ -195,7 +191,7 @@ class HomeSummaryHero extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: HomeThemePalette.heroGradient(context),
         ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,9 +215,9 @@ class HomeSummaryHero extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: Colors.white.withValues(alpha: 0.12),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-            ),
+              color: Colors.white.withValues(alpha:(0.12)),
+              border: Border.all(color: Colors.white.withValues(alpha:(0.18)),
+            )),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -231,12 +227,13 @@ class HomeSummaryHero extends StatelessWidget {
                     _HeroMetric(
                       title: 'This Month',
                       value:
-                          '${DashboardMoney.formatInt(data.thisMonthSpending)} KM',
+                      '${DashboardMoney.formatDecimalConditionally(data.thisMonthSpending)} KM',
                       alignEnd: false,
                     ),
                     _HeroMetric(
                       title: 'Budget',
-                      value: '${DashboardMoney.formatInt(data.totalBudget)} KM',
+                      value:
+                      '${DashboardMoney.formatDecimalConditionally(data.totalBudget)} KM',
                       alignEnd: true,
                     ),
                   ],
@@ -247,7 +244,7 @@ class HomeSummaryHero extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: ratio,
                     minHeight: 8,
-                    backgroundColor: Colors.white.withValues(alpha: 0.26),
+                    backgroundColor: Colors.white.withValues(alpha:(0.26)),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       HomeThemePalette.success(context),
                     ),
@@ -265,7 +262,7 @@ class HomeSummaryHero extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '${DashboardMoney.formatInt(data.remainingBudget)} KM left',
+                      '${DashboardMoney.formatDecimalConditionally(data.remainingBudget)} KM left',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: HomeThemePalette.success(context),
                         fontWeight: FontWeight.w700,
@@ -296,9 +293,8 @@ class _HeroMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: alignEnd
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
+      crossAxisAlignment:
+      alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           title,
@@ -374,7 +370,7 @@ class HomeStatsRow extends StatelessWidget {
                       category: data.topCategoryLabel,
                       size: 24,
                     ),
-fontValue: 15,
+                    fontValue: 15,
                     value: data.topCategoryLabel,
                     label: 'TOP\nCATEGORY',
                     accent: BudgetCategoryColors.primaryFor(
@@ -384,9 +380,9 @@ fontValue: 15,
                     tint: BudgetCategoryColors.primaryFor(
                       data.topCategoryLabel,
                       context,
-                    ).withValues(alpha: 0.08),
+                    ).withValues(alpha:(0.08),
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -417,7 +413,7 @@ fontValue: 15,
                   ),
                 ),
                 Text(
-                  '${DashboardMoney.formatDouble(data.thisMonthSpending)} KM',
+                  '${DashboardMoney.formatDecimalConditionally(data.thisMonthSpending)} KM',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF161821),
@@ -472,7 +468,7 @@ class HomeStatCard extends StatelessWidget {
               color: accent,
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: accent.withValues(alpha: 0.32),
+                  color: accent.withValues(alpha:(0.32)),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),
@@ -534,7 +530,7 @@ class HomeQuickActionsRow extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onPressed: () => onScanReceipt(),
+              onPressed: onScanReceipt,
               icon: const Icon(Icons.photo_camera_outlined, size: 18),
               label: const Text('Scan Receipt'),
             ),
@@ -545,7 +541,7 @@ class HomeQuickActionsRow extends StatelessWidget {
           height: 46,
           width: 46,
           child: GestureDetector(
-            onTap: () => onUploadReceipt(),
+            onTap: onUploadReceipt,
             child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
@@ -600,15 +596,15 @@ class HomeCategoryBudgetsCard extends StatelessWidget {
             ],
           ),
           if (data.budgetProgress.isEmpty)
-            HomeCardEmptyState(
+            const HomeCardEmptyState(
               imageCategory: 'miscellaneous',
               title: 'No budgets yet',
               message:
-                  'Create monthly category budgets from Manage and track each spend bucket here.',
+              'Create monthly category budgets from Manage and track each spend bucket here.',
             ),
           if (data.budgetProgress.isNotEmpty)
             ...data.budgetProgress.map(
-              (DashboardBudgetProgressModel budget) => Padding(
+                  (DashboardBudgetProgressModel budget) => Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.sm),
                 child: HomeBudgetProgressItem(
                   item: budget,
@@ -649,10 +645,6 @@ class HomeBudgetProgressItem extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: categoryColor),
-          ),
           padding: const EdgeInsets.all(AppSpacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,7 +822,7 @@ class HomeRecentReceiptsCard extends StatelessWidget {
               const Spacer(),
               InkWell(
                 borderRadius: BorderRadius.circular(8),
-                onTap: () => onViewAll(),
+                onTap: onViewAll,
                 child: Padding(
                   padding: const EdgeInsets.all(4),
                   child: Text(
@@ -845,11 +837,11 @@ class HomeRecentReceiptsCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           if (data.recentReceipts.isEmpty)
-            HomeCardEmptyState(
+            const HomeCardEmptyState(
               imageCategory: 'groceries',
               title: 'No receipts yet',
               message:
-                  'Scan first receipt or import one from gallery. Latest receipts will show here.',
+              'Scan first receipt or import one from gallery. Latest receipts will show here.',
             ),
           if (data.recentReceipts.isNotEmpty)
             ReceiptPaperList(
@@ -873,6 +865,14 @@ class DashboardMoney {
 
   static String formatDouble(double value) {
     return NumberFormat('0.00').format(value);
+  }
+
+  static String formatDecimalConditionally(double value) {
+    if (value % 1 == 0) {
+      return NumberFormat('0').format(value);
+    } else {
+      return NumberFormat('0.00').format(value);
+    }
   }
 }
 
@@ -996,31 +996,31 @@ class HomeThemePalette {
   static Color cardBorder(BuildContext context) {
     return Theme.of(
       context,
-    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.18 : 0.08);
+    ).colorScheme.onSurface.withValues(alpha:(_dark(context) ? 0.18 : 0.08));
   }
 
   static Color progressTrack(BuildContext context) {
     return Theme.of(
       context,
-    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.24 : 0.16);
+    ).colorScheme.onSurface.withValues(alpha:(_dark(context) ? 0.24 : 0.16));
   }
 
   static Color progressFill(BuildContext context) {
     return Theme.of(
       context,
-    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.88 : 0.92);
+    ).colorScheme.onSurface.withValues(alpha:(_dark(context) ? 0.88 : 0.92));
   }
 
   static Color chipSurface(BuildContext context) {
     return Theme.of(
       context,
-    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.16 : 0.06);
+    ).colorScheme.onSurface.withValues(alpha:(_dark(context) ? 0.16 : 0.06));
   }
 
   static Color receiptBadgeBackground(BuildContext context) {
     return Theme.of(
       context,
-    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.12 : 0.08);
+    ).colorScheme.onSurface.withValues(alpha:(_dark(context) ? 0.12 : 0.08));
   }
 
   static Color categoryGroceries(BuildContext context) {
@@ -1048,15 +1048,15 @@ class HomeThemePalette {
   }
 
   static Color statIconBackground(BuildContext context, Color base) {
-    return base.withValues(alpha: _dark(context) ? 0.26 : 0.16);
+    return base.withValues(alpha:(_dark(context) ? 0.26 : 0.16));
   }
 
   static Color statIcon(BuildContext context, Color base) {
-    return _dark(context) ? base.withValues(alpha: 0.92) : base;
+    return _dark(context) ? base.withValues(alpha:(0.92)) : base;
   }
 
   static Color statValue(BuildContext context, Color base) {
-    return _dark(context) ? base.withValues(alpha: 0.94) : base;
+    return _dark(context) ? base.withValues(alpha:(0.94)) : base;
   }
 
   static Color statCardBackground(BuildContext context, Color base) {
@@ -1064,11 +1064,11 @@ class HomeThemePalette {
       return Color.lerp(Theme.of(context).colorScheme.surface, base, 0.14) ??
           Theme.of(context).colorScheme.surface;
     }
-    return base.withValues(alpha: 0.10);
+    return base.withValues(alpha:(0.10));
   }
 
   static Color statCardCornerAccent(BuildContext context, Color base) {
-    return base.withValues(alpha: _dark(context) ? 0.30 : 0.16);
+    return base.withValues(alpha:(_dark(context) ? 0.30 : 0.16));
   }
 
   static Color success(BuildContext context) {

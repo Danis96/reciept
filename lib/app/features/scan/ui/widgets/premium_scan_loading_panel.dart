@@ -28,7 +28,7 @@ class _PremiumScanLoadingPanelState extends State<PremiumScanLoadingPanel>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3500),
+      duration: const Duration(seconds: 400),
     )..repeat();
   }
 

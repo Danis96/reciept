@@ -27,6 +27,8 @@ class CategoryBudgetManagerSheet extends StatefulWidget {
 class _CategoryBudgetManagerSheetState
     extends State<CategoryBudgetManagerSheet> {
   late final Map<String, TextEditingController> _controllers;
+  late final Map<String, FocusNode> _focusNodes;
+  late final Map<String, GlobalKey> _fieldKeys;
   late final Map<String, double> _currentAmounts;
   final Set<String> _busyCategories = <String>{};
   final Set<String> _successCategories = <String>{};
@@ -47,6 +49,14 @@ class _CategoryBudgetManagerSheetState
               : _CategoryBudgetMoney.formatInt(_currentAmounts[category]!),
         ),
     };
+    _focusNodes = <String, FocusNode>{
+      for (final String category in widget.supportedCategories)
+        category: FocusNode()..addListener(() => _handleFieldFocus(category)),
+    };
+    _fieldKeys = <String, GlobalKey>{
+      for (final String category in widget.supportedCategories)
+        category: GlobalKey(),
+    };
   }
 
   @override
@@ -54,12 +64,17 @@ class _CategoryBudgetManagerSheetState
     for (final TextEditingController controller in _controllers.values) {
       controller.dispose();
     }
+    for (final FocusNode focusNode in _focusNodes.values) {
+      focusNode.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    final double keyboardInset = mediaQuery.viewInsets.bottom;
     final int activeBudgets = _currentAmounts.values
         .where((double amount) => amount > 0)
         .length;
@@ -90,52 +105,77 @@ class _CategoryBudgetManagerSheetState
           ],
         ),
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.92,
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.sm,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  width: 46,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.onSurface.withValues(
-                      alpha: 0.16,
-                    ),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                CategoryBudgetSheetHeader(activeBudgets: activeBudgets),
-                const SizedBox(height: AppSpacing.md),
-                ...widget.supportedCategories.map(
-                  (String category) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                    child: CategoryBudgetSheetRow(
-                      category: category,
-                      controller: _controllers[category]!,
-                      busy: _busyCategories.contains(category),
-                      showSuccess: _successCategories.contains(category),
-                      currentAmount: _currentAmounts[category],
-                      onSave: () => _onSave(category),
-                      onDelete: () => _onDelete(category),
+          constraints: BoxConstraints(maxHeight: mediaQuery.size.height * 0.92),
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(bottom: keyboardInset),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                AppSpacing.md + mediaQuery.padding.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 46,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.16,
+                      ),
+                      borderRadius: BorderRadius.circular(999),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.md),
+                  CategoryBudgetSheetHeader(activeBudgets: activeBudgets),
+                  const SizedBox(height: AppSpacing.md),
+                  ...widget.supportedCategories.map(
+                    (String category) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: CategoryBudgetSheetRow(
+                        category: category,
+                        controller: _controllers[category]!,
+                        focusNode: _focusNodes[category]!,
+                        fieldKey: _fieldKeys[category]!,
+                        busy: _busyCategories.contains(category),
+                        showSuccess: _successCategories.contains(category),
+                        currentAmount: _currentAmounts[category],
+                        onSave: () => _onSave(category),
+                        onDelete: () => _onDelete(category),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _handleFieldFocus(String category) {
+    final FocusNode? focusNode = _focusNodes[category];
+    final BuildContext? fieldContext = _fieldKeys[category]?.currentContext;
+    if (focusNode == null || !focusNode.hasFocus || fieldContext == null) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      Scrollable.ensureVisible(
+        fieldContext,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+        alignment: 0.2,
+      );
+    });
   }
 
   Future<void> _onSave(String category) async {
@@ -305,6 +345,8 @@ class CategoryBudgetSheetRow extends StatelessWidget {
     super.key,
     required this.category,
     required this.controller,
+    required this.focusNode,
+    required this.fieldKey,
     required this.busy,
     required this.showSuccess,
     required this.currentAmount,
@@ -314,6 +356,8 @@ class CategoryBudgetSheetRow extends StatelessWidget {
 
   final String category;
   final TextEditingController controller;
+  final FocusNode focusNode;
+  final GlobalKey fieldKey;
   final bool busy;
   final bool showSuccess;
   final double? currentAmount;
@@ -429,35 +473,41 @@ class CategoryBudgetSheetRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          TextField(
-            controller: controller,
-            enabled: !busy,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              // filled: true,
-              // fillColor: CategoryPalette.surfaceFor(category, context),
-              prefixIcon: Icon(Icons.wallet_outlined, color: accent),
-              suffixText: 'KM',
-              hintText: 'Enter monthly budget',
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: AppSpacing.sm,
+          KeyedSubtree(
+            key: fieldKey,
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              enabled: !busy,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(
-                  color: _CategoryBudgetSheetPalette.cardBorder(context),
+              decoration: InputDecoration(
+                // filled: true,
+                // fillColor: CategoryPalette.surfaceFor(category, context),
+                prefixIcon: Icon(Icons.wallet_outlined, color: accent),
+                suffixText: 'KM',
+                hintText: 'Enter monthly budget',
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.sm,
                 ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(
-                  color: _CategoryBudgetSheetPalette.cardBorder(context),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: _CategoryBudgetSheetPalette.cardBorder(context),
+                  ),
                 ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: accent, width: 1.4),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(
+                    color: _CategoryBudgetSheetPalette.cardBorder(context),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: accent, width: 1.4),
+                ),
               ),
             ),
           ),

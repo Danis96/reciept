@@ -14,69 +14,79 @@ class ReceiptDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ReceiptDetailsController>(
-      builder: (
-          BuildContext context,
-          ReceiptDetailsController controller,
-          Widget? child,
+      builder:
+          (
+            BuildContext context,
+            ReceiptDetailsController controller,
+            Widget? child,
           ) {
-        if (controller.isLoading && controller.receipt == null) {
-          return const Scaffold(
-            body: SafeArea(
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          );
-        }
+            if (controller.isLoading && controller.receipt == null) {
+              return const Scaffold(
+                body: SafeArea(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            }
 
-        if (controller.error != null || controller.receipt == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Receipt Details')),
-            body: SafeArea(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Text(controller.error ?? 'Receipt not found'),
+            if (controller.error != null || controller.receipt == null) {
+              return Scaffold(
+                appBar: AppBar(title: const Text('Receipt Details')),
+                body: SafeArea(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Text(controller.error ?? 'Receipt not found'),
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final ReceiptModel receipt = controller.receipt!;
+            final ThemeData theme = Theme.of(context);
+            return Scaffold(
+              backgroundColor: theme.scaffoldBackgroundColor,
+              body: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 320),
+                curve: Curves.easeOutCubic,
+                tween: Tween<double>(begin: 0, end: 1),
+                builder: (BuildContext context, double value, Widget? child) {
+                  return Transform.translate(
+                    offset: Offset(0, 18 * (1 - value)),
+                    child: Opacity(opacity: value, child: child),
+                  );
+                },
+                child: ReceiptDetailsScaffold(
+                  receipt: receipt,
+                  deleting: controller.isDeleting,
+                  exporting: controller.isExporting,
+                  onViewImage: () => ReceiptDetailsActionUtils.openReceiptImage(
+                    context,
+                    receipt,
+                  ),
+                  onEdit: () => ReceiptDetailsActionUtils.showEditDialog(
+                    context,
+                    controller,
+                    receipt,
+                  ),
+                  onDelete: () =>
+                      ReceiptDetailsActionUtils.showDeleteDialog(context),
+                  onShare: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Share is not available yet.'),
+                      ),
+                    );
+                  },
+                  onExportSelected: (format) =>
+                      ReceiptDetailsActionUtils.onExport(
+                        context,
+                        format: format,
+                      ),
                 ),
               ),
-            ),
-          );
-        }
-
-        final ReceiptModel receipt = controller.receipt!;
-        return Scaffold(
-          backgroundColor: const Color(0xFFF5F7FB),
-          body: TweenAnimationBuilder<double>(
-            duration: const Duration(milliseconds: 320),
-            curve: Curves.easeOutCubic,
-            tween: Tween<double>(begin: 0, end: 1),
-            builder: (BuildContext context, double value, Widget? child) {
-              return Transform.translate(
-                offset: Offset(0, 18 * (1 - value)),
-                child: Opacity(opacity: value, child: child),
-              );
-            },
-            child: ReceiptDetailsScaffold(
-              receipt: receipt,
-              deleting: controller.isDeleting,
-              exporting: controller.isExporting,
-              onViewImage: () =>
-                  ReceiptDetailsActionUtils.openReceiptImage(context, receipt),
-              onEdit: () => ReceiptDetailsActionUtils.showEditDialog(
-                  context, controller, receipt),
-              onDelete: () =>
-                  ReceiptDetailsActionUtils.showDeleteDialog(context),
-              onShare: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Share is not available yet.'),
-                  ),
-                );
-              },
-              onExportSelected: (format) =>
-                  ReceiptDetailsActionUtils.onExport(context, format: format),
-            ),
-          ),
-        );
-      },
+            );
+          },
     );
   }
 }
