@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/models/category_budget_model.dart';
 
 import '../repository/settings_repository.dart';
@@ -20,6 +22,8 @@ class SettingsController extends ChangeNotifier {
   List<CategoryBudgetModel> get categoryBudgets => _categoryBudgets;
   bool get loading => _loading;
   bool get exporting => _exporting;
+  List<String> get supportedBudgetCategories =>
+      CategoryBudgetCatalog.supportedCategories;
   double get monthlyBudget => _categoryBudgets.fold(
     0,
     (double sum, CategoryBudgetModel item) => sum + item.budgetAmount,
@@ -54,21 +58,22 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<String> exportCsv() async {
-    _exporting = true;
-    notifyListeners();
-    final String path = await _repository.exportReceiptsAsCsv();
-    _exporting = false;
-    notifyListeners();
-    return path;
+    return _exportReceipts(ReceiptExportFormat.csv);
   }
 
   Future<String> exportJson() async {
+    return _exportReceipts(ReceiptExportFormat.json);
+  }
+
+  Future<String> _exportReceipts(ReceiptExportFormat format) async {
     _exporting = true;
     notifyListeners();
-    final String path = await _repository.exportReceiptsAsJson();
-    _exporting = false;
-    notifyListeners();
-    return path;
+    try {
+      return await _repository.exportAllReceipts(format);
+    } finally {
+      _exporting = false;
+      notifyListeners();
+    }
   }
 
   Future<void> saveBudget({
@@ -97,6 +102,12 @@ class SettingsController extends ChangeNotifier {
         amount: entry.value,
       );
     }
+    _categoryBudgets = await _repository.getCategoryBudgets();
+    notifyListeners();
+  }
+
+  Future<void> deleteBudget(String category) async {
+    await _repository.deleteCategoryBudget(category);
     _categoryBudgets = await _repository.getCategoryBudgets();
     notifyListeners();
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/models/receipt/merchant_model.dart';
 import 'package:reciep/app/models/receipt/payment_info_model.dart';
 import 'package:reciep/app/models/receipt/receipt_info_model.dart';
@@ -19,6 +20,10 @@ class GemmaReceiptMapper {
     final DateTime? purchaseDate = DateTime.tryParse(
       payload['purchaseDate']?.toString() ?? '',
     );
+    final String merchantName = _defaultText(
+      _safeString(payload['merchantName']),
+      fallback: 'unknown',
+    );
 
     final List<ReceiptItemModel> items =
         (payload['items'] as List<dynamic>? ?? const <dynamic>[])
@@ -27,7 +32,7 @@ class GemmaReceiptMapper {
 
     final double subtotal = toDoubleValue(payload['subtotalAmount']);
     final double vatAmount = toDoubleValue(payload['vatAmount']);
-    final double total = toDoubleValue(payload['totalAmount']);
+    final double total = _resolveTotal(payload, subtotal, vatAmount, items);
 
     return ReceiptModel(
       id: _safeString(payload['receiptId']).isEmpty
@@ -36,7 +41,7 @@ class GemmaReceiptMapper {
       country: 'BA',
       currency: _normalizeCurrency(_safeString(payload['currency'])),
       merchant: MerchantModel(
-        name: _safeString(payload['merchantName']),
+        name: merchantName,
         address: _emptyToNull(_safeString(payload['merchantAddress'])),
         city: _emptyToNull(_safeString(payload['merchantCity'])),
       ),
@@ -53,11 +58,14 @@ class GemmaReceiptMapper {
         vatAmount: vatAmount,
       ),
       payment: PaymentInfoModel(
-        method: _safeString(payload['paymentMethod']).toLowerCase(),
+        method: _defaultText(
+          _safeString(payload['paymentMethod']).toLowerCase(),
+          fallback: 'unknown',
+        ),
         paid: total,
         change: 0,
       ),
-      category: _safeString(payload['category']).toLowerCase(),
+      category: _resolveReceiptCategory(payload, items),
       confidence: _clamp01(toDoubleValue(payload['confidence'])),
       rawText: _emptyToNull(_safeString(payload['rawSummary'])),
       rawJson: jsonEncode(payload),
@@ -70,6 +78,7 @@ class GemmaReceiptMapper {
     if (raw is! Map) {
       return const ReceiptItemModel(
         name: 'unknown',
+        category: 'miscellaneous',
         quantity: 1,
         finalPrice: 0,
       );
@@ -80,10 +89,42 @@ class GemmaReceiptMapper {
     );
 
     return ReceiptItemModel(
-      name: _safeString(item['name']),
+      name: _defaultText(_safeString(item['name']), fallback: 'unknown'),
+      category: CategoryBudgetCatalog.normalize(_safeString(item['category'])),
+      unit: _emptyToNull(_safeString(item['unit'])),
       quantity: toDoubleValue(item['quantity'], fallback: 1),
       unitPrice: toDoubleValue(item['unitPrice']),
-      finalPrice: toDoubleValue(item['finalPrice']),
+      finalPrice: _resolveItemFinalPrice(item),
+    );
+  }
+
+  static String _resolveReceiptCategory(
+    Map<String, dynamic> payload,
+    List<ReceiptItemModel> items,
+  ) {
+    if (items.isNotEmpty) {
+      final Map<String, double> spendByCategory = <String, double>{};
+      for (final ReceiptItemModel item in items) {
+        final String category = CategoryBudgetCatalog.normalize(item.category);
+        spendByCategory[category] =
+            (spendByCategory[category] ?? 0) + item.finalPrice;
+      }
+
+      if (spendByCategory.isNotEmpty) {
+        return spendByCategory.entries
+            .reduce(
+              (MapEntry<String, double> best, MapEntry<String, double> next) =>
+                  next.value > best.value ? next : best,
+            )
+            .key;
+      }
+    }
+
+    return CategoryBudgetCatalog.normalize(
+      _defaultText(
+        _safeString(payload['category']).toLowerCase(),
+        fallback: 'miscellaneous',
+      ),
     );
   }
 
@@ -95,12 +136,58 @@ class GemmaReceiptMapper {
     return value.isEmpty || value.toLowerCase() == 'unknown' ? null : value;
   }
 
+  static String _defaultText(String value, {required String fallback}) {
+    return value.isEmpty ? fallback : value;
+  }
+
   static String _normalizeCurrency(String value) {
     final String normalized = value.toUpperCase();
     if (normalized == 'KM') {
       return 'BAM';
     }
     return normalized.isEmpty ? 'BAM' : normalized;
+  }
+
+  static double _resolveItemFinalPrice(Map<String, dynamic> item) {
+    final double finalPrice = toDoubleValue(item['finalPrice']);
+    if (finalPrice > 0) {
+      return finalPrice;
+    }
+
+    final double unitPrice = toDoubleValue(item['unitPrice']);
+    final double quantity = toDoubleValue(item['quantity'], fallback: 1);
+    if (unitPrice > 0 && quantity > 0) {
+      return unitPrice * quantity;
+    }
+
+    return 0;
+  }
+
+  static double _resolveTotal(
+    Map<String, dynamic> payload,
+    double subtotal,
+    double vatAmount,
+    List<ReceiptItemModel> items,
+  ) {
+    final double declaredTotal = toDoubleValue(payload['totalAmount']);
+    if (declaredTotal > 0) {
+      return declaredTotal;
+    }
+
+    final double itemsTotal = items.fold<double>(
+      0,
+      (double sum, ReceiptItemModel item) => sum + item.finalPrice,
+    );
+    if (itemsTotal > 0) {
+      return itemsTotal;
+    }
+
+    final double subtotalWithVat = subtotal + vatAmount;
+    if (subtotalWithVat > 0) {
+      return subtotalWithVat;
+    }
+
+    return subtotal > 0 ? subtotal : 0;
   }
 
   static double _clamp01(double value) {

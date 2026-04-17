@@ -51,7 +51,6 @@ class AppLocalizations {
       'scanReceiptButton': 'Scan Receipt',
       'scanReset': 'Reset',
       'scanAnother': 'Scan Another',
-      'scanViewDetails': 'View Details',
       'scanRecentTitle': 'Recent Scans',
       'scanSuccessTitle': 'Receipt Scanned Successfully!',
       'scanErrorTitle': 'Scan Failed',
@@ -67,6 +66,25 @@ class AppLocalizations {
       'scanCategory': 'Category',
       'scanItems': 'Items',
       'scanConfidence': 'Confidence',
+      'scanRetry': 'Retry Scan',
+      'scanPickAnotherImage': 'Pick Another Image',
+      'scanSaveReceipt': 'Save Receipt',
+      'scanEditBeforeSave': 'Edit Before Save',
+      'scanSaving': 'Saving...',
+      'scanLowConfidenceWarning': 'Low confidence parse. Review before save.',
+      'scanReceiptSaved': 'Receipt saved.',
+      'scanDraftUpdated': 'Draft updated.',
+      'scanTotalValidationError': 'Total must be valid number > 0.',
+      'scanEditParsedReceipt': 'Edit parsed receipt',
+      'scanEditMerchant': 'Merchant',
+      'scanEditCategory': 'Category',
+      'scanEditPaymentMethod': 'Payment method',
+      'scanEditTotal': 'Total',
+      'scanDialogCancel': 'Cancel',
+      'scanDialogApply': 'Apply',
+      'scanErrorDismiss': 'Dismiss',
+      'scanErrorRetry': 'Retry',
+      'scanRecentEmptyHint': 'Scan first receipt to build history cards here.',
     },
     'bs': {
       'appTitle': 'Skeniranje Racuna',
@@ -79,6 +97,55 @@ class AppLocalizations {
       'lightTheme': 'Svijetla',
       'darkTheme': 'Tamna',
       'systemTheme': 'Sistemska',
+      'noReceiptsYet': 'Jos nema racuna. Sacuvaj jedan iz Skeniraj taba.',
+      'scanReceiptTitle': 'Skeniraj racun',
+      'scanReceiptSubtitle': 'Ucitaj ili uslikaj racun',
+      'scanUpload': 'Ucitaj',
+      'scanCamera': 'Kamera',
+      'scanUploadTitle': 'Ucitaj racun',
+      'scanUploadSubtitle': 'Dodirni za izbor iz galerije',
+      'scanCameraTitle': 'Fotografisi',
+      'scanCameraSubtitle': 'Koristi kameru za unos',
+      'scanSupportFormats': 'Podrzano JPG, PNG • Max 10MB',
+      'scanReceiptButton': 'Skeniraj racun',
+      'scanReset': 'Ponisti',
+      'scanAnother': 'Skeniraj novi',
+      'scanRecentTitle': 'Skorija skeniranja',
+      'scanSuccessTitle': 'Racun uspjesno skeniran!',
+      'scanErrorTitle': 'Skeniranje nije uspjelo',
+      'scanErrorFallback': 'Nije moguce obraditi sliku racuna.',
+      'scanStepUploading': 'Otpremanje slike',
+      'scanStepReading': 'Citanje teksta',
+      'scanStepDetecting': 'Prepoznavanje stavki',
+      'scanStepCategorizing': 'Kategorizacija racuna',
+      'scanStepFinalizing': 'Zavrsna obrada',
+      'scanMerchant': 'Prodavac',
+      'scanTotal': 'Ukupno',
+      'scanDate': 'Datum',
+      'scanCategory': 'Kategorija',
+      'scanItems': 'Stavke',
+      'scanConfidence': 'Pouzdanost',
+      'scanRetry': 'Pokusaj ponovo',
+      'scanPickAnotherImage': 'Izaberi drugu sliku',
+      'scanSaveReceipt': 'Sacuvaj racun',
+      'scanEditBeforeSave': 'Uredi prije cuvanja',
+      'scanSaving': 'Cuvanje...',
+      'scanLowConfidenceWarning':
+          'Niska pouzdanost parsiranja. Pregledaj prije cuvanja.',
+      'scanReceiptSaved': 'Racun sacuvan.',
+      'scanDraftUpdated': 'Nacrt azuriran.',
+      'scanTotalValidationError': 'Ukupno mora biti broj > 0.',
+      'scanEditParsedReceipt': 'Uredi parsirani racun',
+      'scanEditMerchant': 'Prodavac',
+      'scanEditCategory': 'Kategorija',
+      'scanEditPaymentMethod': 'Nacin placanja',
+      'scanEditTotal': 'Ukupno',
+      'scanDialogCancel': 'Odustani',
+      'scanDialogApply': 'Primijeni',
+      'scanErrorDismiss': 'Zatvori',
+      'scanErrorRetry': 'Ponovo',
+      'scanRecentEmptyHint':
+          'Skeniraj prvi racun da ovdje prikazemo historiju.',
     },
   };
 
@@ -111,7 +178,6 @@ class AppLocalizations {
   String get scanReceiptButton => _text('scanReceiptButton');
   String get scanReset => _text('scanReset');
   String get scanAnother => _text('scanAnother');
-  String get scanViewDetails => _text('scanViewDetails');
   String get scanRecentTitle => _text('scanRecentTitle');
   String get scanSuccessTitle => _text('scanSuccessTitle');
   String get scanErrorTitle => _text('scanErrorTitle');
@@ -127,6 +193,25 @@ class AppLocalizations {
   String get scanCategory => _text('scanCategory');
   String get scanItems => _text('scanItems');
   String get scanConfidence => _text('scanConfidence');
+  String get scanRetry => _text('scanRetry');
+  String get scanPickAnotherImage => _text('scanPickAnotherImage');
+  String get scanSaveReceipt => _text('scanSaveReceipt');
+  String get scanEditBeforeSave => _text('scanEditBeforeSave');
+  String get scanSaving => _text('scanSaving');
+  String get scanLowConfidenceWarning => _text('scanLowConfidenceWarning');
+  String get scanReceiptSaved => _text('scanReceiptSaved');
+  String get scanDraftUpdated => _text('scanDraftUpdated');
+  String get scanTotalValidationError => _text('scanTotalValidationError');
+  String get scanEditParsedReceipt => _text('scanEditParsedReceipt');
+  String get scanEditMerchant => _text('scanEditMerchant');
+  String get scanEditCategory => _text('scanEditCategory');
+  String get scanEditPaymentMethod => _text('scanEditPaymentMethod');
+  String get scanEditTotal => _text('scanEditTotal');
+  String get scanDialogCancel => _text('scanDialogCancel');
+  String get scanDialogApply => _text('scanDialogApply');
+  String get scanErrorDismiss => _text('scanErrorDismiss');
+  String get scanErrorRetry => _text('scanErrorRetry');
+  String get scanRecentEmptyHint => _text('scanRecentEmptyHint');
 
   String _text(String key) {
     final String languageCode =

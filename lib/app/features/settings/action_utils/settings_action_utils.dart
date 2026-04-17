@@ -42,4 +42,11 @@ class SettingsActionUtils {
   ) {
     return context.read<SettingsController>().saveBudgets(valuesByCategory);
   }
+
+  static Future<void> onBudgetDeleted(
+    BuildContext context, {
+    required String category,
+  }) {
+    return context.read<SettingsController>().deleteBudget(category);
+  }
 }

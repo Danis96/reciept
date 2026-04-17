@@ -22,4 +22,22 @@ class DashboardActionUtils {
     context.read<DashboardController>().setCurrentTab(1);
     await context.read<ScanController>().pickFromGallery();
   }
+
+  static Future<void> onBudgetSaved(
+    BuildContext context, {
+    required String category,
+    required double amount,
+  }) {
+    return context.read<DashboardController>().upsertBudget(
+      category: category,
+      amount: amount,
+    );
+  }
+
+  static Future<void> onBudgetDeleted(
+    BuildContext context, {
+    required String category,
+  }) {
+    return context.read<DashboardController>().deleteBudget(category);
+  }
 }

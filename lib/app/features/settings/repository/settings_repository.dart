@@ -1,13 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
 import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/models/category_budget_model.dart';
 import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
+import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/database/app_database.dart';
 
 class SettingsRepository {
@@ -16,15 +14,18 @@ class SettingsRepository {
     required CategoryBudgetRepository categoryBudgetRepository,
     required MonthlyBudgetSyncRepository monthlyBudgetSyncRepository,
     required ReceiptDao receiptDao,
+    required ReceiptExportService receiptExportService,
   }) : _settingsDao = settingsDao,
        _categoryBudgetRepository = categoryBudgetRepository,
        _monthlyBudgetSyncRepository = monthlyBudgetSyncRepository,
-       _receiptDao = receiptDao;
+       _receiptDao = receiptDao,
+       _receiptExportService = receiptExportService;
 
   final AppSettingsDao _settingsDao;
   final CategoryBudgetRepository _categoryBudgetRepository;
   final MonthlyBudgetSyncRepository _monthlyBudgetSyncRepository;
   final ReceiptDao _receiptDao;
+  final ReceiptExportService _receiptExportService;
 
   static const String _themeModeKey = 'theme_mode';
   static const String _languageCodeKey = 'language_code';
@@ -117,57 +118,25 @@ class SettingsRepository {
     await _monthlyBudgetSyncRepository.syncCurrentMonth();
   }
 
-  Future<String> exportReceiptsAsCsv() async {
-    final List<ReceiptWithItems> rows = await _receiptDao
-        .getReceiptsWithItems();
-    final List<String> lines = <String>[
-      'id,date,merchant,total,currency,category,item_count',
-    ];
-
-    for (final ReceiptWithItems row in rows) {
-      final model = row.toReceiptModel();
-      final String line = [
-        _escapeCsv(model.id),
-        _escapeCsv(model.createdAt.toIso8601String()),
-        _escapeCsv(model.merchant.name),
-        _escapeCsv(model.totals.total.toStringAsFixed(2)),
-        _escapeCsv(model.currency),
-        _escapeCsv(CategoryBudgetCatalog.labelFor(model.category)),
-        _escapeCsv(model.items.length.toString()),
-      ].join(',');
-      lines.add(line);
-    }
-
-    final String timestamp = DateFormat(
-      'yyyyMMdd_HHmmss',
-    ).format(DateTime.now());
-    final File file = File(
-      '${Directory.systemTemp.path}/receipts_$timestamp.csv',
-    );
-    await file.writeAsString(lines.join('\n'));
-    return file.path;
+  Future<void> deleteCategoryBudget(String category) async {
+    await _categoryBudgetRepository.deleteBudget(category);
+    await _monthlyBudgetSyncRepository.syncCurrentMonth();
   }
 
-  Future<String> exportReceiptsAsJson() async {
-    final List<ReceiptWithItems> rows = await _receiptDao
-        .getReceiptsWithItems();
-    final List<Map<String, dynamic>> payload = rows
-        .map((ReceiptWithItems row) => row.toReceiptModel().toJson())
-        .toList();
-
-    final String timestamp = DateFormat(
-      'yyyyMMdd_HHmmss',
-    ).format(DateTime.now());
-    final File file = File(
-      '${Directory.systemTemp.path}/receipts_$timestamp.json',
+  Future<String> exportAllReceipts(ReceiptExportFormat format) async {
+    final List<ReceiptModel> receipts = await _getAllReceipts();
+    return _receiptExportService.exportReceipts(
+      receipts: receipts,
+      format: format,
+      scopeLabel: 'all',
     );
-    const JsonEncoder encoder = JsonEncoder.withIndent('  ');
-    await file.writeAsString(encoder.convert(payload));
-    return file.path;
   }
 
-  String _escapeCsv(String value) {
-    final String escaped = value.replaceAll('"', '""');
-    return '"$escaped"';
+  Future<List<ReceiptModel>> _getAllReceipts() async {
+    final List<ReceiptWithItems> rows = await _receiptDao
+        .getReceiptsWithItems();
+    return rows
+        .map((ReceiptWithItems row) => row.toReceiptModel())
+        .toList(growable: false);
   }
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:reciep/app/features/budgets/ui/widgets/category_budget_manager_sheet.dart';
 import 'package:reciep/app/features/settings/action_utils/settings_action_utils.dart';
 import 'package:reciep/app/features/settings/controllers/settings_controller.dart';
-import 'package:reciep/app/models/category_budget_model.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -71,12 +70,32 @@ class _SettingsPageState extends State<SettingsPage> {
                     SettingsBudgetCard(
                       monthlyBudget: controller.monthlyBudget,
                       onManagePressed: () async {
-                        await showDialog<void>(
+                        await showModalBottomSheet<void>(
                           context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext dialogContext) {
-                            return SettingsBudgetDialog(
-                              budgets: controller.categoryBudgets,
+                          isScrollControlled: true,
+                          useSafeArea: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (BuildContext sheetContext) {
+                            return CategoryBudgetManagerSheet(
+                              supportedCategories:
+                                  controller.supportedBudgetCategories,
+                              currentAmounts: <String, double>{
+                                for (final budget in controller.categoryBudgets)
+                                  budget.category: budget.budgetAmount,
+                              },
+                              onSave: (String category, double amount) {
+                                return SettingsActionUtils.onBudgetSaved(
+                                  context,
+                                  category: category,
+                                  amount: amount,
+                                );
+                              },
+                              onDelete: (String category) {
+                                return SettingsActionUtils.onBudgetDeleted(
+                                  context,
+                                  category: category,
+                                );
+                              },
                             );
                           },
                         );
@@ -584,223 +603,6 @@ class SettingsSimpleMessageDialog extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class SettingsBudgetDialog extends StatefulWidget {
-  const SettingsBudgetDialog({super.key, required this.budgets});
-
-  final List<CategoryBudgetModel> budgets;
-
-  @override
-  State<SettingsBudgetDialog> createState() => _SettingsBudgetDialogState();
-}
-
-class _SettingsBudgetDialogState extends State<SettingsBudgetDialog> {
-  late final List<SettingsBudgetFieldModel> _fields;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fields = CategoryBudgetCatalog.supportedCategories.map((String category) {
-      final CategoryBudgetModel selected = widget.budgets.firstWhere(
-        (CategoryBudgetModel item) =>
-            CategoryBudgetCatalog.normalize(item.category) ==
-            CategoryBudgetCatalog.normalize(category),
-        orElse: () => CategoryBudgetModel(
-          category: category,
-          budgetAmount: 0,
-          spentAmount: 0,
-          currency: 'BAM',
-          period: 'monthly',
-          updatedAt: DateTime.now(),
-        ),
-      );
-      return SettingsBudgetFieldModel(
-        category: category,
-        controller: TextEditingController(
-          text: NumberFormat('0').format(selected.budgetAmount),
-        ),
-        spentAmount: selected.spentAmount,
-      );
-    }).toList();
-  }
-
-  @override
-  void dispose() {
-    for (final SettingsBudgetFieldModel field in _fields) {
-      field.controller.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: _fields.map((SettingsBudgetFieldModel field) {
-                    return SettingsBudgetEditorRow(field: field);
-                  }).toList(),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                ),
-                onPressed: _saving
-                    ? null
-                    : () async {
-                        await _saveAndClose(context);
-                      },
-                child: _saving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Done',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _saveAndClose(BuildContext context) async {
-    setState(() {
-      _saving = true;
-    });
-    try {
-      final Map<String, double> valuesByCategory = <String, double>{
-        for (final SettingsBudgetFieldModel field in _fields)
-          field.category: double.tryParse(field.controller.text.trim()) ?? 0,
-      };
-      await SettingsActionUtils.onBudgetsSaved(context, valuesByCategory);
-      if (context.mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Budgets updated.')));
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _saving = false;
-        });
-      }
-    }
-  }
-}
-
-class SettingsBudgetEditorRow extends StatelessWidget {
-  const SettingsBudgetEditorRow({super.key, required this.field});
-
-  final SettingsBudgetFieldModel field;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            SettingsBudgetLabel.longLabel(field.category),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontSize: 33 / 2,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          TextField(
-            controller: field.controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: SettingsPagePalette.fieldBackground(context),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
-              ),
-            ),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w500,
-              fontSize: 18 / 1.1,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Spent: ${NumberFormat('0.00').format(field.spentAmount)} KM',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: SettingsPagePalette.mutedText(context),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SettingsBudgetFieldModel {
-  const SettingsBudgetFieldModel({
-    required this.category,
-    required this.controller,
-    required this.spentAmount,
-  });
-
-  final String category;
-  final TextEditingController controller;
-  final double spentAmount;
-}
-
-class SettingsBudgetLabel {
-  const SettingsBudgetLabel._();
-
-  static String longLabel(String category) {
-    switch (CategoryBudgetCatalog.normalize(category)) {
-      case CategoryBudgetCatalog.groceries:
-        return 'Food';
-      case CategoryBudgetCatalog.household:
-        return 'Household Supplies';
-      case CategoryBudgetCatalog.pets:
-        return 'Pets';
-      case CategoryBudgetCatalog.clothing:
-        return 'Clothing';
-      case CategoryBudgetCatalog.fuel:
-        return 'Car';
-      case CategoryBudgetCatalog.miscellaneous:
-        return 'Misc';
-    }
-    return 'Misc';
   }
 }
 

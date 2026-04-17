@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:reciep/app/widgets/receipt_paper_card.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
 class RecentScansSection extends StatelessWidget {
@@ -8,11 +8,13 @@ class RecentScansSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.emptyText,
+    required this.emptyHintText,
     required this.receipts,
   });
 
   final String title;
   final String emptyText;
+  final String emptyHintText;
   final List<ReceiptModel> receipts;
 
   @override
@@ -58,109 +60,22 @@ class RecentScansSection extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: AppSpacing.xxs),
+                Text(
+                  emptyHintText,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.secondary.withValues(alpha: 0.8),
+                  ),
+                ),
               ],
             ),
           ),
-        ...receipts.map(
-          (ReceiptModel receipt) => Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: ScanRecentTile(receipt: receipt),
-          ),
+        ReceiptPaperList(
+          receipts: receipts,
+          expandFirstByDefault: true,
         ),
       ],
     );
-  }
-}
-
-class ScanRecentTile extends StatelessWidget {
-  const ScanRecentTile({super.key, required this.receipt});
-
-  final ReceiptModel receipt;
-
-  @override
-  Widget build(BuildContext context) {
-    final DateFormat dateFormat = DateFormat('M/d/yyyy');
-    final IconData icon = _CategoryIconMapper(receipt.category).icon;
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm,
-          vertical: AppSpacing.sm,
-        ),
-        child: Row(
-          children: <Widget>[
-            Container(
-              height: 38,
-              width: 38,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.primary.withValues(alpha: 0.08),
-              ),
-              child: Icon(icon, size: 20),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    receipt.merchant.name,
-                    style: theme.textTheme.titleMedium,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    receipt.category,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.secondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                Text(
-                  '${receipt.totals.total.toStringAsFixed(2)} ${receipt.currency}',
-                  style: theme.textTheme.titleMedium,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  dateFormat.format(receipt.createdAt),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// todo fix this (probably real images)
-class _CategoryIconMapper {
-  _CategoryIconMapper(this.category);
-
-  final String category;
-
-  IconData get icon {
-    switch (category.toLowerCase()) {
-      case 'pets':
-        return Icons.pets_outlined;
-      case 'food':
-        return Icons.shopping_cart_outlined;
-      case 'household supplies':
-        return Icons.home_outlined;
-      default:
-        return Icons.category_outlined;
-    }
   }
 }

@@ -41,6 +41,7 @@ extension ReceiptRowMapper on ReceiptWithItems {
           .map(
             (ReceiptItem item) => ReceiptItemModel(
               name: item.name,
+              category: item.category,
               unit: item.unit,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
@@ -130,6 +131,7 @@ extension ReceiptModelCompanionMapper on ReceiptModel {
           (MapEntry<int, ReceiptItemModel> entry) => ReceiptItemsCompanion(
             position: Value(entry.key),
             name: Value(entry.value.name),
+            category: Value(entry.value.category),
             unit: Value(entry.value.unit),
             quantity: Value(entry.value.quantity),
             unitPrice: Value(entry.value.unitPrice),

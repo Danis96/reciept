@@ -13,18 +13,29 @@ class ScanSurfaceCard extends StatelessWidget {
     this.loadingStep = 0,
     this.errorMessage,
     this.result,
+    this.hasDraft = false,
+    this.lowConfidence = false,
+    this.savingDraft = false,
     required this.onGallery,
     required this.onCamera,
     required this.onScan,
+    required this.onRetry,
     required this.onReset,
     required this.onScanAnother,
+    required this.onEditDraft,
+    required this.onSaveDraft,
     required this.scanButtonText,
+    required this.retryLabel,
+    required this.pickAnotherImageLabel,
     required this.resetLabel,
     required this.scanAnotherLabel,
+    required this.saveReceiptLabel,
+    required this.editBeforeSaveLabel,
+    required this.savingLabel,
+    required this.lowConfidenceWarningLabel,
     required this.successTitle,
     required this.errorTitle,
     required this.errorFallback,
-    required this.viewDetailsLabel,
     required this.loadingSteps,
     required this.merchantLabel,
     required this.totalLabel,
@@ -44,18 +55,29 @@ class ScanSurfaceCard extends StatelessWidget {
   final int loadingStep;
   final String? errorMessage;
   final ReceiptModel? result;
+  final bool hasDraft;
+  final bool lowConfidence;
+  final bool savingDraft;
   final VoidCallback onGallery;
   final VoidCallback onCamera;
   final VoidCallback onScan;
+  final VoidCallback onRetry;
   final VoidCallback onReset;
   final VoidCallback onScanAnother;
+  final VoidCallback onEditDraft;
+  final VoidCallback onSaveDraft;
   final String scanButtonText;
+  final String retryLabel;
+  final String pickAnotherImageLabel;
   final String resetLabel;
   final String scanAnotherLabel;
+  final String saveReceiptLabel;
+  final String editBeforeSaveLabel;
+  final String savingLabel;
+  final String lowConfidenceWarningLabel;
   final String successTitle;
   final String errorTitle;
   final String errorFallback;
-  final String viewDetailsLabel;
   final List<String> loadingSteps;
   final String merchantLabel;
   final String totalLabel;
@@ -85,54 +107,100 @@ class ScanSurfaceCard extends StatelessWidget {
             supportFormatsText: supportFormatsText,
           ),
         if (state == ScanSurfaceState.imageSelected)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: ScanImageSelectedContent(
-                imagePath: imagePath,
-                onScan: onScan,
-                onReset: onReset,
-                scanButtonText: scanButtonText,
-                resetLabel: resetLabel,
+          _ScanAnimatedStateWrapper(
+            state: state,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: ScanImageSelectedContent(
+                  imagePath: imagePath,
+                  onScan: onScan,
+                  onReset: onReset,
+                  scanButtonText: scanButtonText,
+                  resetLabel: resetLabel,
+                ),
               ),
             ),
           ),
         if (state == ScanSurfaceState.loading)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: PremiumScanLoadingPanel(
-                imagePath: imagePath,
-                loadingStep: loadingStep,
-                steps: loadingSteps,
+          _ScanAnimatedStateWrapper(
+            state: state,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: PremiumScanLoadingPanel(
+                  imagePath: imagePath,
+                  loadingStep: loadingStep,
+                  steps: loadingSteps,
+                ),
               ),
             ),
           ),
         if (state == ScanSurfaceState.success)
-          ScanSuccessContent(
-            result: result,
-            title: successTitle,
-            onScanAnother: onScanAnother,
-            onViewDetails: onScanAnother,
-            scanAnotherLabel: scanAnotherLabel,
-            viewDetailsLabel: viewDetailsLabel,
-            merchantLabel: merchantLabel,
-            totalLabel: totalLabel,
-            dateLabel: dateLabel,
-            categoryLabel: categoryLabel,
-            itemsLabel: itemsLabel,
-            confidenceLabel: confidenceLabel,
+          _ScanAnimatedStateWrapper(
+            state: state,
+            child: ScanSuccessContent(
+              result: result,
+              title: successTitle,
+              hasDraft: hasDraft,
+              lowConfidence: lowConfidence,
+              lowConfidenceWarningLabel: lowConfidenceWarningLabel,
+              savingDraft: savingDraft,
+              savingLabel: savingLabel,
+              saveReceiptLabel: saveReceiptLabel,
+              editBeforeSaveLabel: editBeforeSaveLabel,
+              onScanAnother: onScanAnother,
+              onEditDraft: onEditDraft,
+              onSaveDraft: onSaveDraft,
+              scanAnotherLabel: scanAnotherLabel,
+              merchantLabel: merchantLabel,
+              totalLabel: totalLabel,
+              dateLabel: dateLabel,
+              categoryLabel: categoryLabel,
+              itemsLabel: itemsLabel,
+              confidenceLabel: confidenceLabel,
+            ),
           ),
         if (state == ScanSurfaceState.error)
-          ScanErrorContent(
-            title: errorTitle,
-            message: errorMessage ?? errorFallback,
-            onRetry: onScan,
-            retryLabel: scanButtonText,
-            onReset: onReset,
-            resetLabel: resetLabel,
+          _ScanAnimatedStateWrapper(
+            state: state,
+            child: ScanErrorContent(
+              title: errorTitle,
+              message: errorMessage ?? errorFallback,
+              onRetry: onRetry,
+              retryLabel: retryLabel,
+              onReset: onReset,
+              resetLabel: pickAnotherImageLabel,
+            ),
           ),
       ],
+    );
+  }
+}
+
+class _ScanAnimatedStateWrapper extends StatelessWidget {
+  const _ScanAnimatedStateWrapper({required this.state, required this.child});
+
+  final ScanSurfaceState state;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        final Animation<Offset> slide = Tween<Offset>(
+          begin: const Offset(0, 0.02),
+          end: Offset.zero,
+        ).animate(animation);
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(position: slide, child: child),
+        );
+      },
+      child: KeyedSubtree(key: ValueKey<ScanSurfaceState>(state), child: child),
     );
   }
 }
@@ -424,10 +492,17 @@ class ScanSuccessContent extends StatelessWidget {
     super.key,
     required this.result,
     required this.title,
+    required this.hasDraft,
+    required this.lowConfidence,
+    required this.lowConfidenceWarningLabel,
+    required this.savingDraft,
+    required this.savingLabel,
+    required this.saveReceiptLabel,
+    required this.editBeforeSaveLabel,
     required this.onScanAnother,
-    required this.onViewDetails,
+    required this.onEditDraft,
+    required this.onSaveDraft,
     required this.scanAnotherLabel,
-    required this.viewDetailsLabel,
     required this.merchantLabel,
     required this.totalLabel,
     required this.dateLabel,
@@ -438,10 +513,17 @@ class ScanSuccessContent extends StatelessWidget {
 
   final ReceiptModel? result;
   final String title;
+  final bool hasDraft;
+  final bool lowConfidence;
+  final String lowConfidenceWarningLabel;
+  final bool savingDraft;
+  final String savingLabel;
+  final String saveReceiptLabel;
+  final String editBeforeSaveLabel;
   final VoidCallback onScanAnother;
-  final VoidCallback onViewDetails;
+  final VoidCallback onEditDraft;
+  final VoidCallback onSaveDraft;
   final String scanAnotherLabel;
-  final String viewDetailsLabel;
   final String merchantLabel;
   final String totalLabel;
   final String dateLabel;
@@ -453,10 +535,15 @@ class ScanSuccessContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final ReceiptModel receipt = result!;
     final DateFormat dateFormat = DateFormat('M/d/yyyy');
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color successColor = colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFF4FAF66), width: 1.2),
+        border: Border.all(
+          color: successColor.withValues(alpha: 0.55),
+          width: 1.2,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -465,19 +552,40 @@ class ScanSuccessContent extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              const Icon(Icons.check_circle_outline, color: Color(0xFF4FAF66)),
+              Icon(Icons.check_circle_outline, color: successColor),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: const Color(0xFF4FAF66),
+                    color: successColor,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
             ],
           ),
+          if (lowConfidence) ...<Widget>[
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: colorScheme.secondary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: colorScheme.secondary.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Text(
+                lowConfidenceWarningLabel,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.secondary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           ScanSuccessRow(label: merchantLabel, value: receipt.merchant.name),
           ScanSuccessRow(
@@ -496,22 +604,31 @@ class ScanSuccessContent extends StatelessWidget {
             value: '${(receipt.confidence * 100).round()}%',
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: onViewDetails,
-                  child: Text(viewDetailsLabel),
+          if (hasDraft)
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: savingDraft ? null : onSaveDraft,
+                    child: Text(savingDraft ? savingLabel : saveReceiptLabel),
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: onScanAnother,
-                  child: Text(scanAnotherLabel),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: savingDraft ? null : onEditDraft,
+                    child: Text(editBeforeSaveLabel),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onScanAnother,
+              child: Text(scanAnotherLabel),
+            ),
           ),
         ],
       ),
@@ -539,7 +656,16 @@ class ScanSuccessRow extends StatelessWidget {
               ),
             ),
           ),
-          Text(value, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(width: AppSpacing.sm),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
         ],
       ),
     );
@@ -566,9 +692,14 @@ class ScanErrorContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE0574E), width: 1.2),
+        border: Border.all(
+          color: colorScheme.error.withValues(alpha: 0.55),
+          width: 1.2,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -577,13 +708,13 @@ class ScanErrorContent extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              const Icon(Icons.error_outline, color: Color(0xFFE0574E)),
+              Icon(Icons.error_outline, color: colorScheme.error),
               const SizedBox(width: AppSpacing.xs),
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: const Color(0xFFE0574E),
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: colorScheme.error),
               ),
             ],
           ),

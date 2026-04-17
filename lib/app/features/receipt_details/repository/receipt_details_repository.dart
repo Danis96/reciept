@@ -1,4 +1,5 @@
 import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/database/app_database.dart';
@@ -7,11 +8,14 @@ class ReceiptDetailsRepository {
   ReceiptDetailsRepository({
     required ReceiptDao receiptDao,
     required MonthlyBudgetSyncRepository monthlyBudgetSyncRepository,
+    required ReceiptExportService receiptExportService,
   }) : _receiptDao = receiptDao,
-       _monthlyBudgetSyncRepository = monthlyBudgetSyncRepository;
+       _monthlyBudgetSyncRepository = monthlyBudgetSyncRepository,
+       _receiptExportService = receiptExportService;
 
   final ReceiptDao _receiptDao;
   final MonthlyBudgetSyncRepository _monthlyBudgetSyncRepository;
+  final ReceiptExportService _receiptExportService;
 
   Future<ReceiptModel?> getReceiptById(String receiptId) async {
     final ReceiptWithItems? row = await _receiptDao
@@ -30,5 +34,16 @@ class ReceiptDetailsRepository {
   Future<void> deleteReceipt(String receiptId) async {
     await _receiptDao.deleteReceiptByReceiptId(receiptId);
     await _monthlyBudgetSyncRepository.syncCurrentMonth();
+  }
+
+  Future<String> exportReceipt({
+    required ReceiptModel receipt,
+    required ReceiptExportFormat format,
+  }) {
+    return _receiptExportService.exportReceipts(
+      receipts: <ReceiptModel>[receipt],
+      format: format,
+      scopeLabel: 'single_${receipt.id}',
+    );
   }
 }

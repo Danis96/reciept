@@ -62,6 +62,8 @@ class ReceiptItems extends Table {
 
   IntColumn get position => integer().withDefault(const Constant(0))();
   TextColumn get name => text().withDefault(const Constant(''))();
+  TextColumn get category =>
+      text().withDefault(const Constant('miscellaneous'))();
   TextColumn get unit => text().nullable()();
   RealColumn get quantity => real().withDefault(const Constant(1))();
   RealColumn get unitPrice => real().nullable()();
@@ -98,7 +100,7 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'receipt_local_db'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -112,6 +114,10 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('DROP TABLE IF EXISTS category_budgets');
         await customStatement('DROP TABLE IF EXISTS app_settings');
         await m.createAll();
+        return;
+      }
+      if (from < 4) {
+        await m.addColumn(receiptItems, receiptItems.category);
       }
     },
   );

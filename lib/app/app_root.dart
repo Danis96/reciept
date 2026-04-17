@@ -3,8 +3,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
+import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/features/receipt_details/repository/receipt_details_repository.dart';
 import 'package:reciep/app/features/scan/repository/gemma_receipt_scan_service.dart';
+import 'package:reciep/app/features/scan/repository/receipt_image_compression_service.dart';
 
 import '../database/app_database.dart';
 import 'features/dashboard/controllers/dashboard_controller.dart';
@@ -48,6 +50,7 @@ class AppRoot extends StatelessWidget {
         Provider<AppSettingsDao>(
           create: (context) => AppSettingsDao(context.read<AppDatabase>()),
         ),
+        Provider<ReceiptExportService>(create: (_) => ReceiptExportService()),
         Provider<CategoryBudgetRepository>(
           create: (context) =>
               CategoryBudgetRepository(dao: context.read<CategoryBudgetDao>()),
@@ -72,11 +75,16 @@ class AppRoot extends StatelessWidget {
                 .read<MonthlyBudgetSyncRepository>(),
           )..refreshHome(),
         ),
+        Provider<ReceiptImageCompressionService>(
+          create: (_) => const ReceiptImageCompressionService(),
+        ),
         Provider<GemmaReceiptScanService>(
-          create: (_) => GemmaReceiptScanService(
+          create: (context) => GemmaReceiptScanService(
             apiKey: _gemmaApiKey,
             model: _gemmaModel,
             baseUrl: _gemmaBaseUrl,
+            imageCompressionService: context
+                .read<ReceiptImageCompressionService>(),
           ),
         ),
         Provider<ScanRepository>(
@@ -100,6 +108,7 @@ class AppRoot extends StatelessWidget {
             receiptDao: context.read<ReceiptDao>(),
             monthlyBudgetSyncRepository: context
                 .read<MonthlyBudgetSyncRepository>(),
+            receiptExportService: context.read<ReceiptExportService>(),
           ),
         ),
         ChangeNotifierProvider<HistoryController>(
@@ -119,6 +128,7 @@ class AppRoot extends StatelessWidget {
             monthlyBudgetSyncRepository: context
                 .read<MonthlyBudgetSyncRepository>(),
             receiptDao: context.read<ReceiptDao>(),
+            receiptExportService: context.read<ReceiptExportService>(),
           ),
         ),
         ChangeNotifierProvider<SettingsController>(
