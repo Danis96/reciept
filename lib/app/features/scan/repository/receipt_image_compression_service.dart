@@ -14,9 +14,9 @@ class PreparedReceiptImage {
 
 class ReceiptImageCompressionService {
   const ReceiptImageCompressionService({
-    this.quality = 75,
-    this.minWidth = 1024,
-    this.minHeight = 1024,
+    this.quality = 70,
+    this.minWidth = 768,
+    this.minHeight = 768,
   });
 
   final int quality;
@@ -26,9 +26,6 @@ class ReceiptImageCompressionService {
   Future<PreparedReceiptImage> prepareForUpload({
     required String imagePath,
   }) async {
-    final File imageFile = File(imagePath);
-    final List<int> originalBytes = await imageFile.readAsBytes();
-
     final List<int>? compressedBytes = await FlutterImageCompress
         .compressWithFile(
           imagePath,
@@ -38,13 +35,15 @@ class ReceiptImageCompressionService {
           format: CompressFormat.jpeg,
         );
 
+    if (compressedBytes != null && compressedBytes.isNotEmpty) {
+      return PreparedReceiptImage(bytes: compressedBytes, mimeType: 'image/jpeg');
+    }
+
+    // only fall back to reading original if compression failed
+    final List<int> originalBytes = await File(imagePath).readAsBytes();
     return PreparedReceiptImage(
-      bytes: compressedBytes == null || compressedBytes.isEmpty
-          ? originalBytes
-          : compressedBytes,
-      mimeType: compressedBytes == null || compressedBytes.isEmpty
-          ? _detectMimeType(imagePath)
-          : 'image/jpeg',
+      bytes: originalBytes,
+      mimeType: _detectMimeType(imagePath),
     );
   }
 

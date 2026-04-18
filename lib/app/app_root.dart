@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -79,13 +81,17 @@ class AppRoot extends StatelessWidget {
           create: (_) => const ReceiptImageCompressionService(),
         ),
         Provider<GemmaReceiptScanService>(
-          create: (context) => GemmaReceiptScanService(
-            apiKey: _gemmaApiKey,
-            model: _gemmaModel,
-            baseUrl: _gemmaBaseUrl,
-            imageCompressionService: context
-                .read<ReceiptImageCompressionService>(),
-          ),
+          create: (context) {
+            final GemmaReceiptScanService service = GemmaReceiptScanService(
+              apiKey: _gemmaApiKey,
+              model: _gemmaModel,
+              baseUrl: _gemmaBaseUrl,
+              imageCompressionService: context
+                  .read<ReceiptImageCompressionService>(),
+            );
+            unawaited(service.warmUp());
+            return service;
+          },
         ),
         Provider<ScanRepository>(
           create: (context) => ScanRepository(

@@ -41,6 +41,22 @@ class GemmaReceiptScanService {
   final ReceiptAiPromptBuilder _promptBuilder;
   final ReceiptImageCompressionService _imageCompressionService;
 
+  Future<void> warmUp() async {
+    if (_apiKey.trim().isEmpty) {
+      return;
+    }
+
+    final Uri uri = Uri.parse('$_baseUrl/models?key=$_apiKey');
+    try {
+      final HttpClientRequest request = await _httpClient.getUrl(uri);
+      final HttpClientResponse response = await request.close();
+      await response.drain<void>();
+      _logDebug('Warm-up request completed. status=${response.statusCode}');
+    } catch (error) {
+      _logDebug('Warm-up request skipped. error=$error');
+    }
+  }
+
   Future<Map<String, dynamic>> scanReceiptImage({
     required String imagePath,
   }) async {
@@ -93,7 +109,7 @@ class GemmaReceiptScanService {
       'generationConfig': <String, dynamic>{
         'temperature': 0.1,
         'topP': 0.8,
-        'maxOutputTokens': 1200,
+        'maxOutputTokens': 800,
       },
     };
 
@@ -109,7 +125,8 @@ class GemmaReceiptScanService {
       throw GemmaScanException('Gemma API timeout. Please try again.');
     } on SocketException catch (error) {
       throw GemmaScanException(
-        'Gemma socket error for ${uri.host}: ${error.message} ${error.osError?.message ?? ''}'.trim(),
+        'Gemma socket error for ${uri.host}: ${error.message} ${error.osError?.message ?? ''}'
+            .trim(),
       );
     }
 

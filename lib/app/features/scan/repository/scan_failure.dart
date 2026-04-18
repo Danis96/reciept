@@ -1,5 +1,6 @@
 enum ScanFailureType {
   imageUploadFailed,
+  notReceipt,
   aiResponseFailed,
   invalidJson,
   parseFailure,
