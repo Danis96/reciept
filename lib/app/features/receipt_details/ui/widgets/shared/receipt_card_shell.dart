@@ -16,9 +16,6 @@ class ReceiptCardShell extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
-        ),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: theme.shadowColor.withValues(alpha: 0.08),

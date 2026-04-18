@@ -67,7 +67,7 @@ class AppLocalizations {
       'scanItems': 'Items',
       'scanConfidence': 'Confidence',
       'scanRetry': 'Retry Scan',
-      'scanPickAnotherImage': 'Pick Another Image',
+      'scanPickAnotherImage': 'Pick Image',
       'scanSaveReceipt': 'Save Receipt',
       'scanEditBeforeSave': 'Edit Before Save',
       'scanSaving': 'Saving...',

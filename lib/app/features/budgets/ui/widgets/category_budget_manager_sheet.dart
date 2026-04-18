@@ -584,6 +584,8 @@ class _CategoryBudgetLabel {
         return 'Pharmacy';
       case CategoryBudgetCatalog.dental:
         return 'Dental';
+      case CategoryBudgetCatalog.nightOut:
+        return 'Night Out';
       case CategoryBudgetCatalog.miscellaneous:
         return 'Misc';
     }

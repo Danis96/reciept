@@ -29,6 +29,8 @@ class CategoryAssetImage extends StatelessWidget {
         return 'assets/pharmacy.png';
       case CategoryBudgetCatalog.dental:
         return 'assets/dental.png';
+      case CategoryBudgetCatalog.nightOut:
+        return 'assets/nightOut.png';
       case CategoryBudgetCatalog.miscellaneous:
         return 'assets/miscellaneous.png';
     }

@@ -221,14 +221,6 @@ class ScanActionUtils {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
-              gradient: LinearGradient(
-                colors: <Color>[
-                  colorScheme.errorContainer.withValues(alpha:0.8),
-                  colorScheme.surface,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
             ),
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
             child: Column(
