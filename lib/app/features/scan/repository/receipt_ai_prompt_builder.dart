@@ -42,8 +42,9 @@ class ReceiptAiPromptBuilder {
       '- fuel = gorivo, diesel, benzin, petrol, gas for vehicle, fuel station purchases.',
       '- pharmacy = medicines, vitamins, supplements, bandages, drugstore items, apoteka purchases, health products not specifically dental.',
       '- dental = toothpaste, toothbrush, floss, mouthwash, dental treatments, dentist receipts, oral care products and services.',
+      '- night out = beers, cocktails, coffee, cafe/bar/pub items, restaurant meals, eating out, drinks ordered for immediate consumption.',
       '- miscellaneous = only if item clearly does not fit any category above.',
-      '- Example item mapping: MAJICA -> clothing, PIZZA -> groceries, GORIVO -> fuel, PARODONTAX -> dental, BRUFEN -> pharmacy.',
+      '- Example item mapping: MAJICA -> clothing, PIZZA -> groceries, GORIVO -> fuel, PARODONTAX -> dental, BRUFEN -> pharmacy, ESPRESSO -> night out, HEINEKEN -> night out.',
       '- If a receipt mixes categories, still categorize each item separately and keep all items in items[].',
     ].join('\n');
   }

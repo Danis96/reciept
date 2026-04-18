@@ -40,16 +40,16 @@ class ReceiptActionToolbar extends StatelessWidget {
             icon: Icons.edit_outlined,
             onTap: deleting ? null : onEdit,
           ),
+          ActionButton(icon: Icons.share_outlined, onTap: onShare),
+          ReceiptExportButton(
+            exporting: exporting,
+            onSelected: onExportSelected,
+          ),
           ActionButton(
             icon: Icons.delete_outline_rounded,
             iconColor: colorScheme.error,
             borderColor: colorScheme.error.withValues(alpha: 0.28),
             onTap: deleting ? null : onDelete,
-          ),
-          ActionButton(icon: Icons.share_outlined, onTap: onShare),
-          ReceiptExportButton(
-            exporting: exporting,
-            onSelected: onExportSelected,
           ),
         ],
       ),

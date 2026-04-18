@@ -625,7 +625,7 @@ class _ErrorView extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: OutlinedButton(onPressed: onReset, child: Text(resetLabel)),
+                child: ElevatedButton(onPressed: onReset, child: Text(resetLabel)),
               ),
             ],
           ),

@@ -14,11 +14,6 @@ class ReceiptTopBar extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(18, topInset, 18, 0),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.7),
-          ),
-        ),
       ),
       child: Row(
         children: <Widget>[
