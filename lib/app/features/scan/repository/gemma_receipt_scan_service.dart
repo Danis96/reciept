@@ -110,6 +110,11 @@ class GemmaReceiptScanService {
         'temperature': 0.1,
         'topP': 0.8,
         'maxOutputTokens': 800,
+        'thinkingConfig': {
+          'thinkingLevel': 'MINIMAL',
+        },
+        'mediaResolution': 'MEDIA_RESOLUTION_LOW',
+        'responseMimeType': 'application/json',
       },
     };
 

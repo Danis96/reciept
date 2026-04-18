@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:reciep/app/features/scan/controllers/scan_view_state.dart';
 import 'package:reciep/app/features/scan/repository/scan_failure.dart';
 import 'package:reciep/app/features/scan/repository/scan_repository.dart';
@@ -7,9 +7,18 @@ import 'package:reciep/app/models/receipt/payment_info_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/app/models/receipt/receipt_totals_model.dart';
 
-class ScanController extends ChangeNotifier {
+class ScanForegroundNotice {
+  const ScanForegroundNotice({required this.message, required this.isError});
+
+  final String message;
+  final bool isError;
+}
+
+class ScanController extends ChangeNotifier with WidgetsBindingObserver {
   ScanController({required ScanRepository repository})
-    : _repository = repository;
+    : _repository = repository {
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   final ScanRepository _repository;
 
@@ -22,6 +31,9 @@ class ScanController extends ChangeNotifier {
   bool _busy = false;
   bool _savingDraft = false;
   List<ReceiptModel> _recentReceipts = const <ReceiptModel>[];
+  AppLifecycleState _appLifecycleState = AppLifecycleState.resumed;
+  ScanForegroundNotice? _pendingForegroundNotice;
+  int _activeScanRequestId = 0;
 
   static const double _lowConfidenceThreshold = 0.65;
 
@@ -40,6 +52,14 @@ class ScanController extends ChangeNotifier {
   bool get busy => _busy;
   bool get savingDraft => _savingDraft;
   List<ReceiptModel> get recentReceipts => _recentReceipts;
+
+  ScanForegroundNotice? consumeForegroundNotice() {
+    final ScanForegroundNotice? notice = _pendingForegroundNotice;
+    if (notice != null) {
+      _pendingForegroundNotice = null;
+    }
+    return notice;
+  }
 
   /// Consumes the failure event, returning the failure and clearing it.
   /// This ensures a failure is only handled once by the UI.
@@ -98,6 +118,7 @@ class ScanController extends ChangeNotifier {
   }
 
   void clearSelection() {
+    _activeScanRequestId++;
     _selectedImagePath = null;
     _clearFailure();
     _loadingStep = 0;
@@ -126,6 +147,7 @@ class ScanController extends ChangeNotifier {
     }
 
     _busy = true;
+    final int requestId = ++_activeScanRequestId;
     _state = ScanViewState.loading;
     _clearFailure();
     _loadingStep = 0;
@@ -138,12 +160,30 @@ class ScanController extends ChangeNotifier {
       final ReceiptModel scanned = await _repository.scanReceipt(
         imagePath: path,
       );
+      if (requestId != _activeScanRequestId) {
+        return;
+      }
       _pendingReceiptDraft = scanned;
       _lastScannedReceipt = scanned;
       _state = ScanViewState.success;
+      _queueForegroundNoticeIfBackgrounded(
+        const ScanForegroundNotice(
+          message: 'Receipt scan finished.',
+          isError: false,
+        ),
+      );
     } on ScanException catch (error) {
+      if (requestId != _activeScanRequestId) {
+        return;
+      }
       _setFailure(error.failure);
+      _queueForegroundNoticeIfBackgrounded(
+        ScanForegroundNotice(message: error.failure.message, isError: true),
+      );
     } catch (error) {
+      if (requestId != _activeScanRequestId) {
+        return;
+      }
       _setFailure(
         ScanFailure(
           type: ScanFailureType.parseFailure,
@@ -152,8 +192,17 @@ class ScanController extends ChangeNotifier {
           technicalDetails: error.toString(),
         ),
       );
+      _queueForegroundNoticeIfBackgrounded(
+        const ScanForegroundNotice(
+          message: 'Receipt scan failed.',
+          isError: true,
+        ),
+      );
     }
 
+    if (requestId != _activeScanRequestId) {
+      return;
+    }
     _busy = false;
     notifyListeners();
   }
@@ -235,6 +284,7 @@ class ScanController extends ChangeNotifier {
   }
 
   Future<void> showReadyToScan() async {
+    _activeScanRequestId++;
     _selectedImagePath = null;
     _lastScannedReceipt = null;
     _pendingReceiptDraft = null;
@@ -251,7 +301,12 @@ class ScanController extends ChangeNotifier {
 
   Future<void> _advanceLoadingSteps() async {
     const List<int> delays = <int>[550, 550, 550, 550, 520];
+    final int requestId = _activeScanRequestId;
     for (int i = 0; i < delays.length; i++) {
+      if (requestId != _activeScanRequestId ||
+          _state != ScanViewState.loading) {
+        return;
+      }
       _loadingStep = i + 1;
       notifyListeners();
       await Future<void>.delayed(Duration(milliseconds: delays[i]));
@@ -265,5 +320,27 @@ class ScanController extends ChangeNotifier {
 
   void _clearFailure() {
     _failure = null;
+  }
+
+  void _queueForegroundNoticeIfBackgrounded(ScanForegroundNotice notice) {
+    if (_appLifecycleState == AppLifecycleState.resumed) {
+      return;
+    }
+    _pendingForegroundNotice = notice;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _appLifecycleState = state;
+    if (state == AppLifecycleState.resumed &&
+        _pendingForegroundNotice != null) {
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 }
