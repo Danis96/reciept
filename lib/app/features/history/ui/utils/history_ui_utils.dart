@@ -25,6 +25,8 @@ class HistoryCategoryLabel {
         return 'Dental';
       case CategoryBudgetCatalog.nightOut:
         return 'Night Out';
+      case CategoryBudgetCatalog.cigarettes:
+        return 'Cigarettes';
       case CategoryBudgetCatalog.miscellaneous:
         return 'Misc';
       default:
@@ -51,6 +53,8 @@ class HistoryCategoryLabel {
         return 'Dental';
       case CategoryBudgetCatalog.nightOut:
         return 'Night Out';
+      case CategoryBudgetCatalog.cigarettes:
+        return 'Cigarettes';
       case CategoryBudgetCatalog.miscellaneous:
         return 'Misc';
       default:

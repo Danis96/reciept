@@ -4,6 +4,9 @@ import 'package:reciep/app/features/receipt_details/ui/widgets/shared/receipt_ca
 import 'package:reciep/app/models/receipt/receipt_item_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 
+import '../../../../../theme/category_palette.dart';
+import '../../../budgets/repository/category_budget_catalog.dart';
+
 class ReceiptItemsCard extends StatelessWidget {
   const ReceiptItemsCard({super.key, required this.receipt});
 
@@ -93,15 +96,33 @@ class ReceiptItemListRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Qty: ${qty(item.quantity)}',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
+          Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Text(
+                'Qty: ${qty(item.quantity)}',
+                style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
+              Container(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: CategoryPalette.surfaceFor(item.category, context),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  CategoryBudgetCatalog.labelFor(item.category),
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: CategoryPalette.primaryFor(item.category, context),
+                  ),
+                ),
+              ),
+            ],
           ),
           if (showDivider) ...<Widget>[
             const SizedBox(height: 14),

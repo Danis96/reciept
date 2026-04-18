@@ -10,6 +10,7 @@ class CategoryBudgetCatalog {
   static const String pharmacy = 'pharmacy';
   static const String dental = 'dental';
   static const String nightOut = 'night out';
+  static const String cigarettes = 'cigarettes';
 
   static const List<String> supportedCategories = <String>[
     groceries,
@@ -20,6 +21,7 @@ class CategoryBudgetCatalog {
     pharmacy,
     dental,
     nightOut,
+    cigarettes,
     miscellaneous,
   ];
 
@@ -98,6 +100,17 @@ class CategoryBudgetCatalog {
         value.contains('eat out')) {
       return nightOut;
     }
+    if (value.contains('cigarette') ||
+        value.contains('cigarettes') ||
+        value.contains('cigarete') ||
+        value.contains('cigarrete') ||
+        value.contains('cigarretes') ||
+        value.contains('tobacco') ||
+        value.contains('duhan') ||
+        value.contains('cigs') ||
+        value.contains('smokes')) {
+      return cigarettes;
+    }
     if (value == miscellaneous || value == 'misc' || value == 'other') {
       return miscellaneous;
     }
@@ -122,6 +135,8 @@ class CategoryBudgetCatalog {
         return 'Dental';
       case nightOut:
         return 'Night Out';
+      case cigarettes:
+        return 'Cigarettes';
       case miscellaneous:
         return 'Miscellaneous';
     }

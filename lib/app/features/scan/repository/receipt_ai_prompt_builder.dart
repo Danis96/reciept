@@ -33,7 +33,7 @@ class ReceiptAiPromptBuilder {
       '',
       // Categories
       'Categories (use ONLY these exact values): ${_supportedCategories.join(', ')}',
-      '- groceries: food, drinks, supermarket, bakery, snacks, fruit, veg, dairy, bread, cigarettes.',
+      '- groceries: food, drinks, supermarket, bakery, snacks, fruit, veg, dairy, bread.',
       '- household: cleaning, paper goods, detergents, toiletries, home consumables.',
       '- pets: pet food, litter, pet care.',
       '- clothing: shirts, majica, pants, shoes, jackets, socks, worn accessories.',
@@ -41,6 +41,7 @@ class ReceiptAiPromptBuilder {
       '- pharmacy: medicines, vitamins, supplements, apoteka, health products (non-dental).',
       '- dental: toothpaste, toothbrush, floss, mouthwash, oral care, dentist.',
       '- night out: coffee, beer, cocktails, cafe/bar/restaurant, immediate-consumption drinks.',
+      '- cigarettes: cigarettes, tobacco, cigars, rolling tobacco, duhan, smoking products.',
       '- miscellaneous: only if nothing above fits.',
     ].join('\n');
   }
