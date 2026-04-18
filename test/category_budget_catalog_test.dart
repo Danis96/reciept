@@ -3,13 +3,14 @@ import 'package:reciep/app/features/budgets/repository/category_budget_catalog.d
 
 void main() {
   group('CategoryBudgetCatalog', () {
-    test('includes pharmacy, dental, and night out in supported categories', () {
+    test('includes pharmacy, dental, night out, and cigarettes in supported categories', () {
       expect(
         CategoryBudgetCatalog.supportedCategories,
         containsAll(<String>[
           CategoryBudgetCatalog.pharmacy,
           CategoryBudgetCatalog.dental,
           CategoryBudgetCatalog.nightOut,
+          CategoryBudgetCatalog.cigarettes,
         ]),
       );
     });
@@ -48,6 +49,21 @@ void main() {
       expect(
         CategoryBudgetCatalog.normalize('coffee'),
         CategoryBudgetCatalog.nightOut,
+      );
+    });
+
+    test('normalizes cigarettes aliases', () {
+      expect(
+        CategoryBudgetCatalog.normalize('cigarettes'),
+        CategoryBudgetCatalog.cigarettes,
+      );
+      expect(
+        CategoryBudgetCatalog.normalize('duhan'),
+        CategoryBudgetCatalog.cigarettes,
+      );
+      expect(
+        CategoryBudgetCatalog.normalize('cigarretes'),
+        CategoryBudgetCatalog.cigarettes,
       );
     });
   });

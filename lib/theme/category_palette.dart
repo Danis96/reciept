@@ -41,6 +41,10 @@ class CategoryPalette {
         return _dark(context)
             ? const Color(0xFFFFB38A)
             : const Color(0xFFB65A2A);
+      case CategoryBudgetCatalog.cigarettes:
+        return _dark(context)
+            ? const Color(0xFFD7C27A)
+            : const Color(0xFF8A6A1F);
       case CategoryBudgetCatalog.miscellaneous:
         return _dark(context)
             ? const Color(0xFFACB4C8)
