@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:reciep/app/features/scan/repository/gemma_receipt_mapper.dart';
@@ -52,6 +54,23 @@ class ScanRepository {
     try {
       final Map<String, dynamic> aiPayload = await _gemmaService
           .scanReceiptImage(imagePath: imagePath);
+      if (_isNotAReceipt(aiPayload)) {
+        final String reason = _notAReceiptReason(aiPayload);
+        developer.log(
+          'Rejected non-receipt image. imagePath=$imagePath reason=$reason',
+          name: 'ScanRepository',
+        );
+        throw ScanException(
+          ScanFailure(
+            type: ScanFailureType.notReceipt,
+            title: 'Not a receipt',
+            message: reason.isEmpty
+                ? 'Selected image is not a receipt. Try a clear receipt photo.'
+                : 'Selected image is not a receipt. $reason',
+            technicalDetails: reason.isEmpty ? null : reason,
+          ),
+        );
+      }
 
       final ReceiptModel scanned = GemmaReceiptMapper.toReceiptModel(
         payload: aiPayload,
@@ -115,5 +134,24 @@ class ScanRepository {
       message: 'Could not get valid AI response for this image.',
       technicalDetails: message,
     );
+  }
+
+  bool _isNotAReceipt(Map<String, dynamic> payload) {
+    final dynamic rawValue = payload['notAReceipt'];
+    if (rawValue is bool) {
+      return rawValue;
+    }
+    if (rawValue is String) {
+      return rawValue.trim().toLowerCase() == 'true';
+    }
+    return false;
+  }
+
+  String _notAReceiptReason(Map<String, dynamic> payload) {
+    final String reason = payload['reason']?.toString().trim() ?? '';
+    if (reason.isEmpty) {
+      return '';
+    }
+    return reason.endsWith('.') ? reason : '$reason.';
   }
 }

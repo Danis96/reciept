@@ -9,7 +9,7 @@ import 'package:reciep/app/models/receipt/receipt_totals_model.dart';
 
 class ScanController extends ChangeNotifier {
   ScanController({required ScanRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ScanRepository _repository;
 
@@ -34,8 +34,8 @@ class ScanController extends ChangeNotifier {
   bool get hasPendingReceiptDraft => _pendingReceiptDraft != null;
   bool get isLowConfidence =>
       (_pendingReceiptDraft ?? _lastScannedReceipt)?.confidence != null &&
-          ((_pendingReceiptDraft ?? _lastScannedReceipt)!.confidence <
-              _lowConfidenceThreshold);
+      ((_pendingReceiptDraft ?? _lastScannedReceipt)!.confidence <
+          _lowConfidenceThreshold);
   int get loadingStep => _loadingStep;
   bool get busy => _busy;
   bool get savingDraft => _savingDraft;
@@ -129,10 +129,12 @@ class ScanController extends ChangeNotifier {
     _state = ScanViewState.loading;
     _clearFailure();
     _loadingStep = 0;
+    _lastScannedReceipt = null;
+    _pendingReceiptDraft = null;
     notifyListeners();
 
     try {
-      await _advanceLoadingSteps();
+      _advanceLoadingSteps();
       final ReceiptModel scanned = await _repository.scanReceipt(
         imagePath: path,
       );
@@ -248,7 +250,7 @@ class ScanController extends ChangeNotifier {
   }
 
   Future<void> _advanceLoadingSteps() async {
-    const List<int> delays = <int>[350, 350, 350, 350, 220];
+    const List<int> delays = <int>[550, 550, 550, 550, 520];
     for (int i = 0; i < delays.length; i++) {
       _loadingStep = i + 1;
       notifyListeners();
