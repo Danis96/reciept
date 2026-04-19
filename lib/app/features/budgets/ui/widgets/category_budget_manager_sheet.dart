@@ -51,6 +51,16 @@ class _CategoryBudgetManagerSheetState
         ),
     };
 
+    _focusNodes = {
+      for (final category in widget.supportedCategories)
+        category: FocusNode()
+          ..addListener(() => _actionUtils.handleFieldFocus(category)),
+    };
+
+    _fieldKeys = {
+      for (final category in widget.supportedCategories) category: GlobalKey(),
+    };
+
     _actionUtils = BudgetsActionUtils(
       context: context,
       controllers: _controllers,
@@ -63,16 +73,6 @@ class _CategoryBudgetManagerSheetState
       onSaveCallback: widget.onSave,
       onDeleteCallback: widget.onDelete,
     );
-
-    _focusNodes = {
-      for (final category in widget.supportedCategories)
-        category: FocusNode()
-          ..addListener(() => _actionUtils.handleFieldFocus(category)),
-    };
-
-    _fieldKeys = {
-      for (final category in widget.supportedCategories) category: GlobalKey(),
-    };
   }
 
   @override

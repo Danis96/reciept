@@ -43,6 +43,7 @@ dependencies:
   image_picker: ^1.2.0
   flutter_image_compress: ^2.4.0
   flutter_dotenv: ^5.2.1
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   flutter_test:
@@ -101,3 +102,20 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_native_splash:
+  fullscreen: true
+
+  # Non-Android-12 splash can use full-screen background art.
+  background_image: assets/splash.png
+  background_image_dark: assets/splash_dark.png
+
+  # Android 12+ configuration
+  android_12:
+    # Android 12 splash is system-limited to color + centered icon.
+    image: assets/app_icon/receipt_app_icon_clean.png
+    color: "#0B1220"
+    image_dark: assets/app_icon/receipt_app_icon_clean.png
+    color_dark: "#0B1220"
+
+  android: true
+  ios: true
