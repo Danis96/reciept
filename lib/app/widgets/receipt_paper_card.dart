@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/models/receipt/receipt_item_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
 class ReceiptPaperList extends StatefulWidget {
@@ -192,8 +190,6 @@ class ReceiptPaperCard extends StatelessWidget {
                       color: ReceiptPaperPalette.border(context),
                       height: 1,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    ReceiptCategoryBadge(category: receipt.category),
                     const SizedBox(height: AppSpacing.md),
                     ReceiptTotalsRow(
                       label: 'ITEMS ($itemCount)',
@@ -370,34 +366,6 @@ class ReceiptPerforation extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class ReceiptCategoryBadge extends StatelessWidget {
-  const ReceiptCategoryBadge({super.key, required this.category});
-
-  final String category;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: ReceiptPaperPalette.badgeBackground(context),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          CategoryAssetImage(category: category, size: 16),
-          const SizedBox(width: 4),
-          Text(
-            ReceiptPaperCategoryLabel.labelFor(category),
-            style: ReceiptPaperText.badge(context),
-          ),
-        ],
       ),
     );
   }
@@ -584,10 +552,6 @@ class ReceiptPaperText extends StatelessWidget {
     );
   }
 
-  static TextStyle badge(BuildContext context) {
-    return base(context).copyWith(fontSize: 13, fontWeight: FontWeight.w800);
-  }
-
   static TextStyle item(BuildContext context) {
     return base(context).copyWith(fontSize: 13, fontWeight: FontWeight.w700);
   }
@@ -643,15 +607,6 @@ class ReceiptPaperMoney {
   }
 }
 
-class ReceiptPaperCategoryLabel {
-  const ReceiptPaperCategoryLabel._();
-
-  static String labelFor(String category) {
-    final String label = CategoryBudgetCatalog.labelFor(category);
-    return label == 'Miscellaneous' ? 'Misc' : label;
-  }
-}
-
 class ReceiptPaperPalette {
   const ReceiptPaperPalette._();
 
@@ -664,9 +619,4 @@ class ReceiptPaperPalette {
     ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.18 : 0.08);
   }
 
-  static Color badgeBackground(BuildContext context) {
-    return Theme.of(
-      context,
-    ).colorScheme.onSurface.withValues(alpha: _dark(context) ? 0.12 : 0.08);
-  }
 }

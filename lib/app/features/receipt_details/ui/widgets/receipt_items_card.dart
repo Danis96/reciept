@@ -8,9 +8,14 @@ import '../../../../../theme/category_palette.dart';
 import '../../../budgets/repository/category_budget_catalog.dart';
 
 class ReceiptItemsCard extends StatelessWidget {
-  const ReceiptItemsCard({super.key, required this.receipt});
+  const ReceiptItemsCard({
+    super.key,
+    required this.receipt,
+    required this.onEditItemCategory,
+  });
 
   final ReceiptModel receipt;
+  final Future<void> Function(int itemIndex) onEditItemCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +45,11 @@ class ReceiptItemsCard extends StatelessWidget {
           else
             ...receipt.items.asMap().entries.map(
               (MapEntry<int, ReceiptItemModel> entry) => ReceiptItemListRow(
+                itemIndex: entry.key,
                 item: entry.value,
                 showDivider: entry.key != receipt.items.length - 1,
                 currency: receipt.currency,
+                onEditCategory: onEditItemCategory,
               ),
             ),
         ],
@@ -54,14 +61,18 @@ class ReceiptItemsCard extends StatelessWidget {
 class ReceiptItemListRow extends StatelessWidget {
   const ReceiptItemListRow({
     super.key,
+    required this.itemIndex,
     required this.item,
     required this.showDivider,
     required this.currency,
+    required this.onEditCategory,
   });
 
+  final int itemIndex;
   final ReceiptItemModel item;
   final bool showDivider;
   final String currency;
+  final Future<void> Function(int itemIndex) onEditCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -106,21 +117,9 @@ class ReceiptItemListRow extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: CategoryPalette.surfaceFor(item.category, context),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  CategoryBudgetCatalog.labelFor(item.category),
-                  style: textTheme.bodyMedium?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: CategoryPalette.primaryFor(item.category, context),
-                  ),
-                ),
+              ReceiptItemCategoryChip(
+                category: item.category,
+                onTap: () => onEditCategory(itemIndex),
               ),
             ],
           ),
@@ -132,6 +131,55 @@ class ReceiptItemListRow extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class ReceiptItemCategoryChip extends StatelessWidget {
+  const ReceiptItemCategoryChip({
+    super.key,
+    required this.category,
+    required this.onTap,
+  });
+
+  final String category;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color accent = CategoryPalette.primaryFor(category, context);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: CategoryPalette.surfaceFor(category, context),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: accent.withValues(alpha: 0.24)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(width: 6),
+              Text(
+                CategoryBudgetCatalog.labelFor(category),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: accent,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Icon(Icons.edit_rounded, size: 14, color: accent),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -21,11 +21,12 @@ class HomeRecentReceiptsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Theme.of(context).colorScheme.surface,
+        color: theme.colorScheme.surface,
         border: Border.all(color: HomeThemePalette.cardBorder(context)),
       ),
       child: Column(
@@ -35,14 +36,12 @@ class HomeRecentReceiptsCard extends StatelessWidget {
             children: <Widget>[
               Text(
                 'Recent Receipts',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const Spacer(),
-              TextButton(
-                onPressed: onViewAll,
-                child: const Text('View All'),
+              GestureDetector(
+                onTap: onViewAll,
+                child: Text('View All', style: theme.textTheme.titleSmall!.copyWith( color: theme.colorScheme.primary), ),
               ),
             ],
           ),

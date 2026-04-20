@@ -51,6 +51,10 @@ class HistoryActionUtils {
       BuildContext context,
       ReceiptModel receipt,
       ) async {
+    final HistoryController historyController = context
+        .read<HistoryController>();
+    final DashboardController dashboardController = context
+        .read<DashboardController>();
     final Object? result = await Navigator.of(context).pushNamed(
       AppRouter.receiptDetails,
       arguments: ReceiptDetailsRouteArgs(
@@ -60,8 +64,8 @@ class HistoryActionUtils {
     );
     if (result == true && context.mounted) {
       // Refresh both history and dashboard data
-      await context.read<HistoryController>().loadHistory();
-      await context.read<DashboardController>().refreshHome();
+      await historyController.loadHistory();
+      await dashboardController.refreshHome();
     }
   }
 }

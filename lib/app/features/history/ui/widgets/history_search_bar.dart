@@ -53,7 +53,7 @@ class _HistorySearchBarState extends State<HistorySearchBar> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        hintText: 'Search by merchant or category...',
+        hintText: 'Search by merchant, item, or category...',
         hintStyle: theme.textTheme.titleMedium?.copyWith(
           color: theme.colorScheme.secondary.withValues(alpha: 0.78),
           fontWeight: FontWeight.w600,

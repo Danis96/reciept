@@ -169,7 +169,7 @@ class ReceiptAiParser {
         'verification_code',
         'code',
       ]),
-      category: _resolveReceiptCategory(root, items),
+      category: _legacyReceiptCategory(items),
       confidence: _clamp01(toDoubleValue(root['confidence'], fallback: 0)),
       rawText: _firstString(root, <String>['raw_text', 'ocr_text']),
       rawJson: _encodeRaw(root),
@@ -257,30 +257,12 @@ class ReceiptAiParser {
     return parsed;
   }
 
-  static String _resolveReceiptCategory(
-    Map<String, dynamic> root,
-    List<ReceiptItem> items,
-  ) {
-    if (items.isNotEmpty) {
-      final Map<String, double> spendByCategory = <String, double>{};
-      for (final ReceiptItem item in items) {
-        final String category = CategoryBudgetCatalog.normalize(item.category);
-        spendByCategory[category] =
-            (spendByCategory[category] ?? 0) + item.finalPrice;
-      }
-      if (spendByCategory.isNotEmpty) {
-        return spendByCategory.entries
-            .reduce(
-              (MapEntry<String, double> best, MapEntry<String, double> next) =>
-                  next.value > best.value ? next : best,
-            )
-            .key;
-      }
+  static String _legacyReceiptCategory(List<ReceiptItem> items) {
+    if (items.isEmpty) {
+      return CategoryBudgetCatalog.miscellaneous;
     }
 
-    return CategoryBudgetCatalog.normalize(
-      _firstString(root, <String>['category', 'kategorija']) ?? 'miscellaneous',
-    );
+    return CategoryBudgetCatalog.normalize(items.first.category);
   }
 
   static Map<String, dynamic>? _toMap(dynamic input) {

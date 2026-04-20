@@ -6,7 +6,6 @@ import 'package:reciep/app/features/history/ui/widgets/history_category_chips.da
 import 'package:reciep/app/features/history/ui/widgets/history_empty_state.dart';
 import 'package:reciep/app/features/history/ui/widgets/history_search_bar.dart';
 import 'package:reciep/app/features/history/ui/widgets/history_sort_filter_row.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
 import '../widgets/history_receipt_list.dart';
@@ -35,7 +34,7 @@ class HistoryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.xxs),
                       Text(
-                        '${controller.totalReceiptCount} total receipts',
+                        '${controller.totalItemCount} total items from ${controller.totalReceiptCount} receipts',
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: theme.colorScheme.secondary,
                           fontWeight: FontWeight.w600,
@@ -69,14 +68,14 @@ class HistoryPage extends StatelessWidget {
                       const SizedBox(height: AppSpacing.md),
                       if (controller.isLoading)
                         const Center(child: CircularProgressIndicator())
-                      else if (controller.receipts.isEmpty)
+                      else if (controller.historyEntries.isEmpty)
                         HistoryEmptyState(
                           selectedCategory: controller.selectedCategory,
                         )
                       else
                         HistoryReceiptsList(
-                          receipts: controller.receipts,
-                          onOpenDetails: (ReceiptModel receipt) =>
+                          entries: controller.historyEntries,
+                          onOpenDetails: (receipt) =>
                               HistoryActionUtils.onOpenDetails(
                                 context,
                                 receipt,

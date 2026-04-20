@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
-import '../utils/category_budget_sheet_pallete.dart';
 
 class CategoryBudgetSheetHeader extends StatelessWidget {
   const CategoryBudgetSheetHeader({super.key, required this.activeBudgets});
@@ -13,15 +12,8 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: CategoryBudgetSheetPalette.heroGradient(context),
-        ),
-      ),
+        borderRadius: BorderRadius.circular(24)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

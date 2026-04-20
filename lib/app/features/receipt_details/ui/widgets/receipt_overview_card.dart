@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/receipt_details/ui/widgets/shared/formatters.dart';
 import 'package:reciep/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
 
 class ReceiptOverviewCard extends StatelessWidget {
   const ReceiptOverviewCard({super.key, required this.receipt});
@@ -82,8 +80,6 @@ class ReceiptOverviewCard extends StatelessWidget {
                 ? 'Unknown'
                 : receipt.payment.method.trim(),
           ),
-          const SizedBox(height: 14),
-          ReceiptCategoryRow(category: receipt.category),
         ],
       ),
     );
@@ -120,54 +116,6 @@ class ReceiptInfoRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 value,
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class ReceiptCategoryRow extends StatelessWidget {
-  const ReceiptCategoryRow({super.key, required this.category});
-
-  final String category;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    final TextTheme textTheme = theme.textTheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: CategoryAssetImage(category: category, size: 28),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const CardLabel(text: 'Category'),
-              const SizedBox(height: 2),
-              Text(
-                CategoryBudgetCatalog.labelFor(category),
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                   color: colorScheme.onSurface,

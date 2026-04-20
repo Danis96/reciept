@@ -65,7 +65,7 @@ class GemmaReceiptMapper {
         paid: total,
         change: 0,
       ),
-      category: _resolveReceiptCategory(payload, items),
+      category: _legacyReceiptCategory(items),
       confidence: _clamp01(toDoubleValue(payload['confidence'])),
       rawText: _emptyToNull(_safeString(payload['rawSummary'])),
       rawJson: jsonEncode(payload),
@@ -98,34 +98,12 @@ class GemmaReceiptMapper {
     );
   }
 
-  static String _resolveReceiptCategory(
-    Map<String, dynamic> payload,
-    List<ReceiptItemModel> items,
-  ) {
-    if (items.isNotEmpty) {
-      final Map<String, double> spendByCategory = <String, double>{};
-      for (final ReceiptItemModel item in items) {
-        final String category = CategoryBudgetCatalog.normalize(item.category);
-        spendByCategory[category] =
-            (spendByCategory[category] ?? 0) + item.finalPrice;
-      }
-
-      if (spendByCategory.isNotEmpty) {
-        return spendByCategory.entries
-            .reduce(
-              (MapEntry<String, double> best, MapEntry<String, double> next) =>
-                  next.value > best.value ? next : best,
-            )
-            .key;
-      }
+  static String _legacyReceiptCategory(List<ReceiptItemModel> items) {
+    if (items.isEmpty) {
+      return CategoryBudgetCatalog.miscellaneous;
     }
 
-    return CategoryBudgetCatalog.normalize(
-      _defaultText(
-        _safeString(payload['category']).toLowerCase(),
-        fallback: 'miscellaneous',
-      ),
-    );
+    return CategoryBudgetCatalog.normalize(items.first.category);
   }
 
   static String _safeString(dynamic value) {

@@ -72,7 +72,6 @@ class ReceiptDetailsController extends ChangeNotifier {
 
   Future<void> updateBasics({
     required String merchantName,
-    required String category,
     required String paymentMethod,
   }) async {
     final ReceiptModel current = _receipt!;
@@ -96,7 +95,60 @@ class ReceiptDetailsController extends ChangeNotifier {
         paid: current.payment.paid,
         change: current.payment.change,
       ),
-      category: category,
+      category: current.category,
+      confidence: current.confidence,
+      createdAt: current.createdAt,
+      fiscal: current.fiscal,
+      rawText: current.rawText,
+      rawJson: current.rawJson,
+      imagePath: current.imagePath,
+    );
+
+    await _repository.saveReceipt(updated);
+    _receipt = updated;
+    notifyListeners();
+  }
+
+  Future<void> updateItemCategory({
+    required int itemIndex,
+    required String category,
+  }) async {
+    await updateItem(itemIndex: itemIndex, category: category);
+  }
+
+  Future<void> updateItem({
+    required int itemIndex,
+    String? name,
+    String? category,
+  }) async {
+    final ReceiptModel current = _receipt!;
+    if (itemIndex < 0 || itemIndex >= current.items.length) {
+      throw RangeError.index(itemIndex, current.items, 'itemIndex');
+    }
+
+    final updatedItems = current.items
+        .asMap()
+        .entries
+        .map(
+          (entry) => entry.key == itemIndex
+              ? entry.value.copyWith(
+                  name: name ?? entry.value.name,
+                  category: category ?? entry.value.category,
+                )
+              : entry.value,
+        )
+        .toList(growable: false);
+
+    final ReceiptModel updated = ReceiptModel(
+      id: current.id,
+      country: current.country,
+      currency: current.currency,
+      merchant: current.merchant,
+      receiptInfo: current.receiptInfo,
+      items: updatedItems,
+      totals: current.totals,
+      payment: current.payment,
+      category: current.category,
       confidence: current.confidence,
       createdAt: current.createdAt,
       fiscal: current.fiscal,

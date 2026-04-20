@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:reciep/app/features/history/controllers/history_receipt_list_entry.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 
 import '../repository/history_repository.dart';
@@ -32,30 +33,43 @@ class HistoryController extends ChangeNotifier {
       _budgetStateByCategory;
 
   int get totalReceiptCount => _allReceipts.length;
+  int get totalItemCount => _allReceipts.fold<int>(
+    0,
+    (int sum, ReceiptModel receipt) => sum + receipt.items.length,
+  );
 
   List<String> get categoryFilters => <String>[
     'all',
     ...CategoryBudgetCatalog.supportedCategories,
   ];
 
-  List<ReceiptModel> get receipts {
-    Iterable<ReceiptModel> current = _allReceipts;
+  List<HistoryReceiptListEntry> get historyEntries {
+    Iterable<HistoryReceiptListEntry> current = _allReceipts.expand(
+      (ReceiptModel receipt) => receipt.items.asMap().entries.map(
+        (MapEntry<int, dynamic> entry) => HistoryReceiptListEntry(
+          receipt: receipt,
+          item: entry.value,
+          itemIndex: entry.key,
+        ),
+      ),
+    );
 
     final String query = _searchQuery.trim().toLowerCase();
     if (query.isNotEmpty) {
-      current = current.where((ReceiptModel receipt) {
-        final String merchant = receipt.merchant.name.toLowerCase();
-        final String category = CategoryBudgetCatalog.normalize(
-          receipt.category,
-        );
-        return merchant.contains(query) || category.contains(query);
+      current = current.where((HistoryReceiptListEntry entry) {
+        final String merchant = entry.merchantName.toLowerCase();
+        final String itemName = entry.itemName.toLowerCase();
+        final String category = CategoryBudgetCatalog.normalize(entry.category);
+        return merchant.contains(query) ||
+            itemName.contains(query) ||
+            category.contains(query);
       });
     }
 
     if (_selectedCategory != 'all') {
       current = current.where(
-        (ReceiptModel receipt) =>
-            CategoryBudgetCatalog.normalize(receipt.category) ==
+        (HistoryReceiptListEntry entry) =>
+            CategoryBudgetCatalog.normalize(entry.category) ==
             _selectedCategory,
       );
     }
@@ -74,13 +88,15 @@ class HistoryController extends ChangeNotifier {
         59,
         59,
       );
-      current = current.where((ReceiptModel receipt) {
-        final DateTime date = receipt.createdAt;
+      current = current.where((HistoryReceiptListEntry entry) {
+        final DateTime date = entry.createdAt;
         return !date.isBefore(start) && !date.isAfter(end);
       });
     }
 
-    final List<ReceiptModel> result = current.toList(growable: false);
+    final List<HistoryReceiptListEntry> result = current.toList(
+      growable: false,
+    );
     result.sort(_sortComparator);
     return result;
   }
@@ -126,16 +142,16 @@ class HistoryController extends ChangeNotifier {
     notifyListeners();
   }
 
-  int _sortComparator(ReceiptModel a, ReceiptModel b) {
+  int _sortComparator(HistoryReceiptListEntry a, HistoryReceiptListEntry b) {
     switch (_sortOption) {
       case HistorySortOption.newest:
         return b.createdAt.compareTo(a.createdAt);
       case HistorySortOption.oldest:
         return a.createdAt.compareTo(b.createdAt);
       case HistorySortOption.highestAmount:
-        return b.totals.total.compareTo(a.totals.total);
+        return b.amount.compareTo(a.amount);
       case HistorySortOption.lowestAmount:
-        return a.totals.total.compareTo(b.totals.total);
+        return a.amount.compareTo(b.amount);
     }
   }
 }
