@@ -71,6 +71,23 @@ class ScanRepository {
           ),
         );
       }
+      if (_hasImageQualityIssue(aiPayload)) {
+        final String reason = _imageQualityIssueReason(aiPayload);
+        developer.log(
+          'Rejected low-quality receipt image. imagePath=$imagePath reason=$reason',
+          name: 'ScanRepository',
+        );
+        throw ScanException(
+          ScanFailure(
+            type: ScanFailureType.imageQualityIssue,
+            title: 'Image quality issue',
+            message: reason.isEmpty
+                ? 'Receipt image is not clear enough. Try a sharper photo.'
+                : 'Receipt image is not clear enough. $reason',
+            technicalDetails: reason.isEmpty ? null : reason,
+          ),
+        );
+      }
 
       final ReceiptModel scanned = GemmaReceiptMapper.toReceiptModel(
         payload: aiPayload,
@@ -148,6 +165,25 @@ class ScanRepository {
   }
 
   String _notAReceiptReason(Map<String, dynamic> payload) {
+    return _normalizedReason(payload);
+  }
+
+  bool _hasImageQualityIssue(Map<String, dynamic> payload) {
+    final dynamic rawValue = payload['imageQualityIssue'];
+    if (rawValue is bool) {
+      return rawValue;
+    }
+    if (rawValue is String) {
+      return rawValue.trim().toLowerCase() == 'true';
+    }
+    return false;
+  }
+
+  String _imageQualityIssueReason(Map<String, dynamic> payload) {
+    return _normalizedReason(payload);
+  }
+
+  String _normalizedReason(Map<String, dynamic> payload) {
     final String reason = payload['reason']?.toString().trim() ?? '';
     if (reason.isEmpty) {
       return '';
