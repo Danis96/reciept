@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
 import 'package:reciep/app/features/receipt_details/controllers/receipt_details_controller.dart';
+import 'package:reciep/app/models/receipt/receipt_item_model.dart';
 import 'package:reciep/app/models/receipt/receipt_model.dart';
 import 'package:reciep/theme/app_spacing.dart';
 
@@ -12,8 +13,8 @@ class ReceiptDetailsActionUtils {
   const ReceiptDetailsActionUtils._();
 
   static Future<void> onDeleteConfirmed(BuildContext context) async {
-    final ReceiptDetailsController controller =
-    context.read<ReceiptDetailsController>();
+    final ReceiptDetailsController controller = context
+        .read<ReceiptDetailsController>();
     await controller.deleteReceipt();
     if (!context.mounted) {
       return;
@@ -22,11 +23,12 @@ class ReceiptDetailsActionUtils {
   }
 
   static Future<void> onExport(
-      BuildContext context, {
-        required ReceiptExportFormat format,
-      }) async {
-    final String path =
-    await context.read<ReceiptDetailsController>().exportReceipt(format);
+    BuildContext context, {
+    required ReceiptExportFormat format,
+  }) async {
+    final String path = await context
+        .read<ReceiptDetailsController>()
+        .exportReceipt(format);
     if (!context.mounted) {
       return;
     }
@@ -34,9 +36,9 @@ class ReceiptDetailsActionUtils {
       ReceiptExportFormat.csv => 'CSV',
       ReceiptExportFormat.json => 'JSON',
     };
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$formatLabel saved: $path')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$formatLabel saved: $path')));
   }
 
   static Future<void> showDeleteDialog(BuildContext context) async {
@@ -102,15 +104,16 @@ class ReceiptDetailsActionUtils {
   }
 
   static Future<void> showEditDialog(
-      BuildContext context,
-      ReceiptDetailsController controller,
-      ReceiptModel receipt,
-      ) async {
-    final TextEditingController merchantController =
-    TextEditingController(text: receipt.merchant.name);
-    final TextEditingController paymentController =
-    TextEditingController(text: receipt.payment.method);
-    String selectedCategory = CategoryBudgetCatalog.normalize(receipt.category);
+    BuildContext context,
+    ReceiptDetailsController controller,
+    ReceiptModel receipt,
+  ) async {
+    final TextEditingController merchantController = TextEditingController(
+      text: receipt.merchant.name,
+    );
+    final TextEditingController paymentController = TextEditingController(
+      text: receipt.payment.method,
+    );
 
     final bool? save = await showDialog<bool>(
       context: context,
@@ -130,28 +133,6 @@ class ReceiptDetailsActionUtils {
                       labelText: 'Merchant',
                       border: OutlineInputBorder(),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  DropdownButtonFormField<String>(
-                    initialValue: selectedCategory,
-                    decoration: const InputDecoration(
-                      labelText: 'Category',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: CategoryBudgetCatalog.supportedCategories
-                        .map(
-                          (String category) => DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(
-                          category[0].toUpperCase() + category.substring(1),
-                        ),
-                      ),
-                    )
-                        .toList(growable: false),
-                    onChanged: (String? value) {
-                      if (value == null) return;
-                      setState(() => selectedCategory = value);
-                    },
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   TextField(
@@ -185,18 +166,171 @@ class ReceiptDetailsActionUtils {
       merchantName: merchantController.text.trim().isEmpty
           ? receipt.merchant.name
           : merchantController.text.trim(),
-      category: selectedCategory,
       paymentMethod: paymentController.text.trim().isEmpty
           ? receipt.payment.method
           : paymentController.text.trim(),
     );
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Receipt updated.')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Receipt updated.')));
+  }
+
+  static Future<void> showItemCategoryPicker(
+    BuildContext context,
+    ReceiptDetailsController controller,
+    ReceiptModel receipt, {
+    required int itemIndex,
+  }) async {
+    if (itemIndex < 0 || itemIndex >= receipt.items.length) {
+      return;
+    }
+
+    final ReceiptItemModel item = receipt.items[itemIndex];
+    String selectedCategory = CategoryBudgetCatalog.normalize(item.category);
+    final TextEditingController nameController = TextEditingController(
+      text: item.name,
+    );
+
+    final ({String category, String name})? editedItem =
+        await showModalBottomSheet<({String category, String name})>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          backgroundColor: Colors.transparent,
+          builder: (BuildContext sheetContext) {
+            final ThemeData theme = Theme.of(sheetContext);
+            final ColorScheme colorScheme = theme.colorScheme;
+
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    12,
+                    AppSpacing.md,
+                    AppSpacing.md +
+                        MediaQuery.of(sheetContext).viewInsets.bottom,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Center(
+                        child: Container(
+                          width: 44,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: colorScheme.outlineVariant,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        'Change item category',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        item.name.trim().isEmpty
+                            ? 'Unnamed item'
+                            : item.name.trim(),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      TextField(
+                        controller: nameController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Item name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: CategoryBudgetCatalog.supportedCategories
+                            .map(
+                              (String category) => ChoiceChip(
+                                label: Text(
+                                  CategoryBudgetCatalog.labelFor(category),
+                                ),
+                                selected: selectedCategory == category,
+                                onSelected: (_) {
+                                  setState(() => selectedCategory = category);
+                                },
+                              ),
+                            )
+                            .toList(growable: false),
+                      ),
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () => Navigator.of(sheetContext).pop((
+                            category: selectedCategory,
+                            name: nameController.text.trim(),
+                          )),
+                          child: const Text('Save changes'),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+
+    final String? saveCategory = editedItem?.category;
+    final String normalizedName = editedItem?.name.trim() ?? '';
+    final String nextName = normalizedName.isEmpty ? item.name : normalizedName;
+
+    if (saveCategory == null || !context.mounted) {
+      return;
+    }
+
+    final bool categoryUnchanged =
+        saveCategory == CategoryBudgetCatalog.normalize(item.category);
+    final bool nameUnchanged = nextName == item.name;
+    if (categoryUnchanged && nameUnchanged) {
+      return;
+    }
+
+    await controller.updateItem(
+      itemIndex: itemIndex,
+      name: nextName,
+      category: saveCategory,
+    );
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${nextName.trim().isEmpty ? 'Item' : nextName.trim()} updated.',
+        ),
+      ),
+    );
   }
 
   static Future<void> openReceiptImage(
-      BuildContext context, ReceiptModel receipt) async {
+    BuildContext context,
+    ReceiptModel receipt,
+  ) async {
     final String? imagePath = receipt.imagePath;
     if (imagePath == null || imagePath.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -220,9 +354,10 @@ class ReceiptDetailsActionUtils {
                   child: Image.file(
                     File(imagePath),
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) =>
-                    const Text('Unable to load image.',
-                        style: TextStyle(color: Colors.white)),
+                    errorBuilder: (context, error, stackTrace) => const Text(
+                      'Unable to load image.',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),

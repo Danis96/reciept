@@ -7,6 +7,10 @@ class ReceiptAiPromptBuilder {
       'Is this image a receipt? A receipt has a merchant name, at least one priced item, and a total.',
       'If NOT a receipt, return ONLY: {"notAReceipt":true,"reason":"<one sentence>"} — nothing else.',
       '',
+      'Can the receipt be read clearly?',
+      'If the image is blurry, cropped, too dark/light, contains glare, or text is unreadable, return ONLY:',
+      '{"imageQualityIssue":true,"reason":"<one sentence>"} — nothing else.',
+      '',
       // Task
       'Extract receipt data. Return ONE valid JSON object, no markdown, no extra text.',
       '',
@@ -32,7 +36,7 @@ class ReceiptAiPromptBuilder {
       '- Do NOT rewrite, expand abbreviations, rename product, or guess missing words.',
       '- If not highly confident, keep original spelling from receipt.',
       '- unit: printed unit (kom, kg, g, l, ml, pcs) or unknown.',
-      '- Each item gets its own category; root category = dominant spend category.',
+      '- Each item gets its own category.',
       '',
       // Categories
       'Categories (use ONLY these exact values): ${_supportedCategories.join(', ')}',
@@ -59,7 +63,6 @@ class ReceiptAiPromptBuilder {
     'vatAmount',
     'totalAmount',
     'paymentMethod',
-    'category',
     'purchaseDate',
     'rawSummary',
     'confidence',

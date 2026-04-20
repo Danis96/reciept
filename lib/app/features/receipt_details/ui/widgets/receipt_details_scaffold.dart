@@ -18,6 +18,7 @@ class ReceiptDetailsScaffold extends StatelessWidget {
     required this.onDelete,
     required this.onShare,
     required this.onExportSelected,
+    required this.onEditItemCategory,
   });
 
   final ReceiptModel receipt;
@@ -28,6 +29,7 @@ class ReceiptDetailsScaffold extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onShare;
   final Future<void> Function(ReceiptExportFormat format) onExportSelected;
+  final Future<void> Function(int itemIndex) onEditItemCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,10 @@ class ReceiptDetailsScaffold extends StatelessWidget {
                 const SizedBox(height: 22),
                 ReceiptOverviewCard(receipt: receipt),
                 const SizedBox(height: 16),
-                ReceiptItemsCard(receipt: receipt),
+                ReceiptItemsCard(
+                  receipt: receipt,
+                  onEditItemCategory: onEditItemCategory,
+                ),
                 const SizedBox(height: 16),
                 ReceiptPaymentSummaryCard(receipt: receipt),
                 const SizedBox(height: 24),

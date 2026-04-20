@@ -21,6 +21,28 @@ class ReceiptItemModel {
     this.discountAmount,
   });
 
+  ReceiptItemModel copyWith({
+    String? name,
+    String? category,
+    String? unit,
+    double? quantity,
+    double? unitPrice,
+    double? discountPercent,
+    double? discountAmount,
+    double? finalPrice,
+  }) {
+    return ReceiptItemModel(
+      name: name ?? this.name,
+      category: category ?? this.category,
+      unit: unit ?? this.unit,
+      quantity: quantity ?? this.quantity,
+      unitPrice: unitPrice ?? this.unitPrice,
+      discountPercent: discountPercent ?? this.discountPercent,
+      discountAmount: discountAmount ?? this.discountAmount,
+      finalPrice: finalPrice ?? this.finalPrice,
+    );
+  }
+
   factory ReceiptItemModel.fromJson(Map<String, dynamic> json) {
     return ReceiptItemModel(
       name: json['name']?.toString() ?? '',

@@ -236,7 +236,6 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
 
   void updateDraftReceipt({
     required String merchantName,
-    required String category,
     required String paymentMethod,
     required double total,
   }) {
@@ -271,7 +270,7 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
         paid: draft.payment.paid,
         change: draft.payment.change,
       ),
-      category: category,
+      category: draft.category,
       confidence: draft.confidence,
       createdAt: draft.createdAt,
       fiscal: draft.fiscal,

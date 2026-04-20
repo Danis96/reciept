@@ -43,7 +43,7 @@ class HistoryEmptyState extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'No receipts found',
+                  'No items found',
                   style: theme.textTheme
                       .titleLarge
                       ?.copyWith(fontWeight: FontWeight.w600),
@@ -51,8 +51,8 @@ class HistoryEmptyState extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
                   selectedCategory == 'all'
-                      ? 'Try a different merchant, category, or date range. Your saved receipts will appear here.'
-                      : 'No ${HistoryCategoryLabel.labelForBadge(selectedCategory).toLowerCase()} receipts match the current search or date range.',
+                      ? 'Try a different merchant, item, category, or date range. Saved receipt items will appear here.'
+                      : 'No ${HistoryCategoryLabel.labelForBadge(selectedCategory).toLowerCase()} items match the current search or date range.',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.secondary,
                     fontWeight: FontWeight.w400,

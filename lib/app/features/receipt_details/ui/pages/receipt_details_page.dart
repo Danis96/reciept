@@ -83,6 +83,13 @@ class ReceiptDetailsPage extends StatelessWidget {
                         context,
                         format: format,
                       ),
+                  onEditItemCategory: (int itemIndex) =>
+                      ReceiptDetailsActionUtils.showItemCategoryPicker(
+                        context,
+                        controller,
+                        receipt,
+                        itemIndex: itemIndex,
+                      ),
                 ),
               ),
             );

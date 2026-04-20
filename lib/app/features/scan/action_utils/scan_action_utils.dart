@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
 import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
 import 'package:reciep/app/features/history/controllers/history_controller.dart';
 import 'package:reciep/app/features/scan/controllers/scan_controller.dart';
@@ -92,7 +91,6 @@ class ScanActionUtils {
     final TextEditingController totalController = TextEditingController(
       text: draft.totals.total.toStringAsFixed(2),
     );
-    String selectedCategory = CategoryBudgetCatalog.normalize(draft.category);
 
     final bool? save = await showDialog<bool>(
       context: context,
@@ -111,32 +109,6 @@ class ScanActionUtils {
                         labelText: context.l10n.scanEditMerchant,
                         border: const OutlineInputBorder(),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      initialValue: selectedCategory,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.scanEditCategory,
-                        border: const OutlineInputBorder(),
-                      ),
-                      items: CategoryBudgetCatalog.supportedCategories
-                          .map(
-                            (String category) => DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(
-                            CategoryBudgetCatalog.labelFor(category),
-                          ),
-                        ),
-                      )
-                          .toList(growable: false),
-                      onChanged: (String? value) {
-                        if (value == null) {
-                          return;
-                        }
-                        setState(() {
-                          selectedCategory = value;
-                        });
-                      },
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -192,7 +164,6 @@ class ScanActionUtils {
       merchantName: merchantController.text.trim().isEmpty
           ? draft.merchant.name
           : merchantController.text.trim(),
-      category: selectedCategory,
       paymentMethod: paymentController.text.trim().isEmpty
           ? draft.payment.method
           : paymentController.text.trim(),
