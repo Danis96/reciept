@@ -62,7 +62,6 @@ Categories (use ONLY these exact values): ${_supportedCategories.join(', ')}
 - miscellaneous: only if nothing above fits.''';
 
   // ─── Schema ───────────────────────────────────────────────────────────────────
-
   static const List<String> _rootKeys = [
     'receiptId',
     'merchantName',
