@@ -978,6 +978,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
+  wiggly_loaders:
+    dependency: "direct main"
+    description:
+      name: wiggly_loaders
+      sha256: ac326e7ba27ecbf24762d7c4212f23915fc0e5c8dfa7b90b1a4fc24e0cc58c3b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   xdg_directories:
     dependency: transitive
     description:
