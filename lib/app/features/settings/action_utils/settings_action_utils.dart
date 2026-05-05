@@ -12,6 +12,7 @@ import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
 import 'package:refyn/app/features/settings/controllers/settings_controller.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/settings/ui/widgets/shared/settings_simple_message_dialog.dart';
+import 'package:refyn/app/shared/utils/app_url_launcher_utils.dart';
 import 'package:refyn/l10n/app_localizations.dart';
 
 class SettingsActionUtils {
@@ -26,6 +27,23 @@ class SettingsActionUtils {
 
   static Future<void> onLanguageChanged(BuildContext context, Locale locale) {
     return context.read<SettingsController>().updateLanguage(locale);
+  }
+
+  static Future<void> onCurrencyChanged(
+    BuildContext context,
+    String code,
+  ) async {
+    await context.read<SettingsController>().updateCurrency(code);
+    if (!context.mounted) {
+      return;
+    }
+    await _reloadAppState(context);
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.currencySavedLabel(code.toUpperCase()))),
+    );
   }
 
   static Future<void> confirmApiKey(BuildContext context) async {
@@ -310,28 +328,8 @@ class SettingsActionUtils {
     }
   }
 
-  static Future<void> showPrivacyPolicy(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return SettingsSimpleMessageDialog(
-          title: context.l10n.privacyPolicy,
-          message: context.l10n.privacyPolicyPlaceholder,
-        );
-      },
-    );
-  }
-
-  static Future<void> showTermsOfService(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return SettingsSimpleMessageDialog(
-          title: context.l10n.termsOfService,
-          message: context.l10n.termsOfServicePlaceholder,
-        );
-      },
-    );
+  static Future<void> showPrivacyPolicy(BuildContext context) async {
+    await AppUrlLauncherUtils.launch(refynPrivacyPolicy);
   }
 
   static Future<void> _reloadAppState(BuildContext context) async {

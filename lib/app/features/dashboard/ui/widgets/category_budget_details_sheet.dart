@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:intl/intl.dart';
 import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
 import 'package:refyn/app/features/dashboard/repository/dashboard_category_details_model.dart';
@@ -28,9 +29,11 @@ class CategoryBudgetDetailsSheet extends StatelessWidget {
     final String remainingText = details.remainingAmount >= 0
         ? context.l10n.remainingAmountLabel(
             DashboardMoney.formatInt(details.remainingAmount),
+            details.currency,
           )
         : context.l10n.overBudgetLabel(
             DashboardMoney.formatInt(details.remainingAmount.abs()),
+            details.currency,
           );
 
     return Container(
@@ -170,6 +173,7 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
           Text(
             context.l10n.spentAmountLabel(
               DashboardMoney.formatInt(details.spentAmount),
+              details.currency,
             ),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w600,
@@ -184,18 +188,13 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: LinearProgressIndicator(
-              value: safeRatio,
-              minHeight: 10,
-              backgroundColor: CategoryPalette.trackFor(details.category, context),
-              valueColor: AlwaysStoppedAnimation<Color>(
-                details.state == BudgetUsageState.exceeded
-                    ? AppColors.danger
-                    : categoryColor,
-              ),
-            ),
+          WigglyLinearLoader(
+            progress: safeRatio,
+            height: 10,
+            trackColor: CategoryPalette.trackFor(details.category, context),
+            progressColor: details.state == BudgetUsageState.exceeded
+                ? AppColors.danger
+                : categoryColor,
           ),
         ],
       ),
@@ -220,7 +219,7 @@ class CategoryBudgetDetailsStats extends StatelessWidget {
         Expanded(
           child: CategoryBudgetDetailsStatCard(
             label: context.l10n.budget,
-            value: '${DashboardMoney.formatInt(details.budgetAmount)} KM',
+            value: '${DashboardMoney.formatInt(details.budgetAmount)} ${details.currency}',
             tone: categoryColor,
           ),
         ),
@@ -437,7 +436,7 @@ class CategoryBudgetDetailsItemRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Text(
-            '${DashboardMoney.formatInt(item.amount)} KM',
+            '${DashboardMoney.formatInt(item.amount)} ${item.currency}',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),

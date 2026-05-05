@@ -1,31 +1,48 @@
 import 'package:drift/drift.dart';
 import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/shared/utils/app_currency_utils.dart';
 import 'package:refyn/app/models/category_budget_model.dart';
 import 'package:refyn/database/app_database.dart';
 
 class CategoryBudgetRepository {
-  CategoryBudgetRepository({required CategoryBudgetDao dao}) : _dao = dao;
+  CategoryBudgetRepository({
+    required CategoryBudgetDao dao,
+    required AppSettingsDao settingsDao,
+  }) : _dao = dao,
+       _settingsDao = settingsDao;
 
   final CategoryBudgetDao _dao;
+  final AppSettingsDao _settingsDao;
+
+  static const String _currencyCodeKey = 'currency_code';
+  Future<String> getDefaultCurrency() async {
+    final String? value = await _settingsDao.getSetting(_currencyCodeKey);
+    return AppCurrencyUtils.normalizeCode(value);
+  }
 
   Future<int> upsertBudget({
     required String category,
     required double budgetAmount,
     required double spentAmount,
-    String currency = 'BAM',
+    String? currency,
     String period = 'monthly',
-  }) {
+  }) async {
+    final String resolvedCurrency = currency ?? await getDefaultCurrency();
     final String normalizedCategory = CategoryBudgetCatalog.normalize(category);
     return _dao.upsertBudget(
       CategoryBudgetsCompanion.insert(
         category: normalizedCategory,
         budgetAmount: Value(budgetAmount),
         spentAmount: Value(spentAmount),
-        currency: Value(currency),
+        currency: Value(resolvedCurrency),
         period: Value(period),
         updatedAt: Value(DateTime.now()),
       ),
     );
+  }
+
+  Future<void> updateAllCurrencies(String currency) {
+    return _dao.updateAllCurrencies(AppCurrencyUtils.normalizeCode(currency));
   }
 
   Future<List<CategoryBudgetModel>> getBudgets() async {

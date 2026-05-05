@@ -209,7 +209,7 @@ class ReceiptPaperCard extends StatelessWidget {
                           ...receipt.items.map(
                                 (ReceiptItemModel item) => Padding(
                               padding: const EdgeInsets.only(bottom: 4),
-                              child: ReceiptItemRow(item: item),
+                              child: ReceiptItemRow(item: item, currency: receipt.currency),
                             ),
                           ),
                           const SizedBox(height: AppSpacing.xs),
@@ -372,9 +372,10 @@ class ReceiptPerforation extends StatelessWidget {
 }
 
 class ReceiptItemRow extends StatelessWidget {
-  const ReceiptItemRow({super.key, required this.item});
+  const ReceiptItemRow({super.key, required this.item, required this.currency});
 
   final ReceiptItemModel item;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -394,7 +395,7 @@ class ReceiptItemRow extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
         Text(
-          '${ReceiptPaperMoney.format(item.finalPrice)} ${ReceiptPaperMoney.currencyLabel('BAM')}',
+          '${ReceiptPaperMoney.format(item.finalPrice)} ${ReceiptPaperMoney.currencyLabel(currency)}',
           style: ReceiptPaperText.itemValue(context),
         ),
       ],
@@ -603,7 +604,7 @@ class ReceiptPaperMoney {
   }
 
   static String currencyLabel(String currency) {
-    return 'KM';
+    return currency;
   }
 }
 

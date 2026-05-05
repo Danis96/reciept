@@ -1,5 +1,7 @@
+import 'package:refyn/app/shared/utils/app_currency_utils.dart';
+
 String money(double value, String currency) {
-  final String code = 'KM';
+  final String code = AppCurrencyUtils.normalizeCode(currency);
   return '${value.toStringAsFixed(2)} $code';
 }
 

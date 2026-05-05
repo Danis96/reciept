@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
 import 'package:refyn/app/features/dashboard/repository/home_dashboard_model.dart';
@@ -17,6 +18,7 @@ class HomeSummaryHero extends StatelessWidget {
     final int usedPercent = (ratio * 100).round();
     final String greeting = TimeGreetingLabel.forNow(DateTime.now());
     final double topInset = MediaQuery.paddingOf(context).top;
+    final theme = Theme.of(context);
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -38,7 +40,7 @@ class HomeSummaryHero extends StatelessWidget {
         children: <Widget>[
           Text(
             '$greeting!',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            style: theme.textTheme.headlineSmall?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w800,
             ),
@@ -46,9 +48,7 @@ class HomeSummaryHero extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             context.l10n.homeSpendingOverview,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
           ),
           const SizedBox(height: AppSpacing.md),
           Container(
@@ -67,28 +67,23 @@ class HomeSummaryHero extends StatelessWidget {
                     _HeroMetric(
                       title: context.l10n.thisMonth,
                       value:
-                      '${DashboardMoney.formatDecimalConditionally(data.thisMonthSpending)} KM',
+                      '${DashboardMoney.formatDecimalConditionally(data.thisMonthSpending)} ${data.currency}',
                       alignEnd: false,
                     ),
                     _HeroMetric(
                       title: context.l10n.budget,
                       value:
-                      '${DashboardMoney.formatDecimalConditionally(data.totalBudget)} KM',
+                      '${DashboardMoney.formatDecimalConditionally(data.totalBudget)} ${data.currency}',
                       alignEnd: true,
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: ratio,
-                    minHeight: 8,
-                    backgroundColor: Colors.white.withAlpha(66), // 0.26
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      HomeThemePalette.success(context),
-                    ),
-                  ),
+                WigglyLinearLoader(
+                  progress: ratio,
+                  height: 8,
+                  trackColor: Colors.transparent,
+                  progressColor: HomeThemePalette.success(context),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Row(
@@ -96,7 +91,7 @@ class HomeSummaryHero extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       context.l10n.usedPercentLabel(usedPercent),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white70,
                         fontWeight: FontWeight.w600,
                       ),
@@ -106,8 +101,9 @@ class HomeSummaryHero extends StatelessWidget {
                         DashboardMoney.formatDecimalConditionally(
                           data.remainingBudget,
                         ),
+                        data.currency,
                       ),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         color: HomeThemePalette.success(context),
                         fontWeight: FontWeight.w700,
                       ),
@@ -136,13 +132,14 @@ class _HeroMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment:
       alignEnd ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           title,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          style: theme.textTheme.bodyMedium?.copyWith(
             color: Colors.white70,
             fontWeight: FontWeight.w600,
           ),
@@ -150,7 +147,7 @@ class _HeroMetric extends StatelessWidget {
         const SizedBox(height: AppSpacing.xxs),
         Text(
           value,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          style: theme.textTheme.headlineMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w800,
           ),

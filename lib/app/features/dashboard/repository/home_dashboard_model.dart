@@ -8,6 +8,7 @@ class HomeDashboardModel {
     required this.thisMonthSpending,
     required this.totalBudget,
     required this.remainingBudget,
+    required this.currency,
     required this.topCategoryLabel,
     required this.budgetProgress,
     required this.recentReceipts,
@@ -18,6 +19,7 @@ class HomeDashboardModel {
   final double thisMonthSpending;
   final double totalBudget;
   final double remainingBudget;
+  final String currency;
   final String topCategoryLabel;
   final List<DashboardBudgetProgressModel> budgetProgress;
   final List<ReceiptModel> recentReceipts;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:refyn/theme/app_colors.dart';
 
 class SettingsSectionHeader extends StatelessWidget {
   const SettingsSectionHeader({
@@ -15,7 +16,7 @@ class SettingsSectionHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: <Widget>[
-        Icon(icon, size: 20, color: theme.colorScheme.onSurface),
+        Icon(icon, size: 20, color: AppColors.brandPrimary),
         const SizedBox(width: 10),
         Text(
           title,

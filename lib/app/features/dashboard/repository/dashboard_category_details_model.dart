@@ -5,6 +5,7 @@ class DashboardCategoryDetailsModel {
   const DashboardCategoryDetailsModel({
     required this.category,
     required this.label,
+    required this.currency,
     required this.budgetAmount,
     required this.spentAmount,
     required this.remainingAmount,
@@ -16,6 +17,7 @@ class DashboardCategoryDetailsModel {
 
   final String category;
   final String label;
+  final String currency;
   final double budgetAmount;
   final double spentAmount;
   final double remainingAmount;

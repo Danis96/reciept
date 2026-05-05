@@ -126,13 +126,13 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                       ),
                       const SizedBox(height: 10),
                       LayoutBuilder(
-                        builder: (BuildContext context,
-                            BoxConstraints constraints) {
+                        builder: (BuildContext context, BoxConstraints constraints) {
                           final bool isCompact = constraints.maxWidth < 430;
 
                           return Flex(
-                            direction:
-                                isCompact ? Axis.vertical : Axis.horizontal,
+                            direction: isCompact
+                                ? Axis.vertical
+                                : Axis.horizontal,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Expanded(
@@ -146,8 +146,9 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                                       : !controller.isApiKeyVisible,
                                   onChanged: controller.updateApiKeyDraft,
                                   style: theme.textTheme.bodyLarge?.copyWith(
-                                    letterSpacing:
-                                        controller.isApiKeyVisible ? 0 : 1.1,
+                                    letterSpacing: controller.isApiKeyVisible
+                                        ? 0
+                                        : 1.1,
                                   ),
                                   decoration: InputDecoration(
                                     hintText: shouldProtectBuiltInKeyDisplay
@@ -156,9 +157,9 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                                     filled: true,
                                     fillColor:
                                         SettingsPagePalette.fieldBackground(
-                                            context),
-                                    contentPadding:
-                                        const EdgeInsets.symmetric(
+                                          context,
+                                        ),
+                                    contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 14,
                                       vertical: 14,
                                     ),
@@ -166,14 +167,16 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide(
                                         color: SettingsPagePalette.cardBorder(
-                                            context),
+                                          context,
+                                        ),
                                       ),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide(
                                         color: SettingsPagePalette.cardBorder(
-                                            context),
+                                          context,
+                                        ),
                                       ),
                                     ),
                                     focusedBorder: OutlineInputBorder(
@@ -186,12 +189,12 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                                     suffixIcon: shouldProtectBuiltInKeyDisplay
                                         ? null
                                         : IconButton(
-                                            onPressed:
-                                                controller.toggleApiKeyVisibility,
+                                            onPressed: controller
+                                                .toggleApiKeyVisibility,
                                             icon: Icon(
                                               controller.isApiKeyVisible
                                                   ? Icons
-                                                      .visibility_off_outlined
+                                                        .visibility_off_outlined
                                                   : Icons.visibility_outlined,
                                             ),
                                           ),
@@ -199,10 +202,10 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                                         ? context.l10n.defaultKeyHiddenHelper
                                         : null,
                                     helperMaxLines: 2,
-                                    helperStyle:
-                                        theme.textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
+                                    helperStyle: theme.textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
                                   ),
                                 ),
                               ),
@@ -213,13 +216,16 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                               FilledButton(
                                 onPressed: controller.isApiKeyConfirmed
                                     ? controller.canResetAiConfiguration
-                                        ? () => SettingsActionUtils
-                                            .resetAiConfiguration(context)
-                                        : null
+                                          ? () =>
+                                                SettingsActionUtils.resetAiConfiguration(
+                                                  context,
+                                                )
+                                          : null
                                     : controller.canConfirmApiKey
-                                        ? () => SettingsActionUtils
-                                            .confirmApiKey(context)
-                                        : null,
+                                    ? () => SettingsActionUtils.confirmApiKey(
+                                        context,
+                                      )
+                                    : null,
                                 style: FilledButton.styleFrom(
                                   minimumSize: Size(
                                     isCompact ? double.infinity : 118,
@@ -237,13 +243,10 @@ class _SettingsAiConfigCardState extends State<SettingsAiConfigCard> {
                                 ),
                                 child: controller.isConfirmingApiKey
                                     ? const WigglyLoader.indeterminate(
-                                        progressColor:
-                                            Colors.deepPurpleAccent,
                                         size: 20,
                                         arcSpan: 0.8,
                                         strokeWidth: 1,
                                         wiggleAmplitude: 1,
-                                        trackColor: Colors.transparent,
                                       )
                                     : Text(
                                         controller.isApiKeyConfirmed
@@ -299,67 +302,54 @@ class _StatusSwitcher extends StatelessWidget {
               key: const ValueKey<String>('loading'),
               color: colorScheme.primary,
               icon: const WigglyLoader.indeterminate(
-                progressColor: Colors.deepPurpleAccent,
                 size: 20,
                 arcSpan: 0.8,
                 strokeWidth: 1,
                 wiggleAmplitude: 1,
-                trackColor: Colors.transparent,
               ),
               label: AppLocalizations.of(context).loadingSavedAiConfiguration,
             )
           : controller.isConfirmingApiKey
-              ? _StatusRow(
-                  key: const ValueKey<String>('confirming'),
-                  color: colorScheme.primary,
-                  icon: const WigglyLoader.indeterminate(
-                    progressColor: Colors.deepPurpleAccent,
-                    size: 20,
-                    arcSpan: 0.8,
-                    strokeWidth: 1,
-                    wiggleAmplitude: 1,
-                    trackColor: Colors.transparent,
-                  ),
-                  label: AppLocalizations.of(context).confirmingKeyWithGoogleAi,
-                )
-              : controller.isApiKeyConfirmed
-                  ? _StatusRow(
-                      key: const ValueKey<String>('confirmed'),
-                      color: const Color(0xFF2EBD73),
-                      icon: const Icon(Icons.check_rounded, size: 18),
-                      label: AppLocalizations.of(
-                        context,
-                      ).aiModelsAvailableLabel(controller.availableModels.length),
-                    )
-                  : controller.hasProtectedDefaultApiKey
-                      ? _StatusRow(
-                          key: const ValueKey<String>('protected-default'),
-                          color: colorScheme.secondary,
-                          icon: const Icon(
-                            Icons.admin_panel_settings_outlined,
-                            size: 18,
-                          ),
-                          label: AppLocalizations.of(context).builtInKeyInUse,
-                        )
-                      : controller.aiConfigurationError != null
-                          ? _StatusRow(
-                              key: const ValueKey<String>('error'),
-                              color: colorScheme.error,
-                              icon: const Icon(
-                                Icons.error_outline_rounded,
-                                size: 18,
-                              ),
-                              label: AppLocalizations.of(context).savedKeyInvalid,
-                            )
-                          : _StatusRow(
-                              key: const ValueKey<String>('idle'),
-                              color: colorScheme.onSurfaceVariant,
-                              icon: const Icon(
-                                Icons.lock_outline_rounded,
-                                size: 18,
-                              ),
-                              label: AppLocalizations.of(context).noKeySet,
-                            ),
+          ? _StatusRow(
+              key: const ValueKey<String>('confirming'),
+              color: colorScheme.primary,
+              icon: const WigglyLoader.indeterminate(
+                size: 20,
+                arcSpan: 0.8,
+                strokeWidth: 1,
+                wiggleAmplitude: 1,
+              ),
+              label: AppLocalizations.of(context).confirmingKeyWithGoogleAi,
+            )
+          : controller.isApiKeyConfirmed
+          ? _StatusRow(
+              key: const ValueKey<String>('confirmed'),
+              color: const Color(0xFF2EBD73),
+              icon: const Icon(Icons.check_rounded, size: 18),
+              label: AppLocalizations.of(
+                context,
+              ).aiModelsAvailableLabel(controller.availableModels.length),
+            )
+          : controller.hasProtectedDefaultApiKey
+          ? _StatusRow(
+              key: const ValueKey<String>('protected-default'),
+              color: colorScheme.secondary,
+              icon: const Icon(Icons.admin_panel_settings_outlined, size: 18),
+              label: AppLocalizations.of(context).builtInKeyInUse,
+            )
+          : controller.aiConfigurationError != null
+          ? _StatusRow(
+              key: const ValueKey<String>('error'),
+              color: colorScheme.error,
+              icon: const Icon(Icons.error_outline_rounded, size: 18),
+              label: AppLocalizations.of(context).savedKeyInvalid,
+            )
+          : _StatusRow(
+              key: const ValueKey<String>('idle'),
+              color: colorScheme.onSurfaceVariant,
+              icon: const Icon(Icons.lock_outline_rounded, size: 18),
+              label: AppLocalizations.of(context).noKeySet,
+            ),
     );
   }
 }
@@ -373,7 +363,8 @@ class _ModelSelectionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final String? selectedModelId = controller.availableModels
+    final String? selectedModelId =
+        controller.availableModels
                 .where((option) => option.id == controller.selectedModelId)
                 .length ==
             1
@@ -422,10 +413,7 @@ class _ModelSelectionSection extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.primary,
-                width: 1.3,
-              ),
+              borderSide: BorderSide(color: colorScheme.primary, width: 1.3),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
@@ -478,9 +466,7 @@ class _ThinkingToggleTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: SettingsPagePalette.rowBackground(context),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: SettingsPagePalette.cardBorder(context),
-          ),
+          border: Border.all(color: SettingsPagePalette.cardBorder(context)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -513,8 +499,10 @@ class _ThinkingToggleTile extends StatelessWidget {
               value: controller.isThinkingEnabled,
               onChanged: controller.isSavingThinkingMode
                   ? null
-                  : (bool value) =>
-                      SettingsActionUtils.saveAiThinkingEnabled(context, value),
+                  : (bool value) => SettingsActionUtils.saveAiThinkingEnabled(
+                      context,
+                      value,
+                    ),
             ),
           ],
         ),
@@ -627,10 +615,9 @@ class _AiConfigInfoSheetState extends State<_AiConfigInfoSheet>
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final double maxSheetHeight = MediaQuery.sizeOf(context).height * 0.88;
+    final double maxSheetHeight = MediaQuery.sizeOf(context).height * 0.92;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       constraints: BoxConstraints(maxHeight: maxSheetHeight),
       decoration: BoxDecoration(
         color: colorScheme.surface,
@@ -826,9 +813,7 @@ class _InfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: SettingsPagePalette.rowBackground(context),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: SettingsPagePalette.cardBorder(context),
-        ),
+        border: Border.all(color: SettingsPagePalette.cardBorder(context)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/shared/utils/app_currency_utils.dart';
 import 'package:refyn/app/models/domain/receipt.dart';
 import 'package:refyn/app/models/domain/receipt_item.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
@@ -24,7 +25,10 @@ class ReceiptAiParserResult {
 class ReceiptAiParser {
   const ReceiptAiParser._();
 
-  static ReceiptAiParserResult parseStructured(dynamic input) {
+  static ReceiptAiParserResult parseStructured(
+    dynamic input, {
+    String defaultCurrency = AppCurrencyUtils.defaultCode,
+  }) {
     final List<String> errors = <String>[];
     final List<String> warnings = <String>[];
 
@@ -55,6 +59,7 @@ class ReceiptAiParser {
     final Map<String, dynamic> payment = _nestedMap(root, <String>[
       'payment',
       'placanje',
+      'betaling',
     ]);
     final Map<String, dynamic> fiscal = _nestedMap(root, <String>[
       'fiscal',
@@ -64,21 +69,33 @@ class ReceiptAiParser {
     final List<ReceiptItem> items = _parseItems(root, warnings);
 
     final String currency =
-        _firstString(root, <String>['currency', 'valuta']) ??
+        _firstString(root, <String>['currency', 'valuta', 'mønt']) ??
         _inferCurrency(root) ??
-        'BAM';
+        defaultCurrency;
 
     final double total = _pickDouble(<dynamic>[
       totals['total'],
       totals['ukupno'],
       totals['iznos'],
+      totals['i_alt'],
       root['total'],
       root['ukupno'],
+      root['i_alt'],
+      root['totalAmount'],
     ], fallback: 0);
 
     final String merchantName =
-        _firstString(merchant, <String>['name', 'naziv', 'merchant_name']) ??
-        _firstString(root, <String>['merchant_name', 'naziv_firme']) ??
+        _firstString(merchant, <String>[
+          'name',
+          'naziv',
+          'merchant_name',
+          'butik',
+        ]) ??
+        _firstString(root, <String>[
+          'merchant_name',
+          'merchantName',
+          'naziv_firme',
+        ]) ??
         '';
 
     final DateTime now = DateTime.now();
@@ -97,7 +114,8 @@ class ReceiptAiParser {
           (_firstString(root, <String>['id', 'receipt_id']) ??
                   'rcp-${createdAt.microsecondsSinceEpoch}')
               .trim(),
-      country: (_firstString(root, <String>['country', 'drzava']) ?? 'BA')
+      country: (_firstString(root, <String>['country', 'drzava', 'land']) ??
+              _countryFromCurrency(currency))
           .toUpperCase(),
       currency: currency.toUpperCase(),
       merchantName: merchantName,
@@ -116,13 +134,17 @@ class ReceiptAiParser {
             'broj',
             'bf',
             'receipt_number',
+            'bon',
+            'kvitteringsnr',
           ]) ??
-          _firstString(root, <String>['bf', 'broj_racuna']),
+          _firstString(root, <String>['bf', 'broj_racuna', 'bon_nr']),
       receiptDateTime: receiptDateTime,
       items: items,
       subtotal: _pickNullableDouble(<dynamic>[
         totals['subtotal'],
         totals['meduzbroj'],
+        totals['netto'],
+        totals['grundlag'],
       ]),
       discountTotal: _pickNullableDouble(<dynamic>[
         totals['discount_total'],
@@ -139,12 +161,15 @@ class ReceiptAiParser {
       vatAmount: _pickNullableDouble(<dynamic>[
         totals['vat_amount'],
         totals['pdv'],
+        totals['moms'],
+        totals['heraf_moms'],
       ]),
       total: total,
       paymentMethod:
-          (_firstString(payment, <String>['method', 'nacin']) ??
+          (_firstString(payment, <String>['method', 'nacin', 'betalingsmetode']) ??
                   _firstString(root, <String>[
                     'payment_method',
+                    'paymentMethod',
                     'nacin_placanja',
                   ]) ??
                   'unknown')
@@ -196,8 +221,14 @@ class ReceiptAiParser {
     );
   }
 
-  static ReceiptModel? parseToModel(dynamic input) {
-    final ReceiptAiParserResult result = parseStructured(input);
+  static ReceiptModel? parseToModel(
+    dynamic input, {
+    String defaultCurrency = AppCurrencyUtils.defaultCode,
+  }) {
+    final ReceiptAiParserResult result = parseStructured(
+      input,
+      defaultCurrency: defaultCurrency,
+    );
     return result.isValid ? result.receipt!.toModel() : null;
   }
 
@@ -221,21 +252,30 @@ class ReceiptAiParser {
       parsed.add(
         ReceiptItem(
           name:
-              _firstString(item, <String>['name', 'naziv', 'artikl']) ??
+              _firstString(item, <String>[
+                'name',
+                'naziv',
+                'artikl',
+                'varetekst',
+                'vare',
+              ]) ??
               'unknown',
           category: CategoryBudgetCatalog.normalize(
             _firstString(item, <String>['category', 'kategorija']) ??
                 'miscellaneous',
           ),
-          unit: _firstString(item, <String>['unit', 'jedinica']),
+          unit: _firstString(item, <String>['unit', 'jedinica', 'enhed']),
           quantity: _pickDouble(<dynamic>[
             item['quantity'],
             item['kolicina'],
+            item['antal'],
           ], fallback: 1),
           unitPrice: _pickNullableDouble(<dynamic>[
             item['unit_price'],
+            item['unitPrice'],
             item['cijena_po_komadu'],
             item['cijena'],
+            item['pris'],
           ]),
           discountPercent: _pickNullableDouble(<dynamic>[
             item['discount_percent'],
@@ -247,8 +287,10 @@ class ReceiptAiParser {
           ]),
           finalPrice: _pickDouble(<dynamic>[
             item['final_price'],
+            item['finalPrice'],
             item['iznos'],
             item['total'],
+            item['ialt'],
           ], fallback: 0),
         ),
       );
@@ -371,14 +413,17 @@ class ReceiptAiParser {
       return direct;
     }
 
-    final RegExp bosnianDate = RegExp(
-      r'^(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\.?\s+(\d{1,2}):(\d{2}))?$',
+    final RegExp europeanDate = RegExp(
+      r'^(\d{1,2})[.\-/\s](\d{1,2})[.\-/\s](\d{2,4})(?:[.\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$',
     );
-    final Match? match = bosnianDate.firstMatch(text);
+    final Match? match = europeanDate.firstMatch(text);
     if (match != null) {
       final int day = int.parse(match.group(1)!);
       final int month = int.parse(match.group(2)!);
-      final int year = int.parse(match.group(3)!);
+      int year = int.parse(match.group(3)!);
+      if (year < 100) {
+        year += 2000;
+      }
       final int hour = int.tryParse(match.group(4) ?? '0') ?? 0;
       final int minute = int.tryParse(match.group(5) ?? '0') ?? 0;
       return DateTime(year, month, day, hour, minute);
@@ -391,16 +436,38 @@ class ReceiptAiParser {
     final String haystack = [
       _firstString(root, <String>['raw_text']) ?? '',
       _firstString(root, <String>['currency']) ?? '',
+      _firstString(root, <String>['rawSummary']) ?? '',
     ].join(' ');
 
     final String normalized = haystack.toUpperCase();
+    if (normalized.contains('DKK') ||
+        normalized.contains('MOMS') ||
+        normalized.contains('I ALT')) {
+      return 'DKK';
+    }
     if (normalized.contains('BAM') || normalized.contains('KM')) {
       return 'BAM';
     }
     if (normalized.contains('EUR')) {
       return 'EUR';
     }
+    if (normalized.contains('USD')) {
+      return 'USD';
+    }
     return null;
+  }
+
+  static String _countryFromCurrency(String currency) {
+    switch (currency.toUpperCase()) {
+      case 'DKK':
+        return 'DK';
+      case 'USD':
+        return 'US';
+      case 'EUR':
+        return 'EU';
+      default:
+        return 'BA';
+    }
   }
 
   static String _encodeRaw(Map<String, dynamic> root) {

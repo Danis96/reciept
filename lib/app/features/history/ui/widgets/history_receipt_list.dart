@@ -64,7 +64,7 @@ class HistoryReceiptListCard extends StatelessWidget {
         ? entry.item.quantity.toStringAsFixed(0)
         : entry.item.quantity.toStringAsFixed(2);
     final String priceLabel =
-        '${entry.amount.toStringAsFixed(2)} KM';
+        '${entry.amount.toStringAsFixed(2)} ${entry.receipt.currency}';
 
     return TweenAnimationBuilder<double>(
       duration: Duration(milliseconds: 220 + (index * 40).clamp(0, 240)),

@@ -52,6 +52,15 @@ class CategoryBudgetDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
+  Future<void> updateAllCurrencies(String currency) {
+    return update(categoryBudgets).write(
+      CategoryBudgetsCompanion(
+        currency: Value(currency),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
   Future<int> deleteBudget(String category) {
     return (delete(
       categoryBudgets,

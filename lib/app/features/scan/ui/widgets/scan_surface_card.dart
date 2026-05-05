@@ -530,7 +530,7 @@ class _SuccessView extends StatelessWidget {
           _ScanSuccessRow(
               label: totalLabel,
               value:
-              '${receipt.totals.total.toStringAsFixed(2)} KM'),
+              '${receipt.totals.total.toStringAsFixed(2)} ${receipt.currency}'),
           _ScanSuccessRow(
               label: dateLabel, value: dateFormat.format(receipt.createdAt)),
           _ScanSuccessRow(label: itemsLabel, value: '${receipt.items.length}'),

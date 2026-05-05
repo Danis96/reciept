@@ -22,6 +22,7 @@ class SettingsController extends ChangeNotifier {
 
   ThemeMode _themeMode = ThemeMode.system;
   Locale _locale = const Locale('en');
+  String _currencyCode = SettingsRepository.defaultCurrency;
   List<CategoryBudgetModel> _categoryBudgets = const <CategoryBudgetModel>[];
   bool _loading = false;
   bool _exporting = false;
@@ -46,6 +47,7 @@ class SettingsController extends ChangeNotifier {
 
   ThemeMode get themeMode => _themeMode;
   Locale get locale => _locale;
+  String get currencyCode => _currencyCode;
   List<CategoryBudgetModel> get categoryBudgets => _categoryBudgets;
   bool get loading => _loading;
   bool get exporting => _exporting;
@@ -94,6 +96,7 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
     _themeMode = await _repository.getThemeMode();
     _locale = await _repository.getLocale();
+    _currencyCode = await _repository.getCurrency();
     _categoryBudgets = await _repository.getCategoryBudgets();
     _loading = false;
     notifyListeners();
@@ -106,6 +109,17 @@ class SettingsController extends ChangeNotifier {
     }
     await _repository.setThemeMode(mode);
     _themeMode = mode;
+    notifyListeners();
+  }
+
+  Future<void> updateCurrency(String code) async {
+    final String normalized = code.trim().toUpperCase();
+    if (normalized.isEmpty || _currencyCode == normalized) {
+      return;
+    }
+    await _repository.setCurrency(normalized);
+    _currencyCode = normalized;
+    _categoryBudgets = await _repository.getCategoryBudgets();
     notifyListeners();
   }
 
