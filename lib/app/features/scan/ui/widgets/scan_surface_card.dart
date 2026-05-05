@@ -2,10 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/features/scan/ui/widgets/premium_scan_loading_panel.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/theme/app_colors.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/scan/ui/widgets/premium_scan_loading_panel.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/theme/app_colors.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 enum ScanSurfaceState { idle, imageSelected, loading, success, error }
 
@@ -550,7 +551,7 @@ class _SuccessView extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: savingDraft ? null : onEditDraft,
-                    child: Text('Edit'),
+                    child: Text(context.l10n.edit),
                   ),
                 ),
               ],

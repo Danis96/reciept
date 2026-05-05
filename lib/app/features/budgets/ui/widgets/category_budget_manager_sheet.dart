@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/budgets/ui/widgets/category_budget_sheet_content.dart';
-import 'package:reciep/app/features/budgets/ui/utils/budget_formatting.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/budgets/ui/widgets/category_budget_sheet_content.dart';
+import 'package:refyn/app/features/budgets/ui/utils/budget_formatting.dart';
 
 import '../../action_utils/budgets_action_utils.dart';
 

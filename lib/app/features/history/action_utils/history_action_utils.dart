@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
-import 'package:reciep/app/features/history/controllers/history_controller.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/routing/app_router.dart';
+import 'package:refyn/app/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:refyn/app/features/history/controllers/history_controller.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/routing/app_router.dart';
 
 class HistoryActionUtils {
   const HistoryActionUtils._();

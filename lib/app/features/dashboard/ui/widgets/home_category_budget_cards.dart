@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
-import 'package:reciep/app/features/dashboard/ui/widgets/home_budget_progress_item.dart';
-import 'package:reciep/app/features/dashboard/ui/widgets/home_card_empty_state.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/features/dashboard/repository/home_dashboard_model.dart';
+import 'package:refyn/app/features/dashboard/ui/widgets/home_budget_progress_item.dart';
+import 'package:refyn/app/features/dashboard/ui/widgets/home_card_empty_state.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HomeCategoryBudgetsCard extends StatefulWidget {
   const HomeCategoryBudgetsCard({
@@ -51,7 +52,7 @@ class _HomeCategoryBudgetsCardState extends State<HomeCategoryBudgetsCard> {
                 child: Row(
                   children: <Widget>[
                     Text(
-                      _isExpanded ? 'Hide' : 'Show',
+                      _isExpanded ? context.l10n.hide : context.l10n.show,
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
@@ -75,7 +76,13 @@ class _HomeCategoryBudgetsCardState extends State<HomeCategoryBudgetsCard> {
             ),
               GestureDetector(
                 onTap: widget.onManageBudgets,
-                child:  Text('Manage', style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.w500)),
+                child: Text(
+                  context.l10n.manage,
+                  style: TextStyle(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),]
           ),
           const SizedBox(height: 4),
@@ -84,7 +91,7 @@ class _HomeCategoryBudgetsCardState extends State<HomeCategoryBudgetsCard> {
           Row(
             children: <Widget>[
               Text(
-                'Category Budgets',
+                context.l10n.categoryBudgets,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -116,11 +123,10 @@ class _HomeCategoryBudgetsCardState extends State<HomeCategoryBudgetsCard> {
                         key: const ValueKey('expanded'),
                         padding: const EdgeInsets.only(top: AppSpacing.xs),
                         child: widget.data.budgetProgress.isEmpty
-                            ? const HomeCardEmptyState(
+                            ? HomeCardEmptyState(
                                 imageCategory: 'miscellaneous',
-                                title: 'No budgets yet',
-                                message:
-                                    'Create monthly category budgets from Manage and track each spend bucket here.',
+                                title: context.l10n.noBudgetsYet,
+                                message: context.l10n.noBudgetsYetMessage,
                               )
                             : Column(
                                 children: widget.data.budgetProgress
@@ -149,7 +155,9 @@ class _HomeCategoryBudgetsCardState extends State<HomeCategoryBudgetsCard> {
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.sm),
               child: Text(
-                '${widget.data.budgetProgress.length} budget categories hidden',
+                context.l10n.budgetCategoriesHiddenLabel(
+                  widget.data.budgetProgress.length,
+                ),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w600,

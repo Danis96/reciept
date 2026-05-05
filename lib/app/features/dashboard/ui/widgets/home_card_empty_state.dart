@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HomeCardEmptyState extends StatelessWidget {
   const HomeCardEmptyState({

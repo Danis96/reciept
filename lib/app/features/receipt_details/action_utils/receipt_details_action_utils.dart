@@ -2,12 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
-import 'package:reciep/app/features/receipt_details/controllers/receipt_details_controller.dart';
-import 'package:reciep/app/models/receipt/receipt_item_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
+import 'package:refyn/app/features/receipt_details/controllers/receipt_details_controller.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/models/receipt/receipt_item_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class ReceiptDetailsActionUtils {
   const ReceiptDetailsActionUtils._();
@@ -35,10 +36,13 @@ class ReceiptDetailsActionUtils {
     final String formatLabel = switch (format) {
       ReceiptExportFormat.csv => 'CSV',
       ReceiptExportFormat.json => 'JSON',
+      ReceiptExportFormat.pdf => 'PDF',
     };
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('$formatLabel saved: $path')));
+    ).showSnackBar(
+      SnackBar(content: Text(context.l10n.fileSavedLabel(formatLabel, path))),
+    );
   }
 
   static Future<void> showDeleteDialog(BuildContext context) async {
@@ -57,14 +61,14 @@ class ReceiptDetailsActionUtils {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  'Delete Receipt?',
+                  context.l10n.deleteReceiptQuestion,
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'This action cannot be undone. This will permanently delete this receipt from your history.',
+                  context.l10n.deleteReceiptWarning,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.secondary,
@@ -79,7 +83,7 @@ class ReceiptDetailsActionUtils {
                       backgroundColor: const Color(0xFFD92D00),
                     ),
                     onPressed: () => navigator.pop(true),
-                    child: const Text('Delete'),
+                    child: Text(context.l10n.delete),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
@@ -87,7 +91,7 @@ class ReceiptDetailsActionUtils {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: () => navigator.pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(context.l10n.cancel),
                   ),
                 ),
               ],
@@ -123,22 +127,22 @@ class ReceiptDetailsActionUtils {
             final navigator = Navigator.of(dialogContext);
 
             return AlertDialog(
-              title: const Text('Edit Receipt'),
+              title: Text(context.l10n.editReceipt),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   TextField(
                     controller: merchantController,
-                    decoration: const InputDecoration(
-                      labelText: 'Merchant',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.merchant,
                       border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   TextField(
                     controller: paymentController,
-                    decoration: const InputDecoration(
-                      labelText: 'Payment method',
+                    decoration: InputDecoration(
+                      labelText: context.l10n.paymentMethod,
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -147,11 +151,11 @@ class ReceiptDetailsActionUtils {
               actions: <Widget>[
                 TextButton(
                   onPressed: () => navigator.pop(false),
-                  child: const Text('Cancel'),
+                  child: Text(context.l10n.cancel),
                 ),
                 FilledButton(
                   onPressed: () => navigator.pop(true),
-                  child: const Text('Save'),
+                  child: Text(context.l10n.save),
                 ),
               ],
             );
@@ -173,7 +177,7 @@ class ReceiptDetailsActionUtils {
     if (!context.mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Receipt updated.')));
+    ).showSnackBar(SnackBar(content: Text(context.l10n.receiptUpdated)));
   }
 
   static Future<void> showItemCategoryPicker(
@@ -234,7 +238,7 @@ class ReceiptDetailsActionUtils {
                       ),
                       const SizedBox(height: 18),
                       Text(
-                        'Change item category',
+                        context.l10n.changeItemCategory,
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
@@ -242,7 +246,7 @@ class ReceiptDetailsActionUtils {
                       const SizedBox(height: 6),
                       Text(
                         item.name.trim().isEmpty
-                            ? 'Unnamed item'
+                            ? context.l10n.unnamedItem
                             : item.name.trim(),
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurfaceVariant,
@@ -253,8 +257,8 @@ class ReceiptDetailsActionUtils {
                       TextField(
                         controller: nameController,
                         textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(
-                          labelText: 'Item name',
+                        decoration: InputDecoration(
+                          labelText: context.l10n.itemName,
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -266,7 +270,7 @@ class ReceiptDetailsActionUtils {
                             .map(
                               (String category) => ChoiceChip(
                                 label: Text(
-                                  CategoryBudgetCatalog.labelFor(category),
+                                  context.l10n.categoryLabel(category),
                                 ),
                                 selected: selectedCategory == category,
                                 onSelected: (_) {
@@ -284,7 +288,7 @@ class ReceiptDetailsActionUtils {
                             category: selectedCategory,
                             name: nameController.text.trim(),
                           )),
-                          child: const Text('Save changes'),
+                          child: Text(context.l10n.saveChanges),
                         ),
                       ),
                     ],
@@ -321,7 +325,9 @@ class ReceiptDetailsActionUtils {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${nextName.trim().isEmpty ? 'Item' : nextName.trim()} updated.',
+          context.l10n.itemUpdatedLabel(
+            nextName.trim().isEmpty ? context.l10n.scanItems : nextName.trim(),
+          ),
         ),
       ),
     );
@@ -334,7 +340,7 @@ class ReceiptDetailsActionUtils {
     final String? imagePath = receipt.imagePath;
     if (imagePath == null || imagePath.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No receipt image available.')),
+        SnackBar(content: Text(context.l10n.noReceiptImageAvailable)),
       );
       return;
     }
@@ -354,8 +360,8 @@ class ReceiptDetailsActionUtils {
                   child: Image.file(
                     File(imagePath),
                     fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Text(
-                      'Unable to load image.',
+                    errorBuilder: (context, error, stackTrace) => Text(
+                      context.l10n.unableToLoadImage,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/receipt_details/action_utils/receipt_details_action_utils.dart';
-import 'package:reciep/app/features/receipt_details/controllers/receipt_details_controller.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_details_scaffold.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/receipt_details/action_utils/receipt_details_action_utils.dart';
+import 'package:refyn/app/features/receipt_details/controllers/receipt_details_controller.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_details_scaffold.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class ReceiptDetailsPage extends StatelessWidget {
   const ReceiptDetailsPage({super.key, required this.heroTag});
@@ -30,12 +31,12 @@ class ReceiptDetailsPage extends StatelessWidget {
 
             if (controller.error != null || controller.receipt == null) {
               return Scaffold(
-                appBar: AppBar(title: const Text('Receipt Details')),
+                appBar: AppBar(title: Text(context.l10n.receiptDetails)),
                 body: SafeArea(
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Text(controller.error ?? 'Receipt not found'),
+                      child: Text(controller.error ?? context.l10n.receiptNotFound),
                     ),
                   ),
                 ),
@@ -73,8 +74,8 @@ class ReceiptDetailsPage extends StatelessWidget {
                       ReceiptDetailsActionUtils.showDeleteDialog(context),
                   onShare: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Share is not available yet.'),
+                      SnackBar(
+                        content: Text(context.l10n.shareUnavailable),
                       ),
                     );
                   },

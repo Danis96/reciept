@@ -22,6 +22,33 @@ class AppSettingsDao extends DatabaseAccessor<AppDatabase>
     return setting?.value;
   }
 
+  Future<List<AppSetting>> getAllSettings() {
+    return select(appSettings).get();
+  }
+
+  Future<void> replaceAllSettings(Map<String, String> valuesByKey) async {
+    await transaction(() async {
+      await delete(appSettings).go();
+      if (valuesByKey.isEmpty) {
+        return;
+      }
+      await batch((Batch batch) {
+        batch.insertAll(
+          appSettings,
+          valuesByKey.entries
+              .map(
+                (MapEntry<String, String> entry) => AppSettingsCompanion.insert(
+                  key: entry.key,
+                  value: entry.value,
+                  updatedAt: Value(DateTime.now()),
+                ),
+              )
+              .toList(growable: false),
+        );
+      });
+    });
+  }
+
   Future<int> deleteSetting(String key) {
     return (delete(appSettings)..where((tbl) => tbl.key.equals(key))).go();
   }

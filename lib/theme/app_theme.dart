@@ -11,8 +11,10 @@ class AppTheme {
 
   static ThemeData get light {
     final ColorScheme colorScheme = const ColorScheme.light(
-      primary: AppColors.lightPrimary,
-      onPrimary: AppColors.lightOnPrimary,
+      primary: AppColors.brandPrimary,
+      onPrimary: AppColors.brandOnPrimary,
+      primaryContainer: AppColors.brandPrimaryContainerLight,
+      onPrimaryContainer: AppColors.brandOnPrimaryContainerLight,
       secondary: AppColors.lightSecondary,
       surface: AppColors.lightSurface,
       error: AppColors.danger,
@@ -22,6 +24,7 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.lightBackground,
+      // Text stays on the deep navy ink — orange is reserved for accents/CTAs.
       textTheme: AppTypography.textTheme(AppColors.lightPrimary),
       cardTheme: AppCardStyles.cardTheme(
         AppColors.lightSurface,
@@ -29,12 +32,41 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: AppButtonStyles.primary(
-          AppColors.lightPrimary,
-          AppColors.lightOnPrimary,
+          AppColors.brandPrimary,
+          AppColors.brandOnPrimary,
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: AppButtonStyles.primary(
+          AppColors.brandPrimary,
+          AppColors.brandOnPrimary,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.lightPrimary.withValues(alpha: 0.12),
+        indicatorColor: AppColors.brandPrimary.withValues(alpha: 0.16),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) =>
+              states.contains(WidgetState.selected) ? AppColors.brandPrimary : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) => states.contains(WidgetState.selected)
+              ? AppColors.brandPrimary.withValues(alpha: 0.40)
+              : null,
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.brandPrimary,
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: AppColors.brandPrimary,
+        thumbColor: AppColors.brandPrimary,
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: AppColors.brandPrimary,
+        selectionColor: AppColors.brandPrimary.withValues(alpha: 0.24),
+        selectionHandleColor: AppColors.brandPrimary,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -54,8 +86,10 @@ class AppTheme {
 
   static ThemeData get dark {
     final ColorScheme colorScheme = const ColorScheme.dark(
-      primary: AppColors.darkPrimary,
-      onPrimary: AppColors.darkOnPrimary,
+      primary: AppColors.brandPrimaryDark,
+      onPrimary: AppColors.brandOnPrimaryDark,
+      primaryContainer: AppColors.brandPrimaryContainerDark,
+      onPrimaryContainer: AppColors.brandOnPrimaryContainerDark,
       secondary: AppColors.darkSecondary,
       surface: AppColors.darkSurface,
       error: AppColors.danger,
@@ -72,12 +106,42 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: AppButtonStyles.primary(
-          AppColors.darkPrimary,
-          AppColors.darkOnPrimary,
+          AppColors.brandPrimaryDark,
+          AppColors.brandOnPrimaryDark,
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: AppButtonStyles.primary(
+          AppColors.brandPrimaryDark,
+          AppColors.brandOnPrimaryDark,
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: AppColors.darkPrimary.withValues(alpha: 0.2),
+        indicatorColor: AppColors.brandPrimaryDark.withValues(alpha: 0.22),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) => states.contains(WidgetState.selected)
+              ? AppColors.brandPrimaryDark
+              : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) => states.contains(WidgetState.selected)
+              ? AppColors.brandPrimaryDark.withValues(alpha: 0.40)
+              : null,
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.brandPrimaryDark,
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: AppColors.brandPrimaryDark,
+        thumbColor: AppColors.brandPrimaryDark,
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: AppColors.brandPrimaryDark,
+        selectionColor: AppColors.brandPrimaryDark.withValues(alpha: 0.24),
+        selectionHandleColor: AppColors.brandPrimaryDark,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,

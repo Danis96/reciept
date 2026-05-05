@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/models/category_budget_model.dart';
-import 'package:reciep/database/app_database.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/models/category_budget_model.dart';
+import 'package:refyn/database/app_database.dart';
 
 class CategoryBudgetRepository {
   CategoryBudgetRepository({required CategoryBudgetDao dao}) : _dao = dao;

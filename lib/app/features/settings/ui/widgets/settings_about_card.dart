@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_section_header.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_section_header.dart';
 
 import '../utils/settings_pallete.dart';
 
@@ -16,12 +17,15 @@ class SettingsAboutCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const SettingsSectionHeader(icon: Icons.info_outline, title: 'About'),
+          SettingsSectionHeader(
+            icon: Icons.info_outline,
+            title: context.l10n.about,
+          ),
           const SizedBox(height: 20),
           Row(
             children: <Widget>[
               Text(
-                'App Version',
+                context.l10n.appVersion,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: SettingsPagePalette.mutedText(context),
                 ),

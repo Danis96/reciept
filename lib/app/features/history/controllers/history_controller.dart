@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/features/history/controllers/history_receipt_list_entry.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/features/history/controllers/history_receipt_list_entry.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 import '../repository/history_repository.dart';
 

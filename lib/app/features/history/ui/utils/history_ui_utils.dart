@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/history/controllers/history_controller.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/history/controllers/history_controller.dart';
+import 'package:refyn/l10n/app_localizations.dart';
 
 class HistoryCategoryLabel {
   const HistoryCategoryLabel._();
@@ -8,29 +9,29 @@ class HistoryCategoryLabel {
   static String labelForChip(String key) {
     switch (key) {
       case 'all':
-        return 'All';
+        return AppLocalizations.current.all;
       case CategoryBudgetCatalog.groceries:
-        return 'Groceries';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.groceries);
       case CategoryBudgetCatalog.fuel:
-        return 'Fuel';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.fuel);
       case CategoryBudgetCatalog.household:
-        return 'Household';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.household);
       case CategoryBudgetCatalog.pets:
-        return 'Pets';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.pets);
       case CategoryBudgetCatalog.clothing:
-        return 'Clothing';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.clothing);
       case CategoryBudgetCatalog.pharmacy:
-        return 'Pharmacy';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.pharmacy);
       case CategoryBudgetCatalog.dental:
-        return 'Dental';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.dental);
       case CategoryBudgetCatalog.nightOut:
-        return 'Night Out';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.nightOut);
       case CategoryBudgetCatalog.cigarettes:
-        return 'Cigarettes';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.cigarettes);
       case CategoryBudgetCatalog.miscellaneous:
-        return 'Misc';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.miscellaneous);
       default:
-        return 'All';
+        return AppLocalizations.current.all;
     }
   }
 
@@ -38,27 +39,29 @@ class HistoryCategoryLabel {
     final String normalized = CategoryBudgetCatalog.normalize(category);
     switch (normalized) {
       case CategoryBudgetCatalog.groceries:
-        return 'Groceries';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.groceries);
       case CategoryBudgetCatalog.fuel:
-        return 'Fuel';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.fuel);
       case CategoryBudgetCatalog.household:
-        return 'Household';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.household);
       case CategoryBudgetCatalog.pets:
-        return 'Pets';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.pets);
       case CategoryBudgetCatalog.clothing:
-        return 'Clothing';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.clothing);
       case CategoryBudgetCatalog.pharmacy:
-        return 'Pharmacy';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.pharmacy);
       case CategoryBudgetCatalog.dental:
-        return 'Dental';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.dental);
       case CategoryBudgetCatalog.nightOut:
-        return 'Night Out';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.nightOut);
       case CategoryBudgetCatalog.cigarettes:
-        return 'Cigarettes';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.cigarettes);
       case CategoryBudgetCatalog.miscellaneous:
-        return 'Misc';
+        return AppLocalizations.current.categoryLabel(CategoryBudgetCatalog.miscellaneous);
       default:
-        return 'Misc';
+        return AppLocalizations.current.categoryLabel(
+          CategoryBudgetCatalog.miscellaneous,
+        );
     }
   }
 }
@@ -69,13 +72,13 @@ class HistorySortLabel {
   static String labelFor(HistorySortOption option) {
     switch (option) {
       case HistorySortOption.newest:
-        return 'Sort by Date';
+        return AppLocalizations.current.date;
       case HistorySortOption.oldest:
-        return 'Oldest First';
+        return AppLocalizations.current.oldestFirst;
       case HistorySortOption.highestAmount:
-        return 'Highest Amount';
+        return AppLocalizations.current.highestAmount;
       case HistorySortOption.lowestAmount:
-        return 'Lowest Amount';
+        return AppLocalizations.current.lowestAmount;
     }
   }
 }

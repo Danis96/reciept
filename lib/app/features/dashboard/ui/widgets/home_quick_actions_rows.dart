@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HomeQuickActionsRow extends StatelessWidget {
   const HomeQuickActionsRow({
@@ -29,7 +30,7 @@ class HomeQuickActionsRow extends StatelessWidget {
               ),
               onPressed: onScanReceipt,
               icon: const Icon(Icons.photo_camera_outlined, size: 18),
-              label: const Text('Scan Receipt'),
+              label: Text(context.l10n.scanReceiptButton),
             ),
           ),
         ),

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/history/controllers/history_receipt_list_entry.dart';
-import 'package:reciep/app/features/history/ui/utils/history_ui_utils.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_spacing.dart';
-import 'package:reciep/theme/category_palette.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/history/controllers/history_receipt_list_entry.dart';
+import 'package:refyn/app/features/history/ui/utils/history_ui_utils.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_spacing.dart';
+import 'package:refyn/theme/category_palette.dart';
 
 class HistoryReceiptsList extends StatelessWidget {
   const HistoryReceiptsList({
@@ -54,10 +55,10 @@ class HistoryReceiptListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final String merchantName = entry.merchantName.trim().isEmpty
-        ? 'Unknown merchant'
+        ? context.l10n.unknownMerchant
         : entry.merchantName.trim();
     final String itemName = entry.itemName.trim().isEmpty
-        ? 'Unnamed item'
+        ? context.l10n.unnamedItem
         : entry.itemName.trim();
     final String quantityLabel = entry.item.quantity % 1 == 0
         ? entry.item.quantity.toStringAsFixed(0)
@@ -138,7 +139,9 @@ class HistoryReceiptListCard extends StatelessWidget {
                     children: [
                       Wrap(
                         children: <Widget>[
-                          HistoryReceiptMetaChip(label: 'Qty: $quantityLabel'),
+                          HistoryReceiptMetaChip(
+                            label: context.l10n.qtyLabel(quantityLabel),
+                          ),
                           const SizedBox(width: 6),
                           HistoryReceiptMetaChip(
                             label:

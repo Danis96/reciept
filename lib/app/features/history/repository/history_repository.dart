@@ -1,12 +1,12 @@
-import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/models/category_budget_model.dart';
-import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/models/receipt/receipt_validator.dart';
-import 'package:reciep/database/app_database.dart';
+import 'package:refyn/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_repository.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/models/category_budget_model.dart';
+import 'package:refyn/app/models/receipt/receipt_db_mapper.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_validator.dart';
+import 'package:refyn/database/app_database.dart';
 
 class HistoryRepository {
   HistoryRepository({

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reciep/app/features/scan/repository/gemma_receipt_mapper.dart';
+import 'package:refyn/app/features/scan/repository/gemma_receipt_mapper.dart';
 
 void main() {
   test('maps strict Gemma payload to receipt model', () {

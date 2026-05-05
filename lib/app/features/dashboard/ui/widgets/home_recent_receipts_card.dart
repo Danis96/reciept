@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
-import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
-import 'package:reciep/app/features/dashboard/ui/widgets/home_card_empty_state.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/widgets/receipt_paper_card.dart';
-import 'package:reciep/routing/app_router.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
+import 'package:refyn/app/features/dashboard/repository/home_dashboard_model.dart';
+import 'package:refyn/app/features/dashboard/ui/widgets/home_card_empty_state.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/widgets/receipt_paper_card.dart';
+import 'package:refyn/routing/app_router.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HomeRecentReceiptsCard extends StatelessWidget {
   const HomeRecentReceiptsCard({
@@ -35,23 +36,27 @@ class HomeRecentReceiptsCard extends StatelessWidget {
           Row(
             children: <Widget>[
               Text(
-                'Recent Receipts',
+                context.l10n.recentReceipts,
                 style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const Spacer(),
               GestureDetector(
                 onTap: onViewAll,
-                child: Text('View All', style: theme.textTheme.titleSmall!.copyWith( color: theme.colorScheme.primary), ),
+                child: Text(
+                  context.l10n.viewAll,
+                  style: theme.textTheme.titleSmall!.copyWith(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
           if (data.recentReceipts.isEmpty)
-            const HomeCardEmptyState(
+            HomeCardEmptyState(
               imageCategory: 'groceries',
-              title: 'No receipts yet',
-              message:
-              'Scan first receipt or import one from gallery. Latest receipts will show here.',
+              title: context.l10n.noReceiptsYet,
+              message: context.l10n.scanRecentEmptyHint,
             ),
           if (data.recentReceipts.isNotEmpty)
             ReceiptPaperList(

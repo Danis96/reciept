@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/budgets/ui/widgets/category_budget_manager_sheet.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_category_details_model.dart';
-import 'package:reciep/app/features/dashboard/ui/widgets/category_budget_details_sheet.dart';
-import 'package:reciep/app/features/history/controllers/history_controller.dart';
-import 'package:reciep/app/features/scan/controllers/scan_controller.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/routing/app_router.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/budgets/ui/widgets/category_budget_manager_sheet.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_category_details_model.dart';
+import 'package:refyn/app/features/dashboard/ui/widgets/category_budget_details_sheet.dart';
+import 'package:refyn/app/features/history/controllers/history_controller.dart';
+import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/l10n/app_localizations.dart';
+import 'package:refyn/routing/app_router.dart';
 
 import '../../../../theme/category_palette.dart';
 import '../controllers/dashboard_controller.dart';
@@ -172,7 +173,9 @@ class BudgetCategoryLabel {
 
   static String shortLabel(String category) {
     final String label = CategoryBudgetCatalog.labelFor(category);
-    return label == 'Miscellaneous' ? 'Misc' : label;
+    return label == 'Miscellaneous'
+        ? AppLocalizations.current.categoryLabel('miscellaneous')
+        : label;
   }
 
   static String normalized(String value) {

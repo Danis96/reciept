@@ -1,11 +1,12 @@
 import 'package:flutter/widgets.dart';
-import 'package:reciep/app/features/scan/controllers/scan_view_state.dart';
-import 'package:reciep/app/features/scan/repository/scan_failure.dart';
-import 'package:reciep/app/features/scan/repository/scan_repository.dart';
-import 'package:reciep/app/models/receipt/merchant_model.dart';
-import 'package:reciep/app/models/receipt/payment_info_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/models/receipt/receipt_totals_model.dart';
+import 'package:refyn/l10n/app_localizations.dart';
+import 'package:refyn/app/features/scan/controllers/scan_view_state.dart';
+import 'package:refyn/app/features/scan/repository/scan_failure.dart';
+import 'package:refyn/app/features/scan/repository/scan_repository.dart';
+import 'package:refyn/app/models/receipt/merchant_model.dart';
+import 'package:refyn/app/models/receipt/payment_info_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_totals_model.dart';
 
 class ScanForegroundNotice {
   const ScanForegroundNotice({required this.message, required this.isError});
@@ -106,8 +107,8 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
       _setFailure(
         ScanFailure(
           type: ScanFailureType.imageUploadFailed,
-          title: 'Image upload failed',
-          message: 'Could not read selected image. Please try another image.',
+          title: AppLocalizations.current.scanImageUploadFailedTitle,
+          message: AppLocalizations.current.scanImageUploadFailedMessage,
           technicalDetails: error.toString(),
         ),
       );
@@ -136,10 +137,10 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
     final String? path = _selectedImagePath;
     if (path == null || path.trim().isEmpty) {
       _setFailure(
-        const ScanFailure(
+        ScanFailure(
           type: ScanFailureType.imageUploadFailed,
-          title: 'No image selected',
-          message: 'Select image first, then tap scan.',
+          title: AppLocalizations.current.scanNoImageSelectedTitle,
+          message: AppLocalizations.current.scanNoImageSelectedMessage,
         ),
       );
       notifyListeners();
@@ -167,8 +168,8 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
       _lastScannedReceipt = scanned;
       _state = ScanViewState.success;
       _queueForegroundNoticeIfBackgrounded(
-        const ScanForegroundNotice(
-          message: 'Receipt scan finished.',
+        ScanForegroundNotice(
+          message: AppLocalizations.current.scanFinishedNotice,
           isError: false,
         ),
       );
@@ -187,14 +188,14 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
       _setFailure(
         ScanFailure(
           type: ScanFailureType.parseFailure,
-          title: 'Unexpected scan failure',
-          message: 'Something went wrong during scan.',
+          title: AppLocalizations.current.scanUnexpectedFailureTitle,
+          message: AppLocalizations.current.scanUnexpectedFailureMessage,
           technicalDetails: error.toString(),
         ),
       );
       _queueForegroundNoticeIfBackgrounded(
-        const ScanForegroundNotice(
-          message: 'Receipt scan failed.',
+        ScanForegroundNotice(
+          message: AppLocalizations.current.scanFailedNotice,
           isError: true,
         ),
       );
@@ -224,8 +225,8 @@ class ScanController extends ChangeNotifier with WidgetsBindingObserver {
       _setFailure(
         ScanFailure(
           type: ScanFailureType.parseFailure,
-          title: 'Save failed',
-          message: 'Could not save receipt. Try again.',
+          title: AppLocalizations.current.scanSaveFailedTitle,
+          message: AppLocalizations.current.scanSaveFailedMessage,
           technicalDetails: error.toString(),
         ),
       );

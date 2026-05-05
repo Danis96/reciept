@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/history/ui/utils/history_ui_utils.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_spacing.dart';
-import 'package:reciep/theme/category_palette.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/history/ui/utils/history_ui_utils.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_spacing.dart';
+import 'package:refyn/theme/category_palette.dart';
 
 class HistoryEmptyState extends StatelessWidget {
   const HistoryEmptyState({super.key, required this.selectedCategory});
@@ -43,7 +44,7 @@ class HistoryEmptyState extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'No items found',
+                  context.l10n.noItemsFound,
                   style: theme.textTheme
                       .titleLarge
                       ?.copyWith(fontWeight: FontWeight.w600),
@@ -51,8 +52,10 @@ class HistoryEmptyState extends StatelessWidget {
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
                   selectedCategory == 'all'
-                      ? 'Try a different merchant, item, category, or date range. Saved receipt items will appear here.'
-                      : 'No ${HistoryCategoryLabel.labelForBadge(selectedCategory).toLowerCase()} items match the current search or date range.',
+                      ? context.l10n.noItemsFoundAll
+                      : context.l10n.noItemsFoundCategory(
+                          HistoryCategoryLabel.labelForBadge(selectedCategory),
+                        ),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.secondary,
                     fontWeight: FontWeight.w400,

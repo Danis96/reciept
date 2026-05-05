@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
 
 class ReceiptActionToolbar extends StatelessWidget {
   const ReceiptActionToolbar({
@@ -118,17 +119,21 @@ class ReceiptExportButton extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return PopupMenuButton<ReceiptExportFormat>(
-      tooltip: 'Export receipt',
+      tooltip: context.l10n.export,
       onSelected: onSelected,
       itemBuilder: (BuildContext context) =>
           <PopupMenuEntry<ReceiptExportFormat>>[
-            const PopupMenuItem<ReceiptExportFormat>(
+            PopupMenuItem<ReceiptExportFormat>(
               value: ReceiptExportFormat.csv,
-              child: Text('Export CSV'),
+              child: Text(context.l10n.exportCsv),
             ),
-            const PopupMenuItem<ReceiptExportFormat>(
+            PopupMenuItem<ReceiptExportFormat>(
               value: ReceiptExportFormat.json,
-              child: Text('Export JSON'),
+              child: Text('${context.l10n.export} JSON'),
+            ),
+            PopupMenuItem<ReceiptExportFormat>(
+              value: ReceiptExportFormat.pdf,
+              child: Text(context.l10n.exportPdf),
             ),
           ],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

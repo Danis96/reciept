@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:intl/intl.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
-enum ReceiptExportFormat { json, csv }
+import '../utils/receipt_pdf_builder.dart';
+
+enum ReceiptExportFormat { json, csv, pdf }
 
 class ReceiptExportService {
   const ReceiptExportService();
@@ -35,15 +37,22 @@ class ReceiptExportService {
     required ReceiptExportFormat format,
     required String scopeLabel,
   }) async {
-    final String content = switch (format) {
-      ReceiptExportFormat.json => _buildJson(receipts),
-      ReceiptExportFormat.csv => _buildCsv(receipts),
-    };
     final File file = await _createExportFile(
       format: format,
       scopeLabel: scopeLabel,
     );
-    await file.writeAsString(content);
+    switch (format) {
+      case ReceiptExportFormat.json:
+        await file.writeAsString(_buildJson(receipts));
+        break;
+      case ReceiptExportFormat.csv:
+        await file.writeAsString(_buildCsv(receipts));
+        break;
+      case ReceiptExportFormat.pdf:
+        final List<int> bytes = await ReceiptPdfBuilder.build(receipts);
+        await file.writeAsBytes(bytes, flush: true);
+        break;
+    }
     return file.path;
   }
 
@@ -88,7 +97,7 @@ class ReceiptExportService {
     required String scopeLabel,
   }) async {
     final Directory exportDirectory = Directory(
-      '${Directory.systemTemp.path}/reciep_exports',
+      '${Directory.systemTemp.path}/refyn_exports',
     );
     if (!await exportDirectory.exists()) {
       await exportDirectory.create(recursive: true);
@@ -100,6 +109,7 @@ class ReceiptExportService {
     final String extension = switch (format) {
       ReceiptExportFormat.json => 'json',
       ReceiptExportFormat.csv => 'csv',
+      ReceiptExportFormat.pdf => 'pdf',
     };
     final String scope = _sanitizeScope(scopeLabel);
     return File(

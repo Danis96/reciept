@@ -1,4 +1,4 @@
-import 'package:reciep/app/models/category_budget_model.dart';
+import 'package:refyn/app/models/category_budget_model.dart';
 
 class CategoryBudget {
   const CategoryBudget({

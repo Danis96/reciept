@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/ui/utils/budget_formatting.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_spacing.dart';
-import 'package:reciep/theme/category_palette.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/budgets/ui/utils/budget_formatting.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_spacing.dart';
+import 'package:refyn/theme/category_palette.dart';
 
 import '../utils/category_budget_sheet_pallete.dart';
 
@@ -35,8 +36,10 @@ class CategoryBudgetSheetRow extends StatelessWidget {
     final theme = Theme.of(context);
     final accent = CategoryPalette.primaryFor(category, context);
     final currentAmountLabel = currentAmount == null
-        ? 'No budget set'
-        : '${CategoryBudgetMoney.formatInt(currentAmount!)} KM active';
+        ? context.l10n.noBudgetSet
+        : context.l10n.activeBudgetAmountLabel(
+            CategoryBudgetMoney.formatInt(currentAmount!),
+          );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -157,7 +160,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
     return InputDecoration(
       prefixIcon: Icon(Icons.wallet_outlined, color: accent),
       suffixText: 'KM',
-      hintText: 'Enter monthly budget',
+      hintText: context.l10n.enterMonthlyBudget,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
         vertical: AppSpacing.sm,
@@ -193,7 +196,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.delete_outline_rounded, size: 18),
-            label: const Text('Clear'),
+            label: Text(context.l10n.clear),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
@@ -208,7 +211,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.check_rounded, size: 18),
-            label: const Text('Save'),
+            label: Text(context.l10n.save),
           ),
         ),
       ],

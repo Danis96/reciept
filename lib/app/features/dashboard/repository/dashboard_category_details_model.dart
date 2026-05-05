@@ -1,5 +1,5 @@
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_category_item_model.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_category_item_model.dart';
 
 class DashboardCategoryDetailsModel {
   const DashboardCategoryDetailsModel({

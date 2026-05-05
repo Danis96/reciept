@@ -20,4 +20,14 @@ class AppColors {
 
   static const Color success = Color(0xFF2EBD73);
   static const Color danger = Color(0xFFE0574E);
+
+  // Refyn brand accent — drives primary CTAs, focus rings, navigation indicator.
+  static const Color brandPrimary = Color(0xFFDE6834);
+  static const Color brandPrimaryDark = Color(0xFFFF8A57);
+  static const Color brandOnPrimary = Color(0xFFFFFFFF);
+  static const Color brandOnPrimaryDark = Color(0xFF1F0E05);
+  static const Color brandPrimaryContainerLight = Color(0xFFFFE3D2);
+  static const Color brandOnPrimaryContainerLight = Color(0xFF3A1A07);
+  static const Color brandPrimaryContainerDark = Color(0xFF4A210C);
+  static const Color brandOnPrimaryContainerDark = Color(0xFFFFD9C2);
 }

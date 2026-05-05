@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_dropdown_surface.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_section_header.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_dropdown_surface.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_section_header.dart';
 
 class SettingsThemeCard extends StatelessWidget {
   const SettingsThemeCard({
@@ -19,9 +20,9 @@ class SettingsThemeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const SettingsSectionHeader(
+          SettingsSectionHeader(
             icon: Icons.palette_outlined,
-            title: 'Theme',
+            title: context.l10n.theme,
           ),
           const SizedBox(height: 16),
           SettingsDropdownSurface(
@@ -38,13 +39,19 @@ class SettingsThemeCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
                 borderRadius: BorderRadius.circular(10),
-                items: const <DropdownMenuItem<ThemeMode>>[
+                items: <DropdownMenuItem<ThemeMode>>[
                   DropdownMenuItem<ThemeMode>(
-                      value: ThemeMode.light, child: Text('Light')),
+                    value: ThemeMode.light,
+                    child: Text(context.l10n.lightTheme),
+                  ),
                   DropdownMenuItem<ThemeMode>(
-                      value: ThemeMode.dark, child: Text('Dark')),
+                    value: ThemeMode.dark,
+                    child: Text(context.l10n.darkTheme),
+                  ),
                   DropdownMenuItem<ThemeMode>(
-                      value: ThemeMode.system, child: Text('System')),
+                    value: ThemeMode.system,
+                    child: Text(context.l10n.systemTheme),
+                  ),
                 ],
                 onChanged: (ThemeMode? value) {
                   if (value != null) {

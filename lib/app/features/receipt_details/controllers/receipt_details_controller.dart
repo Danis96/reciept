@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
-import 'package:reciep/app/models/receipt/merchant_model.dart';
-import 'package:reciep/app/models/receipt/payment_info_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
+import 'package:refyn/app/models/receipt/merchant_model.dart';
+import 'package:refyn/app/models/receipt/payment_info_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 import '../repository/receipt_details_repository.dart';
 

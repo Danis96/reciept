@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/models/domain/receipt.dart';
-import 'package:reciep/app/models/domain/receipt_item.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/models/receipt/receipt_parsing_utils.dart';
-import 'package:reciep/app/models/receipt/receipt_validator.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/models/domain/receipt.dart';
+import 'package:refyn/app/models/domain/receipt_item.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_parsing_utils.dart';
+import 'package:refyn/app/models/receipt/receipt_validator.dart';
 
 class ReceiptAiParserResult {
   const ReceiptAiParserResult({

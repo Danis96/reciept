@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
-import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_category_details_model.dart';
-import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_repository.dart';
+import 'package:refyn/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_category_details_model.dart';
+import 'package:refyn/app/features/dashboard/repository/home_dashboard_model.dart';
 
 import '../repository/dashboard_repository.dart';
 
