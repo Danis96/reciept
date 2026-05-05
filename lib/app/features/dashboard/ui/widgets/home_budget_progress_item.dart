@@ -24,9 +24,11 @@ class HomeBudgetProgressItem extends StatelessWidget {
     final String remainingText = item.remainingAmount >= 0
         ? context.l10n.remainingAmountLabel(
             DashboardMoney.formatInt(item.remainingAmount),
+            item.currency,
           )
         : context.l10n.overBudgetLabel(
             DashboardMoney.formatInt(item.remainingAmount.abs()),
+            item.currency,
           );
     final theme = Theme.of(context);
 
@@ -93,6 +95,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
                   Text(
                     context.l10n.spentAmountLabel(
                       DashboardMoney.formatInt(item.spentAmount),
+                      item.currency,
                     ),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.secondary,
@@ -101,7 +104,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    '${DashboardMoney.formatInt(item.budgetAmount)} KM ${context.l10n.budget.toLowerCase()}',
+                    '${DashboardMoney.formatInt(item.budgetAmount)} ${item.currency} ${context.l10n.budget.toLowerCase()}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.secondary,
                       fontWeight: FontWeight.w600,
@@ -124,7 +127,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xxs),
                   child: Text(
-                    '${context.l10n.budget} ${context.l10n.overBudgetLabel(DashboardMoney.formatInt(item.remainingAmount.abs()))}',
+                    '${context.l10n.budget} ${context.l10n.overBudgetLabel(DashboardMoney.formatInt(item.remainingAmount.abs()), item.currency)}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: HomeThemePalette.danger(context),
                       fontWeight: FontWeight.w700,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
 
@@ -150,10 +151,7 @@ class ReceiptExportButton extends StatelessWidget {
         child: exporting
             ? Padding(
                 padding: const EdgeInsets.all(9),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                child: WigglyLoader.indeterminate(size: 18, strokeWidth: 2),
               )
             : Icon(
                 Icons.file_download_outlined,

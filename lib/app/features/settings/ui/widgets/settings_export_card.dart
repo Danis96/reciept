@@ -5,7 +5,7 @@ import 'package:refyn/app/features/settings/ui/widgets/shared/settings_card_fram
 import 'package:refyn/app/features/settings/ui/widgets/shared/settings_section_header.dart';
 import 'package:refyn/app/features/settings/ui/utils/settings_pallete.dart';
 
-class SettingsExportCard extends StatelessWidget {
+class SettingsExportCard extends StatefulWidget {
   const SettingsExportCard({
     super.key,
     required this.exporting,
@@ -32,64 +32,114 @@ class SettingsExportCard extends StatelessWidget {
   final VoidCallback onClearDataPressed;
 
   @override
+  State<SettingsExportCard> createState() => _SettingsExportCardState();
+}
+
+class _SettingsExportCardState extends State<SettingsExportCard> {
+  bool _isExpanded = true;
+
+  @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
     return SettingsCardFrame(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SettingsSectionHeader(
-            icon: Icons.download_for_offline_outlined,
-            title: context.l10n.export,
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: SettingsSectionHeader(
+                      icon: Icons.download_for_offline_outlined,
+                      title: context.l10n.export,
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: _isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 260),
+                    curve: Curves.easeInOutCubic,
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 6),
           Text(
             context.l10n.settingsExportDescription,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 12),
-          _SettingsExportSegment(
-            exporting: receiptExporting,
-            onExportCsvPressed: onExportCsvPressed,
-            onExportPdfPressed: onExportPdfPressed,
-            onEmailReceiptsPressed: onEmailReceiptsPressed,
-          ),
-          const SizedBox(height: 18),
-          Text(
-            context.l10n.localDeviceData,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.l10n.localDeviceDataDescription,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SettingsActionRowButton(
-            title: exporting
-                ? context.l10n.preparingBackup
-                : context.l10n.exportBackup,
-            onTap: exporting ? null : onExportBackupPressed,
-          ),
-          const SizedBox(height: 10),
-          SettingsActionRowButton(
-            title: importing
-                ? context.l10n.importingBackup
-                : context.l10n.importBackup,
-            onTap: importing ? null : onImportBackupPressed,
-          ),
-          const SizedBox(height: 10),
-          SettingsActionRowButton(
-            title: clearing
-                ? context.l10n.clearingData
-                : context.l10n.clearLocalData,
-            highlighted: true,
-            onTap: clearing ? null : onClearDataPressed,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeInOutCubic,
+            alignment: Alignment.topCenter,
+            child: _isExpanded
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const SizedBox(height: 12),
+                      _SettingsExportSegment(
+                        exporting: widget.receiptExporting,
+                        onExportCsvPressed: widget.onExportCsvPressed,
+                        onExportPdfPressed: widget.onExportPdfPressed,
+                        onEmailReceiptsPressed: widget.onEmailReceiptsPressed,
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        context.l10n.localDeviceData,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        context.l10n.localDeviceDataDescription,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SettingsActionRowButton(
+                        title: widget.exporting
+                            ? context.l10n.preparingBackup
+                            : context.l10n.exportBackup,
+                        onTap: widget.exporting
+                            ? null
+                            : widget.onExportBackupPressed,
+                      ),
+                      const SizedBox(height: 10),
+                      SettingsActionRowButton(
+                        title: widget.importing
+                            ? context.l10n.importingBackup
+                            : context.l10n.importBackup,
+                        onTap: widget.importing
+                            ? null
+                            : widget.onImportBackupPressed,
+                      ),
+                      const SizedBox(height: 10),
+                      SettingsActionRowButton(
+                        title: widget.clearing
+                            ? context.l10n.clearingData
+                            : context.l10n.clearLocalData,
+                        highlighted: true,
+                        onTap: widget.clearing
+                            ? null
+                            : widget.onClearDataPressed,
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
           ),
         ],
       ),

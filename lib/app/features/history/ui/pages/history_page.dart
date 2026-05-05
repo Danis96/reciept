@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:provider/provider.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/history/action_utils/history_action_utils.dart';
@@ -71,7 +72,7 @@ class HistoryPage extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       if (controller.isLoading)
-                        const Center(child: CircularProgressIndicator())
+                        const Center(child: WigglyLoader.indeterminate())
                       else if (controller.historyEntries.isEmpty)
                         HistoryEmptyState(
                           selectedCategory: controller.selectedCategory,

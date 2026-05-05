@@ -14,11 +14,22 @@ class DashboardRepository {
   DashboardRepository({
     required ReceiptDao receiptDao,
     required CategoryBudgetRepository categoryBudgetRepository,
+    required AppSettingsDao settingsDao,
   }) : _receiptDao = receiptDao,
-       _categoryBudgetRepository = categoryBudgetRepository;
+       _categoryBudgetRepository = categoryBudgetRepository,
+       _settingsDao = settingsDao;
 
   final ReceiptDao _receiptDao;
   final CategoryBudgetRepository _categoryBudgetRepository;
+  final AppSettingsDao _settingsDao;
+
+  static const String _currencyCodeKey = 'currency_code';
+  static const String _defaultCurrency = 'BAM';
+
+  Future<String> _getDefaultCurrency() async {
+    final String? value = await _settingsDao.getSetting(_currencyCodeKey);
+    return (value != null && value.trim().isNotEmpty) ? value : _defaultCurrency;
+  }
 
   Future<HomeDashboardModel> loadHomeDashboard() async {
     final DateTime now = DateTime.now();
@@ -60,12 +71,16 @@ class DashboardRepository {
 
     final String topCategoryLabel = _resolveTopCategory(progress);
 
+    final String defaultCurrency = await _getDefaultCurrency();
+    final String currency = budgets.isNotEmpty ? budgets.first.currency : defaultCurrency;
+
     return HomeDashboardModel(
       totalReceipts: totalReceipts,
       thisMonthReceipts: thisMonthReceipts,
       thisMonthSpending: thisMonthSpending,
       totalBudget: totalBudget,
       remainingBudget: remainingBudget,
+      currency: currency,
       topCategoryLabel: topCategoryLabel,
       budgetProgress: progress,
       recentReceipts: recentReceipts,
@@ -80,6 +95,7 @@ class DashboardRepository {
     final DateTime monthEnd = DateTime(now.year, now.month + 1);
     final String normalizedCategory = CategoryBudgetCatalog.normalize(category);
 
+    final String defaultCurrency = await _getDefaultCurrency();
     final CategoryBudgetModel? budget = await _categoryBudgetRepository
         .getBudgetByCategory(normalizedCategory);
     final DashboardBudgetProgressModel progress = _toBudgetProgress(
@@ -88,7 +104,7 @@ class DashboardRepository {
             category: normalizedCategory,
             budgetAmount: 0,
             spentAmount: 0,
-            currency: 'KM',
+            currency: defaultCurrency,
             period: 'monthly',
             updatedAt: now,
           ),
@@ -112,6 +128,7 @@ class DashboardRepository {
                     (ReceiptItem item) => DashboardCategoryItemModel(
                       name: item.name,
                       merchantName: row.receipt.merchantName,
+                      currency: row.receipt.currency,
                       purchasedAt: row.receipt.createdAt,
                       amount: item.finalPrice,
                       quantity: item.quantity,
@@ -124,6 +141,7 @@ class DashboardRepository {
     return DashboardCategoryDetailsModel(
       category: progress.category,
       label: progress.label,
+      currency: progress.currency,
       budgetAmount: progress.budgetAmount,
       spentAmount: progress.spentAmount,
       remainingAmount: progress.remainingAmount,
@@ -151,6 +169,7 @@ class DashboardRepository {
     return DashboardBudgetProgressModel(
       category: budget.category,
       label: CategoryBudgetCatalog.labelFor(budget.category),
+      currency: budget.currency,
       budgetAmount: budgetAmount,
       spentAmount: spentAmount,
       remainingAmount: remaining,

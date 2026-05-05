@@ -6,6 +6,7 @@ import 'package:refyn/app/features/settings/controllers/settings_controller.dart
 import 'package:refyn/app/features/settings/ui/widgets/settings_about_card.dart';
 import 'package:refyn/app/features/settings/ui/widgets/settings_ai_config_card.dart';
 import 'package:refyn/app/features/settings/ui/widgets/settings_export_card.dart';
+import 'package:refyn/app/features/settings/ui/widgets/settings_currency_card.dart';
 import 'package:refyn/app/features/settings/ui/widgets/settings_language_card.dart';
 import 'package:refyn/app/features/settings/ui/widgets/settings_legal_card.dart';
 import 'package:refyn/app/features/settings/ui/widgets/settings_theme_card.dart';
@@ -43,6 +44,12 @@ class SettingsPage extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 14),
+                SettingsCurrencyCard(
+                  selectedCode: controller.currencyCode,
+                  onChanged: (String code) =>
+                      SettingsActionUtils.onCurrencyChanged(context, code),
+                ),
+                const SizedBox(height: 14),
                 const SettingsAiConfigCard(),
                 const SizedBox(height: 14),
                 SettingsExportCard(
@@ -70,9 +77,7 @@ class SettingsPage extends StatelessWidget {
                 const SizedBox(height: 14),
                 SettingsLegalCard(
                   onPrivacyPolicyTap: () =>
-                      SettingsActionUtils.showPrivacyPolicy(context),
-                  onTermsOfServiceTap: () =>
-                      SettingsActionUtils.showTermsOfService(context),
+                      SettingsActionUtils.showPrivacyPolicy(context)
                 ),
                 const SizedBox(height: 14),
                 const SettingsAboutCard(appVersion: _appVersion),

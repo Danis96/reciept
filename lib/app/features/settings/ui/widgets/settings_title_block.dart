@@ -20,14 +20,6 @@ class SettingsTitleBlock extends StatelessWidget {
             height: 1.15,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          context.l10n.settingsPlaceholder,
-          style: textTheme.titleMedium?.copyWith(
-            fontSize: 16,
-            color: SettingsPagePalette.mutedText(context),
-          ),
-        ),
       ],
     );
   }

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze *)",
+      "Bash(xargs perl *)",
+      "Bash(git mv *)",
+      "Bash(perl -pi -e 's/com\\\\.example\\\\.reciep/com.refyn.app/g' /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/android/app/src/main/kotlin/com/refyn/app/MainActivity.kt)",
+      "Bash(perl -pi -e 's/com\\\\.example\\\\.reciep/com.refyn.app/g' /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/ios/Runner.xcodeproj/project.pbxproj)",
+      "Bash(perl -pi -e 's/reciep_exports/refyn_exports/g; s/reciep_backup_/refyn_backup_/g; s/reciep-backup-/refyn-backup-/g' /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/lib/app/features/settings/application/local_backup_service.dart /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/lib/app/features/export/repository/receipt_export_service.dart)",
+      "Bash(flutter pub *)",
+      "Bash(dart run *)",
+      "Bash(curl -s https://pub.dev/packages/wiggly_loaders)",
+      "WebFetch(domain:pub.dev)"
+    ]
+  }
+}

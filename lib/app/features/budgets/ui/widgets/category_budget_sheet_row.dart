@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/budgets/ui/utils/budget_formatting.dart';
+import 'package:refyn/app/features/settings/controllers/settings_controller.dart';
 import 'package:refyn/app/widgets/category_asset_image.dart';
 import 'package:refyn/theme/app_spacing.dart';
 import 'package:refyn/theme/category_palette.dart';
@@ -19,6 +22,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
     required this.currentAmount,
     required this.onSave,
     required this.onDelete,
+    this.currency = 'BAM',
   });
 
   final String category;
@@ -30,15 +34,18 @@ class CategoryBudgetSheetRow extends StatelessWidget {
   final double? currentAmount;
   final VoidCallback onSave;
   final VoidCallback onDelete;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final accent = CategoryPalette.primaryFor(category, context);
+    final String currencyCode = context.read<SettingsController>().currencyCode;
     final currentAmountLabel = currentAmount == null
         ? context.l10n.noBudgetSet
         : context.l10n.activeBudgetAmountLabel(
             CategoryBudgetMoney.formatInt(currentAmount!),
+            currencyCode,
           );
 
     return Container(
@@ -46,10 +53,12 @@ class CategoryBudgetSheetRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: CategoryBudgetSheetPalette.cardBorder(context)),
+        border: Border.all(
+          color: CategoryBudgetSheetPalette.cardBorder(context),
+        ),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.onSurface.withValues(alpha:0.04),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 8),
           ),
@@ -77,8 +86,9 @@ class CategoryBudgetSheetRow extends StatelessWidget {
                   children: [
                     Text(
                       CategoryBudgetLabel.shortLabel(category),
-                      style: theme.textTheme.titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w800),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -109,7 +119,9 @@ class CategoryBudgetSheetRow extends StatelessWidget {
               controller: controller,
               focusNode: focusNode,
               enabled: !busy,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: _buildInputDecoration(context, accent),
             ),
           ),
@@ -126,7 +138,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
         key: const ValueKey('busy'),
         width: 18,
         height: 18,
-        child: CircularProgressIndicator(strokeWidth: 2.2, color: accent),
+        child: WigglyLoader.indeterminate(size: 18, strokeWidth: 2.2),
       );
     }
     if (showSuccess) {
@@ -139,7 +151,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: accent.withValues(alpha:0.28),
+              color: accent.withValues(alpha: 0.28),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -148,18 +160,14 @@ class CategoryBudgetSheetRow extends StatelessWidget {
         child: const Icon(Icons.check_rounded, size: 14, color: Colors.white),
       );
     }
-    return const SizedBox(
-      key: ValueKey('idle'),
-      width: 22,
-      height: 22,
-    );
+    return const SizedBox(key: ValueKey('idle'), width: 22, height: 22);
   }
 
   InputDecoration _buildInputDecoration(BuildContext context, Color accent) {
     final borderColor = CategoryBudgetSheetPalette.cardBorder(context);
     return InputDecoration(
       prefixIcon: Icon(Icons.wallet_outlined, color: accent),
-      suffixText: 'KM',
+      suffixText: currency,
       hintText: context.l10n.enterMonthlyBudget,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
@@ -189,7 +197,9 @@ class CategoryBudgetSheetRow extends StatelessWidget {
             style: OutlinedButton.styleFrom(
               foregroundColor: CategoryBudgetSheetPalette.danger(context),
               side: BorderSide(
-                color: CategoryBudgetSheetPalette.danger(context).withValues(alpha:0.28),
+                color: CategoryBudgetSheetPalette.danger(
+                  context,
+                ).withValues(alpha: 0.28),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),

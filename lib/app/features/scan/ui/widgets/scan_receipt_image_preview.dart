@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 
 class ScanReceiptImagePreview extends StatelessWidget {
   const ScanReceiptImagePreview({
@@ -39,7 +40,7 @@ class ScanReceiptImagePreview extends StatelessWidget {
               children: <Widget>[
                 Container(color: const Color(0xFFDDDEE5)),
                 const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2.2),
+                  child: WigglyLoader.indeterminate(size: 32, strokeWidth: 2.2),
                 ),
               ],
             );

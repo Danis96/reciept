@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
+import 'package:refyn/theme/app_colors.dart';
 
 class SettingsLegalCard extends StatelessWidget {
   const SettingsLegalCard({
     super.key,
     required this.onPrivacyPolicyTap,
-    required this.onTermsOfServiceTap,
   });
 
   final VoidCallback onPrivacyPolicyTap;
-  final VoidCallback onTermsOfServiceTap;
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +20,6 @@ class SettingsLegalCard extends StatelessWidget {
             icon: Icons.verified_user_outlined,
             label: context.l10n.privacyPolicy,
             onTap: onPrivacyPolicyTap,
-          ),
-          const SizedBox(height: 14),
-          _SettingsLegalRow(
-            icon: Icons.description_outlined,
-            label: context.l10n.termsOfService,
-            onTap: onTermsOfServiceTap,
           ),
         ],
       ),
@@ -52,7 +45,7 @@ class _SettingsLegalRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: Row(
         children: <Widget>[
-          Icon(icon, size: 20),
+          Icon(icon, size: 20, color: AppColors.brandPrimary),
           const SizedBox(width: 12),
           Text(
             label,

@@ -555,20 +555,20 @@ class AppLocalizations {
     bs: 'Budzet',
     da: 'Budget',
   );
-  String spentAmountLabel(String amount) => _byLanguage(
-    en: '$amount KM spent',
-    bs: 'Potroseno $amount KM',
-    da: '$amount KM brugt',
+  String spentAmountLabel(String amount, [String currency = '']) => _byLanguage(
+    en: '$amount${currency.isNotEmpty ? ' $currency' : ''} spent',
+    bs: 'Potroseno $amount${currency.isNotEmpty ? ' $currency' : ''}',
+    da: '$amount${currency.isNotEmpty ? ' $currency' : ''} brugt',
   );
-  String remainingAmountLabel(String amount) => _byLanguage(
-    en: '$amount KM left',
-    bs: 'Preostalo $amount KM',
-    da: '$amount KM tilbage',
+  String remainingAmountLabel(String amount, [String currency = '']) => _byLanguage(
+    en: '$amount${currency.isNotEmpty ? ' $currency' : ''} left',
+    bs: 'Preostalo $amount${currency.isNotEmpty ? ' $currency' : ''}',
+    da: '$amount${currency.isNotEmpty ? ' $currency' : ''} tilbage',
   );
-  String overBudgetLabel(String amount) => _byLanguage(
-    en: '$amount KM over',
-    bs: '$amount KM preko',
-    da: '$amount KM over',
+  String overBudgetLabel(String amount, [String currency = '']) => _byLanguage(
+    en: '$amount${currency.isNotEmpty ? ' $currency' : ''} over',
+    bs: '$amount${currency.isNotEmpty ? ' $currency' : ''} preko',
+    da: '$amount${currency.isNotEmpty ? ' $currency' : ''} over',
   );
   String get itemsInThisCategory => _byLanguage(
     en: 'Items in this category',
@@ -596,10 +596,10 @@ class AppLocalizations {
     bs: '$percent% potroseno',
     da: '$percent% brugt',
   );
-  String remainingBudgetLabel(String amount) => _byLanguage(
-    en: '$amount KM left',
-    bs: 'Preostalo $amount KM',
-    da: '$amount KM tilbage',
+  String remainingBudgetLabel(String amount, [String currency = '']) => _byLanguage(
+    en: '$amount${currency.isNotEmpty ? ' $currency' : ''} left',
+    bs: 'Preostalo $amount${currency.isNotEmpty ? ' $currency' : ''}',
+    da: '$amount${currency.isNotEmpty ? ' $currency' : ''} tilbage',
   );
   String get retryHome => _byLanguage(
     en: 'Retry',
@@ -626,10 +626,10 @@ class AppLocalizations {
     bs: 'Budzet nije postavljen',
     da: 'Intet budget sat',
   );
-  String activeBudgetAmountLabel(String amount) => _byLanguage(
-    en: '$amount KM active',
-    bs: '$amount KM aktivno',
-    da: '$amount KM aktivt',
+  String activeBudgetAmountLabel(String amount, [String currency = '']) => _byLanguage(
+    en: '$amount${currency.isNotEmpty ? ' $currency' : ''} active',
+    bs: '$amount${currency.isNotEmpty ? ' $currency' : ''} aktivno',
+    da: '$amount${currency.isNotEmpty ? ' $currency' : ''} aktivt',
   );
   String get enterMonthlyBudget => _byLanguage(
     en: 'Enter monthly budget',
@@ -701,7 +701,7 @@ class AppLocalizations {
   String get bringYourOwnKeyBody => _byLanguage(en: 'Receipt sends image data directly to Google AI using your API key. No middleman.', bs: 'Aplikacija salje podatke slike direktno Google AI koristeci tvoj API kljuc. Bez posrednika.', da: 'Appen sender billeddata direkte til Google AI med din API-nogle. Ingen mellemmand.');
   String get staysOnDevice => _byLanguage(en: 'Stays on device', bs: 'Ostaje na uredjaju', da: 'Bliver pa enheden');
   String get staysOnDeviceBody => _byLanguage(en: 'Your key is stored locally only. It never leaves the app except in requests to Google AI.', bs: 'Tvoj kljuc se cuva samo lokalno. Ne napusta aplikaciju osim u zahtjevima prema Google AI.', da: 'Din nogel gemmes kun lokalt. Den forlader kun appen i anmodninger til Google AI.');
-  String get quotaIsYours => _byLanguage(en: 'Quota is yours', bs: 'Kvota je tvoja', da: 'Kvoten er din');
+  String get quotaIsYours => _byLanguage(en: '15,000 free requests per day', bs: '15,000 zahtjeva dnevno.', da: 'Kvoten er din');
   String get quotaIsYoursBody => _byLanguage(en: 'Receipt scan calls count against your own Google AI quota and billing.', bs: 'Pozivi za skeniranje racuna trose tvoju Google AI kvotu i naplatu.', da: 'Kvitteringsscanninger taeller mod din egen Google AI-kvote og fakturering.');
   String get pickGemmaModel => _byLanguage(en: 'Pick a Gemma model', bs: 'Izaberi Gemma model', da: 'Vaelg en Gemma-model');
   String get pickGemmaModelBody => _byLanguage(en: 'After confirming a key, Receipt loads compatible Gemma models you can pick from.', bs: 'Nakon potvrde kljuca aplikacija ucitava kompatibilne Gemma modele koje mozes izabrati.', da: 'Efter bekraeftelse af en nogel indlaeser appen kompatible Gemma-modeller, du kan vaelge imellem.');
@@ -767,6 +767,27 @@ class AppLocalizations {
   String get invalidJsonResponseMessage => _byLanguage(en: 'AI returned broken JSON. Please retry scan.', bs: 'AI je vratio neispravan JSON. Pokusaj ponovo skenirati.', da: 'AI returnerede ugyldig JSON. Prov at scanne igen.');
   String get aiResponseFailedTitle => _byLanguage(en: 'AI response failed', bs: 'AI odgovor nije uspio', da: 'AI-svar mislykkedes');
   String get aiResponseFailedMessage => _byLanguage(en: 'Could not get valid AI response for this image.', bs: 'Nije moguce dobiti ispravan AI odgovor za ovu sliku.', da: 'Kunne ikke hente et gyldigt AI-svar for dette billede.');
+
+  String get currency => _byLanguage(
+    en: 'Currency',
+    bs: 'Valuta',
+    da: 'Valuta',
+  );
+  String get currencyDescription => _byLanguage(
+    en: 'Set the default currency for budgets and spending summaries.',
+    bs: 'Postavi zadanu valutu za budzete i preglede potrosnje.',
+    da: 'Indstil standardvalutaen for budgetter og forbrugsoversigter.',
+  );
+  String get currencyCustomHint => _byLanguage(
+    en: 'Or type a custom currency code',
+    bs: 'Ili unesi prilagodeni kod valute',
+    da: 'Eller skriv en brugerdefineret valutakode',
+  );
+  String currencySavedLabel(String code) => _byLanguage(
+    en: 'Currency set to $code.',
+    bs: 'Valuta postavljena na $code.',
+    da: 'Valuta sat til $code.',
+  );
 
   String categoryLabel(String category) {
     switch (category.trim().toLowerCase()) {

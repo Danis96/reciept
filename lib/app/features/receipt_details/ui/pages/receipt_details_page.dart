@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:provider/provider.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/receipt_details/action_utils/receipt_details_action_utils.dart';
@@ -22,9 +23,11 @@ class ReceiptDetailsPage extends StatelessWidget {
             Widget? child,
           ) {
             if (controller.isLoading && controller.receipt == null) {
-              return const Scaffold(
+              return Scaffold(
                 body: SafeArea(
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(
+                    child: WigglyLoader.indeterminate(willAnimate: true),
+                  ),
                 ),
               );
             }
@@ -36,7 +39,9 @@ class ReceiptDetailsPage extends StatelessWidget {
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Text(controller.error ?? context.l10n.receiptNotFound),
+                      child: Text(
+                        controller.error ?? context.l10n.receiptNotFound,
+                      ),
                     ),
                   ),
                 ),
@@ -74,9 +79,7 @@ class ReceiptDetailsPage extends StatelessWidget {
                       ReceiptDetailsActionUtils.showDeleteDialog(context),
                   onShare: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(context.l10n.shareUnavailable),
-                      ),
+                      SnackBar(content: Text(context.l10n.shareUnavailable)),
                     );
                   },
                   onExportSelected: (format) =>

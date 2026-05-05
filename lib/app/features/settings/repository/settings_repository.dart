@@ -4,6 +4,7 @@ import 'package:refyn/app/features/budgets/repository/category_budget_repository
 import 'package:refyn/app/features/budgets/repository/monthly_budget_sync_repository.dart';
 import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
 import 'package:refyn/app/features/settings/application/local_backup_service.dart';
+import 'package:refyn/app/shared/utils/app_currency_utils.dart';
 import 'package:refyn/app/models/category_budget_model.dart';
 import 'package:refyn/app/models/receipt/receipt_db_mapper.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
@@ -33,6 +34,8 @@ class SettingsRepository {
 
   static const String _themeModeKey = 'theme_mode';
   static const String _languageCodeKey = 'language_code';
+  static const String _currencyCodeKey = 'currency_code';
+  static const String defaultCurrency = AppCurrencyUtils.defaultCode;
 
   Future<ThemeMode> getThemeMode() async {
     final String? value = await _settingsDao.getSetting(_themeModeKey);
@@ -86,10 +89,25 @@ class SettingsRepository {
     );
   }
 
+  Future<String> getCurrency() async {
+    final String? value = await _settingsDao.getSetting(_currencyCodeKey);
+    return AppCurrencyUtils.normalizeCode(value);
+  }
+
+  Future<void> setCurrency(String code) async {
+    final String normalized = AppCurrencyUtils.normalizeCode(code);
+    await _settingsDao.upsertSetting(
+      key: _currencyCodeKey,
+      value: normalized,
+    );
+    await _categoryBudgetRepository.updateAllCurrencies(normalized);
+  }
+
   Future<List<CategoryBudgetModel>> getCategoryBudgets() async {
     await _monthlyBudgetSyncRepository.syncCurrentMonth();
     final List<CategoryBudgetModel> budgets = await _categoryBudgetRepository
         .getBudgets();
+    final String currency = await getCurrency();
 
     final Map<String, CategoryBudgetModel> byCategory =
         <String, CategoryBudgetModel>{
@@ -103,7 +121,7 @@ class SettingsRepository {
             category: category,
             budgetAmount: 0,
             spentAmount: 0,
-            currency: 'BAM',
+            currency: currency,
             period: 'monthly',
             updatedAt: DateTime.now(),
           );

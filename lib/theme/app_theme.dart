@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wiggly_loaders/wiggly_loaders.dart';
 
 import 'app_button_styles.dart';
 import 'app_card_styles.dart';
@@ -8,6 +9,16 @@ import 'app_typography.dart';
 
 class AppTheme {
   const AppTheme._();
+
+  static const WigglyLoadersThemeData _wigglyLoadersTheme =
+      WigglyLoadersThemeData(
+        loaderProgressColor: AppColors.brandPrimary,
+        loaderTrackColor: Colors.transparent,
+        refreshProgressColor: AppColors.brandPrimary,
+        refreshTrackColor: Colors.transparent,
+        refreshBackgroundColor: Colors.transparent,
+        trackColor: Colors.transparent,
+      );
 
   static ThemeData get light {
     final ColorScheme colorScheme = const ColorScheme.light(
@@ -47,8 +58,9 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith<Color?>(
-          (Set<WidgetState> states) =>
-              states.contains(WidgetState.selected) ? AppColors.brandPrimary : null,
+          (Set<WidgetState> states) => states.contains(WidgetState.selected)
+              ? AppColors.brandPrimary
+              : null,
         ),
         trackColor: WidgetStateProperty.resolveWith<Color?>(
           (Set<WidgetState> states) => states.contains(WidgetState.selected)
@@ -81,6 +93,7 @@ class AppTheme {
           systemNavigationBarDividerColor: Colors.transparent,
         ),
       ),
+      extensions: const <ThemeExtension<dynamic>>[_wigglyLoadersTheme],
     );
   }
 
@@ -156,6 +169,7 @@ class AppTheme {
           systemNavigationBarDividerColor: Colors.transparent,
         ),
       ),
+      extensions: const <ThemeExtension<dynamic>>[_wigglyLoadersTheme],
     );
   }
 }

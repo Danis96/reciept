@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:refyn/app/features/scan/repository/gemma_receipt_mapper.dart';
 import 'package:refyn/app/features/scan/repository/gemma_receipt_scan_service.dart';
 import 'package:refyn/app/features/scan/repository/scan_failure.dart';
+import 'package:refyn/app/shared/utils/app_currency_utils.dart';
 import 'package:refyn/app/models/receipt/receipt_db_mapper.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
 import 'package:refyn/app/models/receipt/receipt_validator.dart';
@@ -14,15 +15,18 @@ import 'package:refyn/l10n/app_localizations.dart';
 class ScanRepository {
   ScanRepository({
     required ReceiptDao receiptDao,
+    required AppSettingsDao settingsDao,
     required GemmaReceiptScanService gemmaService,
     required MonthlyBudgetSyncRepository monthlyBudgetSyncRepository,
     ImagePicker? imagePicker,
   }) : _receiptDao = receiptDao,
+       _settingsDao = settingsDao,
        _gemmaService = gemmaService,
        _monthlyBudgetSyncRepository = monthlyBudgetSyncRepository,
        _imagePicker = imagePicker ?? ImagePicker();
 
   final ReceiptDao _receiptDao;
+  final AppSettingsDao _settingsDao;
   final GemmaReceiptScanService _gemmaService;
   final MonthlyBudgetSyncRepository _monthlyBudgetSyncRepository;
   final ImagePicker _imagePicker;
@@ -86,9 +90,11 @@ class ScanRepository {
         );
       }
 
+      final String defaultCurrency = await _getDefaultCurrency();
       final ReceiptModel scanned = GemmaReceiptMapper.toReceiptModel(
         payload: aiPayload,
         imagePath: imagePath,
+        defaultCurrency: defaultCurrency,
       );
 
       return scanned;
@@ -186,5 +192,10 @@ class ScanRepository {
       return '';
     }
     return reason.endsWith('.') ? reason : '$reason.';
+  }
+
+  Future<String> _getDefaultCurrency() async {
+    final String? value = await _settingsDao.getSetting('currency_code');
+    return AppCurrencyUtils.normalizeCode(value);
   }
 }

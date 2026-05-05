@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/shared/utils/app_currency_utils.dart';
 import 'package:refyn/app/models/receipt/merchant_model.dart';
 import 'package:refyn/app/models/receipt/payment_info_model.dart';
 import 'package:refyn/app/models/receipt/receipt_info_model.dart';
@@ -15,6 +16,7 @@ class GemmaReceiptMapper {
   static ReceiptModel toReceiptModel({
     required Map<String, dynamic> payload,
     required String imagePath,
+    String defaultCurrency = AppCurrencyUtils.defaultCode,
   }) {
     final DateTime now = DateTime.now();
     final DateTime? purchaseDate = DateTime.tryParse(
@@ -34,12 +36,17 @@ class GemmaReceiptMapper {
     final double vatAmount = toDoubleValue(payload['vatAmount']);
     final double total = _resolveTotal(payload, subtotal, vatAmount, items);
 
+    final String currency = _resolveCurrency(
+      payload,
+      defaultCurrency: defaultCurrency,
+    );
+
     return ReceiptModel(
       id: _safeString(payload['receiptId']).isEmpty
           ? 'scan-${now.microsecondsSinceEpoch}'
           : _safeString(payload['receiptId']),
-      country: 'BA',
-      currency: _normalizeCurrency(_safeString(payload['currency'])),
+      country: _countryFromCurrency(currency),
+      currency: currency,
       merchant: MerchantModel(
         name: merchantName,
         address: _emptyToNull(_safeString(payload['merchantAddress'])),
@@ -118,12 +125,56 @@ class GemmaReceiptMapper {
     return value.isEmpty ? fallback : value;
   }
 
-  static String _normalizeCurrency(String value) {
-    final String normalized = value.toUpperCase();
-    if (normalized == 'KM') {
-      return 'BAM';
+  static String _resolveCurrency(
+    Map<String, dynamic> payload, {
+    required String defaultCurrency,
+  }) {
+    final String declared = _normalizeCurrency(
+      _safeString(payload['currency']),
+      defaultCurrency: defaultCurrency,
+    );
+
+    // If the LLM returned a Bosnian default but the raw text has Danish signals,
+    // override. This guards against the model forgetting Step 1.
+    if (declared == 'BAM') {
+      final String raw = [
+        _safeString(payload['rawSummary']),
+        _safeString(payload['merchantName']),
+        _safeString(payload['merchantCity']),
+        _safeString(payload['merchantAddress']),
+      ].join(' ').toUpperCase();
+      final bool isDanish = raw.contains('DKK') ||
+          raw.contains('MOMS') ||
+          raw.contains('I ALT') ||
+          raw.contains('CVR') ||
+          raw.contains('BETALINGSKORT') ||
+          raw.contains('KORTBETALING');
+      if (isDanish) {
+        return 'DKK';
+      }
     }
-    return normalized.isEmpty ? 'BAM' : normalized;
+
+    return declared;
+  }
+
+  static String _normalizeCurrency(
+    String value, {
+    required String defaultCurrency,
+  }) {
+    return AppCurrencyUtils.normalizeCode(value, fallback: defaultCurrency);
+  }
+
+  static String _countryFromCurrency(String currency) {
+    switch (currency) {
+      case 'DKK':
+        return 'DK';
+      case 'USD':
+        return 'US';
+      case 'EUR':
+        return 'EU';
+      default:
+        return 'BA';
+    }
   }
 
   static double _resolveItemFinalPrice(Map<String, dynamic> item) {

@@ -57,13 +57,16 @@ class AppRoot extends StatelessWidget {
         ),
         Provider<ReceiptExportService>(create: (_) => ReceiptExportService()),
         Provider<CategoryBudgetRepository>(
-          create: (context) =>
-              CategoryBudgetRepository(dao: context.read<CategoryBudgetDao>()),
+          create: (context) => CategoryBudgetRepository(
+            dao: context.read<CategoryBudgetDao>(),
+            settingsDao: context.read<AppSettingsDao>(),
+          ),
         ),
         Provider<DashboardRepository>(
           create: (context) => DashboardRepository(
             receiptDao: context.read<ReceiptDao>(),
             categoryBudgetRepository: context.read<CategoryBudgetRepository>(),
+            settingsDao: context.read<AppSettingsDao>(),
           ),
         ),
         Provider<MonthlyBudgetSyncRepository>(
@@ -106,6 +109,7 @@ class AppRoot extends StatelessWidget {
         Provider<ScanRepository>(
           create: (context) => ScanRepository(
             receiptDao: context.read<ReceiptDao>(),
+            settingsDao: context.read<AppSettingsDao>(),
             gemmaService: context.read<GemmaReceiptScanService>(),
             monthlyBudgetSyncRepository: context
                 .read<MonthlyBudgetSyncRepository>(),
