@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 
 class CategoryBudgetSheetHeader extends StatelessWidget {
@@ -22,7 +23,7 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'Category Budgets',
+                  context.l10n.categoryBudgets,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -30,7 +31,7 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Set monthly limits by category. Save each card when ready.',
+                  context.l10n.budgetSheetDescription,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha:0.74),
                     fontWeight: FontWeight.w500,
@@ -48,7 +49,7 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
                     border: Border.all(color: Colors.white.withValues(alpha:0.14)),
                   ),
                   child: Text(
-                    '$activeBudgets active budgets',
+                    context.l10n.activeBudgetsLabel(activeBudgets),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,

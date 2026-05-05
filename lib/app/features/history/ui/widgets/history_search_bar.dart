@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/history/ui/utils/history_ui_utils.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/history/ui/utils/history_ui_utils.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HistorySearchBar extends StatefulWidget {
   const HistorySearchBar({
@@ -53,7 +54,7 @@ class _HistorySearchBarState extends State<HistorySearchBar> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
-        hintText: 'Search by merchant, item, or category...',
+        hintText: context.l10n.searchHistoryHint,
         hintStyle: theme.textTheme.titleMedium?.copyWith(
           color: theme.colorScheme.secondary.withValues(alpha: 0.78),
           fontWeight: FontWeight.w600,

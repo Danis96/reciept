@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_repository.dart';
-import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
-import 'package:reciep/app/features/receipt_details/repository/receipt_details_repository.dart';
-import 'package:reciep/app/features/scan/repository/gemma_receipt_scan_service.dart';
-import 'package:reciep/app/features/scan/repository/receipt_image_compression_service.dart';
+import 'package:refyn/app/features/ai/domain/repositories/ai_configuration_repository.dart';
+import 'package:refyn/app/features/ai/infrastructure/app_settings_ai_configuration_repository.dart';
+import 'package:refyn/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_repository.dart';
+import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
+import 'package:refyn/app/features/receipt_details/repository/receipt_details_repository.dart';
+import 'package:refyn/app/features/scan/repository/gemma_receipt_scan_service.dart';
+import 'package:refyn/app/features/scan/repository/receipt_image_compression_service.dart';
+import 'package:refyn/app/features/settings/application/local_backup_service.dart';
 
 import '../database/app_database.dart';
 import 'features/dashboard/controllers/dashboard_controller.dart';
@@ -80,11 +83,18 @@ class AppRoot extends StatelessWidget {
         Provider<ReceiptImageCompressionService>(
           create: (_) => const ReceiptImageCompressionService(),
         ),
+        Provider<AiConfigurationRepository>(
+          create: (context) => AppSettingsAiConfigurationRepository(
+            settingsDao: context.read<AppSettingsDao>(),
+            defaultApiKey: _gemmaApiKey,
+            defaultModel: _gemmaModel,
+            apiBaseUrl: _gemmaBaseUrl,
+          ),
+        ),
         Provider<GemmaReceiptScanService>(
           create: (context) {
             final GemmaReceiptScanService service = GemmaReceiptScanService(
-              apiKey: _gemmaApiKey,
-              model: _gemmaModel,
+              configurationRepository: context.read<AiConfigurationRepository>(),
               baseUrl: _gemmaBaseUrl,
               imageCompressionService: context
                   .read<ReceiptImageCompressionService>(),
@@ -130,17 +140,26 @@ class AppRoot extends StatelessWidget {
         Provider<SettingsRepository>(
           create: (context) => SettingsRepository(
             settingsDao: context.read<AppSettingsDao>(),
+            receiptDao: context.read<ReceiptDao>(),
+            receiptExportService: context.read<ReceiptExportService>(),
             categoryBudgetRepository: context.read<CategoryBudgetRepository>(),
             monthlyBudgetSyncRepository: context
                 .read<MonthlyBudgetSyncRepository>(),
-            receiptDao: context.read<ReceiptDao>(),
-            receiptExportService: context.read<ReceiptExportService>(),
+            localBackupService: LocalBackupService(
+              database: context.read<AppDatabase>(),
+              receiptDao: context.read<ReceiptDao>(),
+              appSettingsDao: context.read<AppSettingsDao>(),
+              categoryBudgetRepository: context
+                  .read<CategoryBudgetRepository>(),
+            ),
           ),
         ),
         ChangeNotifierProvider<SettingsController>(
-          create: (context) =>
-              SettingsController(repository: context.read<SettingsRepository>())
-                ..loadSettings(),
+          create: (context) => SettingsController(
+            repository: context.read<SettingsRepository>(),
+            aiConfigurationRepository:
+                context.read<AiConfigurationRepository>(),
+          )..loadSettings(),
         ),
       ],
       child: const MyApp(),

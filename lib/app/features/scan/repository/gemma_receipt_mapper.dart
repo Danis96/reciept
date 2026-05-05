@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
-import 'package:reciep/app/models/receipt/merchant_model.dart';
-import 'package:reciep/app/models/receipt/payment_info_model.dart';
-import 'package:reciep/app/models/receipt/receipt_info_model.dart';
-import 'package:reciep/app/models/receipt/receipt_item_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/models/receipt/receipt_parsing_utils.dart';
-import 'package:reciep/app/models/receipt/receipt_totals_model.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/models/receipt/merchant_model.dart';
+import 'package:refyn/app/models/receipt/payment_info_model.dart';
+import 'package:refyn/app/models/receipt/receipt_info_model.dart';
+import 'package:refyn/app/models/receipt/receipt_item_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_parsing_utils.dart';
+import 'package:refyn/app/models/receipt/receipt_totals_model.dart';
 
 class GemmaReceiptMapper {
   const GemmaReceiptMapper._();

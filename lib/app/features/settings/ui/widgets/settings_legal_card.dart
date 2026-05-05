@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
 
 class SettingsLegalCard extends StatelessWidget {
   const SettingsLegalCard({
@@ -18,13 +19,13 @@ class SettingsLegalCard extends StatelessWidget {
         children: <Widget>[
           _SettingsLegalRow(
             icon: Icons.verified_user_outlined,
-            label: 'Privacy Policy',
+            label: context.l10n.privacyPolicy,
             onTap: onPrivacyPolicyTap,
           ),
           const SizedBox(height: 14),
           _SettingsLegalRow(
             icon: Icons.description_outlined,
-            label: 'Terms of Service',
+            label: context.l10n.termsOfService,
             onTap: onTermsOfServiceTap,
           ),
         ],

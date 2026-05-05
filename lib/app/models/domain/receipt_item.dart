@@ -1,4 +1,4 @@
-import 'package:reciep/app/models/receipt/receipt_item_model.dart';
+import 'package:refyn/app/models/receipt/receipt_item_model.dart';
 
 class ReceiptItem {
   const ReceiptItem({

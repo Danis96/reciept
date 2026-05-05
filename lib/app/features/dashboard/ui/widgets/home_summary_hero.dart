@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
-import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
+import 'package:refyn/app/features/dashboard/repository/home_dashboard_model.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HomeSummaryHero extends StatelessWidget {
   const HomeSummaryHero({super.key, required this.data});
@@ -44,7 +45,7 @@ class HomeSummaryHero extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            "Here's your spending overview",
+            context.l10n.homeSpendingOverview,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
@@ -64,13 +65,13 @@ class HomeSummaryHero extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     _HeroMetric(
-                      title: 'This Month',
+                      title: context.l10n.thisMonth,
                       value:
                       '${DashboardMoney.formatDecimalConditionally(data.thisMonthSpending)} KM',
                       alignEnd: false,
                     ),
                     _HeroMetric(
-                      title: 'Budget',
+                      title: context.l10n.budget,
                       value:
                       '${DashboardMoney.formatDecimalConditionally(data.totalBudget)} KM',
                       alignEnd: true,
@@ -94,14 +95,18 @@ class HomeSummaryHero extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      '$usedPercent% used',
+                      context.l10n.usedPercentLabel(usedPercent),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white70,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
-                      '${DashboardMoney.formatDecimalConditionally(data.remainingBudget)} KM left',
+                      context.l10n.remainingBudgetLabel(
+                        DashboardMoney.formatDecimalConditionally(
+                          data.remainingBudget,
+                        ),
+                      ),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: HomeThemePalette.success(context),
                         fontWeight: FontWeight.w700,

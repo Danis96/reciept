@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 
-import 'package:reciep/app/features/scan/repository/receipt_ai_prompt_builder.dart';
-import 'package:reciep/app/features/scan/repository/receipt_image_compression_service.dart';
+import 'package:refyn/app/features/ai/domain/ai_configuration.dart';
+import 'package:refyn/app/features/ai/domain/repositories/ai_configuration_repository.dart';
+import 'package:refyn/app/features/scan/repository/receipt_ai_prompt_builder.dart';
+import 'package:refyn/app/features/scan/repository/receipt_image_compression_service.dart';
 
 class GemmaScanException implements Exception {
   GemmaScanException(this.message);
@@ -17,15 +19,13 @@ class GemmaScanException implements Exception {
 
 class GemmaReceiptScanService {
   GemmaReceiptScanService({
-    required String apiKey,
-    String model = 'gemma-4-26b-a4b-it',
+    required AiConfigurationRepository configurationRepository,
     String baseUrl = 'https://generativelanguage.googleapis.com/v1beta',
     Duration timeout = const Duration(seconds: 1080),
     HttpClient? httpClient,
     ReceiptAiPromptBuilder? promptBuilder,
     ReceiptImageCompressionService? imageCompressionService,
-  }) : _apiKey = apiKey,
-       _model = _normalizeModelId(model),
+  }) : _configurationRepository = configurationRepository,
        _baseUrl = baseUrl,
        _timeout = timeout,
        _httpClient = httpClient ?? HttpClient(),
@@ -33,8 +33,7 @@ class GemmaReceiptScanService {
        _imageCompressionService =
            imageCompressionService ?? const ReceiptImageCompressionService();
 
-  final String _apiKey;
-  final String _model;
+  final AiConfigurationRepository _configurationRepository;
   final String _baseUrl;
   final Duration _timeout;
   final HttpClient _httpClient;
@@ -42,11 +41,13 @@ class GemmaReceiptScanService {
   final ReceiptImageCompressionService _imageCompressionService;
 
   Future<void> warmUp() async {
-    if (_apiKey.trim().isEmpty) {
+    final AiConfiguration config = await _configurationRepository
+        .getConfiguration();
+    if (!config.hasApiKey) {
       return;
     }
 
-    final Uri uri = Uri.parse('$_baseUrl/models?key=$_apiKey');
+    final Uri uri = Uri.parse('$_baseUrl/models?key=${config.apiKey}');
     try {
       final HttpClientRequest request = await _httpClient.getUrl(uri);
       final HttpClientResponse response = await request.close();
@@ -60,12 +61,17 @@ class GemmaReceiptScanService {
   Future<Map<String, dynamic>> scanReceiptImage({
     required String imagePath,
   }) async {
-    _logDebug('Starting receipt scan. model=$_model imagePath=$imagePath');
+    final AiConfiguration config = await _configurationRepository
+        .getConfiguration();
+    final String apiKey = config.apiKey.trim();
+    final String model = _normalizeModelId(config.selectedModel);
+    final String thinkingLevel = config.thinkingLevel;
 
-    if (_apiKey.trim().isEmpty) {
+    _logDebug('Starting receipt scan. model=$model imagePath=$imagePath');
+
+    if (apiKey.isEmpty) {
       throw GemmaScanException(
-        'Gemma API key missing. Start app with --dart-define=GEMMA_API_KEY=...'
-        ' and optional --dart-define=GEMMA_MODEL=... .',
+        'AI API key missing. Add a key in Settings > AI configuration.',
       );
     }
 
@@ -84,7 +90,7 @@ class GemmaReceiptScanService {
     );
 
     final Uri uri = Uri.parse(
-      '$_baseUrl/models/$_model:generateContent?key=$_apiKey',
+      '$_baseUrl/models/$model:generateContent?key=$apiKey',
     );
 
     final HttpClientRequest request = await _httpClient.postUrl(uri);
@@ -110,8 +116,8 @@ class GemmaReceiptScanService {
         'temperature': 0.1,
         'topP': 0.8,
         'maxOutputTokens': 1000,
-        'thinkingConfig': {
-          'thinkingLevel': 'MINIMAL',
+        'thinkingConfig': <String, dynamic>{
+          'thinkingLevel': thinkingLevel,
         },
         'mediaResolution': 'MEDIA_RESOLUTION_MEDIUM',
         'responseMimeType': 'application/json',
@@ -119,7 +125,7 @@ class GemmaReceiptScanService {
     };
 
     _logDebug(
-      'Sending request to Gemma. baseUrl=$_baseUrl model=$_model promptLength=${prompt.length}',
+      'Sending request to Gemma. baseUrl=$_baseUrl model=$model promptLength=${prompt.length}',
     );
     request.write(jsonEncode(body));
 
@@ -148,7 +154,7 @@ class GemmaReceiptScanService {
       if (response.statusCode == 400 &&
           errorMessage.toLowerCase().contains('unexpected model name format')) {
         throw GemmaScanException(
-          'Invalid model id "$_model". Use Gemini API model id like '
+          'Invalid model id "$model". Use Gemini API model id like '
           '"gemma-4-26b-a4b-it" (without "models/").',
         );
       }

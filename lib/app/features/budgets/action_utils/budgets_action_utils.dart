@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/ui/utils/budget_formatting.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/budgets/ui/utils/budget_formatting.dart';
 
 class BudgetsActionUtils {
   final BuildContext context;
@@ -49,7 +50,7 @@ class BudgetsActionUtils {
     final double? parsed = double.tryParse(text);
     if (parsed == null || parsed < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a valid budget amount.')),
+        SnackBar(content: Text(context.l10n.enterValidBudgetAmount)),
       );
       return;
     }
@@ -83,7 +84,9 @@ class BudgetsActionUtils {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${CategoryBudgetLabel.shortLabel(category)} budget deleted.',
+            context.l10n.budgetDeletedLabel(
+              CategoryBudgetLabel.shortLabel(category),
+            ),
           ),
         ),
       );
@@ -104,7 +107,9 @@ class BudgetsActionUtils {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${CategoryBudgetLabel.shortLabel(category)} budget saved.',
+          context.l10n.budgetSavedLabel(
+            CategoryBudgetLabel.shortLabel(category),
+          ),
         ),
       ),
     );

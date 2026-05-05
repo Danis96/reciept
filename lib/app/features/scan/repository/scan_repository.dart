@@ -1,14 +1,15 @@
 import 'dart:developer' as developer;
 
-import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:refyn/app/features/budgets/repository/monthly_budget_sync_repository.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:reciep/app/features/scan/repository/gemma_receipt_mapper.dart';
-import 'package:reciep/app/features/scan/repository/gemma_receipt_scan_service.dart';
-import 'package:reciep/app/features/scan/repository/scan_failure.dart';
-import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/models/receipt/receipt_validator.dart';
-import 'package:reciep/database/app_database.dart';
+import 'package:refyn/app/features/scan/repository/gemma_receipt_mapper.dart';
+import 'package:refyn/app/features/scan/repository/gemma_receipt_scan_service.dart';
+import 'package:refyn/app/features/scan/repository/scan_failure.dart';
+import 'package:refyn/app/models/receipt/receipt_db_mapper.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_validator.dart';
+import 'package:refyn/database/app_database.dart';
+import 'package:refyn/l10n/app_localizations.dart';
 
 class ScanRepository {
   ScanRepository({
@@ -63,10 +64,8 @@ class ScanRepository {
         throw ScanException(
           ScanFailure(
             type: ScanFailureType.notReceipt,
-            title: 'Not a receipt',
-            message: reason.isEmpty
-                ? 'Selected image is not a receipt. Try a clear receipt photo.'
-                : 'Selected image is not a receipt. $reason',
+            title: AppLocalizations.current.notReceiptTitle,
+            message: AppLocalizations.current.notReceiptMessage(reason),
             technicalDetails: reason.isEmpty ? null : reason,
           ),
         );
@@ -80,10 +79,8 @@ class ScanRepository {
         throw ScanException(
           ScanFailure(
             type: ScanFailureType.imageQualityIssue,
-            title: 'Image quality issue',
-            message: reason.isEmpty
-                ? 'Receipt image is not clear enough. Try a sharper photo.'
-                : 'Receipt image is not clear enough. $reason',
+            title: AppLocalizations.current.imageQualityIssueTitle,
+            message: AppLocalizations.current.imageQualityIssueMessage(reason),
             technicalDetails: reason.isEmpty ? null : reason,
           ),
         );
@@ -104,8 +101,8 @@ class ScanRepository {
       throw ScanException(
         ScanFailure(
           type: ScanFailureType.parseFailure,
-          title: 'Scan failed',
-          message: 'Could not parse receipt data.',
+          title: AppLocalizations.current.scanFailedTitle,
+          message: AppLocalizations.current.scanFailedMessage,
           technicalDetails: error.toString(),
         ),
       );
@@ -120,8 +117,8 @@ class ScanRepository {
       throw ScanException(
         ScanFailure(
           type: ScanFailureType.parseFailure,
-          title: 'Cannot save receipt',
-          message: 'Receipt fields invalid. Fix values before saving.',
+          title: AppLocalizations.current.cannotSaveReceiptTitle,
+          message: AppLocalizations.current.cannotSaveReceiptMessage,
           technicalDetails: modelErrors.join('; '),
         ),
       );
@@ -140,15 +137,15 @@ class ScanRepository {
         lowered.contains('not a json object')) {
       return ScanFailure(
         type: ScanFailureType.invalidJson,
-        title: 'Invalid JSON response',
-        message: 'AI returned broken JSON. Please retry scan.',
+        title: AppLocalizations.current.invalidJsonResponseTitle,
+        message: AppLocalizations.current.invalidJsonResponseMessage,
         technicalDetails: message,
       );
     }
     return ScanFailure(
       type: ScanFailureType.aiResponseFailed,
-      title: 'AI response failed',
-      message: 'Could not get valid AI response for this image.',
+      title: AppLocalizations.current.aiResponseFailedTitle,
+      message: AppLocalizations.current.aiResponseFailedMessage,
       technicalDetails: message,
     );
   }

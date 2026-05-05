@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:reciep/database/app_database.dart';
+import 'package:refyn/database/app_database.dart';
 
 import 'fiscal_info_model.dart';
 import 'merchant_model.dart';

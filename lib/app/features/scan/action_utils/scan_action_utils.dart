@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
-import 'package:reciep/app/features/history/controllers/history_controller.dart';
-import 'package:reciep/app/features/scan/controllers/scan_controller.dart';
-import 'package:reciep/app/features/scan/repository/scan_failure.dart';
-import 'package:reciep/app/helpers/extensions/build_context_x.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:refyn/app/features/history/controllers/history_controller.dart';
+import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
+import 'package:refyn/app/features/scan/repository/scan_failure.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 class ScanActionUtils {
   const ScanActionUtils._();

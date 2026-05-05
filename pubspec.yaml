@@ -1,5 +1,5 @@
-name: reciep
-description: "A new Flutter project."
+name: refyn
+description: "Refyn — scan receipts, get clarity."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -45,6 +45,14 @@ dependencies:
   flutter_dotenv: ^5.2.1
   flutter_native_splash: ^2.4.7
   wiggly_loaders: ^0.1.0
+  archive: ^4.0.7
+  file_picker: ^10.3.2
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  share_plus: ^11.1.0
+  pdf: ^3.11.3
+  flutter_email_sender: ^8.0.0
+  url_launcher: ^6.3.2
 
 
 dev_dependencies:
@@ -107,17 +115,17 @@ flutter:
 flutter_native_splash:
   fullscreen: true
 
-  # Non-Android-12 splash can use full-screen background art.
-  background_image: assets/splash.png
-  background_image_dark: assets/splash_dark.png
+  color: "#DE6834"
+  color_dark: "#DE6834"
 
-  # Android 12+ configuration
+  # Use the same Refyn splash for light + dark.
+  background_image: assets/splash.png
+  background_image_dark: assets/splash.png
+
+  # Android 12+ system splash is just background color (no centered icon overlay).
   android_12:
-    # Android 12 splash is system-limited to color + centered icon.
-    image: assets/app_icon/receipt_app_icon_clean.png
-    color: "#0B1220"
-    image_dark: assets/app_icon/receipt_app_icon_clean.png
-    color_dark: "#0B1220"
+    color: "#DE6834"
+    color_dark: "#DE6834"
 
   android: true
   ios: true

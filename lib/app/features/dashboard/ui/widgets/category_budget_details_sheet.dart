@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_category_details_model.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_category_item_model.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_colors.dart';
-import 'package:reciep/theme/app_spacing.dart';
-import 'package:reciep/theme/category_palette.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_category_details_model.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_category_item_model.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_colors.dart';
+import 'package:refyn/theme/app_spacing.dart';
+import 'package:refyn/theme/category_palette.dart';
 
 import '../../action_utils/dashboard_action_utils.dart';
 
@@ -25,8 +26,12 @@ class CategoryBudgetDetailsSheet extends StatelessWidget {
     final double safeRatio = details.usageRatio.clamp(0, 1).toDouble();
     final String monthLabel = DateFormat('MMMM yyyy').format(DateTime.now());
     final String remainingText = details.remainingAmount >= 0
-        ? '${DashboardMoney.formatInt(details.remainingAmount)} KM left'
-        : '${DashboardMoney.formatInt(details.remainingAmount.abs())} KM over';
+        ? context.l10n.remainingAmountLabel(
+            DashboardMoney.formatInt(details.remainingAmount),
+          )
+        : context.l10n.overBudgetLabel(
+            DashboardMoney.formatInt(details.remainingAmount.abs()),
+          );
 
     return Container(
       constraints: BoxConstraints(
@@ -157,13 +162,15 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
               TextButton.icon(
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.close_rounded),
-                label: const Text('Close'),
+                label: Text(context.l10n.close),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            '${DashboardMoney.formatInt(details.spentAmount)} KM spent',
+            context.l10n.spentAmountLabel(
+              DashboardMoney.formatInt(details.spentAmount),
+            ),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -212,7 +219,7 @@ class CategoryBudgetDetailsStats extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: CategoryBudgetDetailsStatCard(
-            label: 'Budget',
+            label: context.l10n.budget,
             value: '${DashboardMoney.formatInt(details.budgetAmount)} KM',
             tone: categoryColor,
           ),
@@ -220,7 +227,7 @@ class CategoryBudgetDetailsStats extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: CategoryBudgetDetailsStatCard(
-            label: 'Items',
+            label: context.l10n.scanItems,
             value: '${details.itemCount}',
             tone: Theme.of(context).colorScheme.primary,
           ),
@@ -299,21 +306,24 @@ class CategoryBudgetDetailsItemsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Items in this category',
+            context.l10n.itemsInThisCategory,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
-            'Current month purchases matched to ${details.label.toLowerCase()}.',
+            context.l10n.itemsInCategoryThisMonthLabel(details.label),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           if (details.items.isEmpty) ...<Widget>[
             const SizedBox(height: AppSpacing.md),
-            CategoryBudgetDetailsEmptyState(categoryColor: categoryColor),
+            CategoryBudgetDetailsEmptyState(
+              categoryColor: categoryColor,
+              categoryLabel: details.label,
+            ),
           ],
           if (details.items.isNotEmpty) ...<Widget>[
             const SizedBox(height: AppSpacing.md),
@@ -334,9 +344,14 @@ class CategoryBudgetDetailsItemsCard extends StatelessWidget {
 }
 
 class CategoryBudgetDetailsEmptyState extends StatelessWidget {
-  const CategoryBudgetDetailsEmptyState({super.key, required this.categoryColor});
+  const CategoryBudgetDetailsEmptyState({
+    super.key,
+    required this.categoryColor,
+    required this.categoryLabel,
+  });
 
   final Color categoryColor;
+  final String categoryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -347,7 +362,7 @@ class CategoryBudgetDetailsEmptyState extends StatelessWidget {
         color: categoryColor.withValues(alpha: 0.08),
       ),
       child: Text(
-        'No tracked items yet for this category in current month.',
+        context.l10n.noTrackedItemsInCategoryLabel(categoryLabel),
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: Theme.of(context).colorScheme.secondary,
           fontWeight: FontWeight.w600,

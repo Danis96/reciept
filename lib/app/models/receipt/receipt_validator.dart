@@ -1,6 +1,6 @@
-import 'package:reciep/app/models/domain/receipt.dart';
-import 'package:reciep/app/models/domain/receipt_item.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/domain/receipt.dart';
+import 'package:refyn/app/models/domain/receipt_item.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 class ReceiptSaveValidator {
   const ReceiptSaveValidator._();

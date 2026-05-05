@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
-import 'package:reciep/app/features/dashboard/controllers/dashboard_controller.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/features/dashboard/repository/home_dashboard_model.dart';
-import 'package:reciep/app/features/dashboard/ui/widgets/home_recent_receipts_card.dart';
-import 'package:reciep/app/features/dashboard/ui/widgets/home_summary_hero.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
+import 'package:refyn/app/features/dashboard/controllers/dashboard_controller.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/features/dashboard/repository/home_dashboard_model.dart';
+import 'package:refyn/app/features/dashboard/ui/widgets/home_recent_receipts_card.dart';
+import 'package:refyn/app/features/dashboard/ui/widgets/home_summary_hero.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 import '../widgets/home_category_budget_cards.dart';
 import '../widgets/home_quick_actions_rows.dart';
@@ -43,7 +44,7 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
                   FilledButton(
                     onPressed: controller.refreshHome,
-                    child: const Text('Retry'),
+                    child: Text(context.l10n.retryHome),
                   ),
                 ],
               ),

@@ -1,5 +1,5 @@
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 class HomeDashboardModel {
   const HomeDashboardModel({

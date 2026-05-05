@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/models/receipt/receipt_item_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/models/receipt/receipt_item_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class ReceiptPaperList extends StatefulWidget {
   const ReceiptPaperList({

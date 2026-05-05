@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/shared/formatters.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
-import 'package:reciep/app/models/receipt/receipt_item_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/shared/formatters.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
+import 'package:refyn/app/models/receipt/receipt_item_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 import '../../../../../theme/category_palette.dart';
-import '../../../budgets/repository/category_budget_catalog.dart';
 
 class ReceiptItemsCard extends StatelessWidget {
   const ReceiptItemsCard({
@@ -28,7 +28,7 @@ class ReceiptItemsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Items',
+            context.l10n.scanItems,
             style: textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
@@ -37,7 +37,7 @@ class ReceiptItemsCard extends StatelessWidget {
           const SizedBox(height: 14),
           if (receipt.items.isEmpty)
             Text(
-              'No items available.',
+              context.l10n.noItemsFound,
               style: textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -88,7 +88,9 @@ class ReceiptItemListRow extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  item.name.trim().isEmpty ? 'Unnamed item' : item.name.trim(),
+                  item.name.trim().isEmpty
+                      ? context.l10n.unnamedItem
+                      : item.name.trim(),
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                     color: colorScheme.onSurface,
@@ -111,7 +113,7 @@ class ReceiptItemListRow extends StatelessWidget {
             mainAxisAlignment: .spaceBetween,
             children: [
               Text(
-                'Qty: ${qty(item.quantity)}',
+                context.l10n.qtyLabel(qty(item.quantity)),
                 style: textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
@@ -168,7 +170,7 @@ class ReceiptItemCategoryChip extends StatelessWidget {
             children: <Widget>[
               const SizedBox(width: 6),
               Text(
-                CategoryBudgetCatalog.labelFor(category),
+                context.l10n.categoryLabel(category),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,

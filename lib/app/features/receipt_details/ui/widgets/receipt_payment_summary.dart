@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/shared/formatters.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/shared/formatters.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 class ReceiptPaymentSummaryCard extends StatelessWidget {
   const ReceiptPaymentSummaryCard({super.key, required this.receipt});
@@ -17,7 +18,7 @@ class ReceiptPaymentSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Payment Summary',
+            context.l10n.paymentSummary,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
@@ -25,12 +26,12 @@ class ReceiptPaymentSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           PaymentSummaryRow(
-            label: 'Subtotal',
+            label: context.l10n.subtotal,
             value: money(receipt.totals.subtotal ?? 0, receipt.currency),
           ),
           const SizedBox(height: 12),
           PaymentSummaryRow(
-            label: 'Tax',
+            label: context.l10n.tax,
             value: money(receipt.totals.vatAmount ?? 0, receipt.currency),
           ),
           const SizedBox(height: 14),
@@ -40,7 +41,7 @@ class ReceiptPaymentSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           PaymentSummaryRow(
-            label: 'Total',
+            label: context.l10n.total,
             value: money(receipt.totals.total, receipt.currency),
             emphasize: true,
           ),

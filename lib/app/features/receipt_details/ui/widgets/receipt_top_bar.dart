@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 
 class ReceiptTopBar extends StatelessWidget {
   const ReceiptTopBar({super.key});
@@ -31,7 +32,7 @@ class ReceiptTopBar extends StatelessWidget {
           ),
           const SizedBox(width: 14),
           Text(
-            'Receipt Details',
+            context.l10n.receiptDetails,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,

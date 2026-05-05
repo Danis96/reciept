@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_action_toolbar.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_items_card.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_overview_card.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_payment_summary.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/receipt_top_bar.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_action_toolbar.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_items_card.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_overview_card.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_payment_summary.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_top_bar.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 class ReceiptDetailsScaffold extends StatelessWidget {
   const ReceiptDetailsScaffold({
@@ -72,7 +73,7 @@ class ReceiptDetailsScaffold extends StatelessWidget {
                 ReceiptPaymentSummaryCard(receipt: receipt),
                 const SizedBox(height: 24),
                 Text(
-                  'Keep this receipt for your records',
+                  context.l10n.keepReceiptForRecords,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,

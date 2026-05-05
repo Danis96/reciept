@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/history/ui/utils/history_ui_utils.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_spacing.dart';
-import 'package:reciep/theme/category_palette.dart';
+import 'package:refyn/app/features/history/ui/utils/history_ui_utils.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_spacing.dart';
+import 'package:refyn/theme/category_palette.dart';
 
 class HistoryCategoryChips extends StatelessWidget {
   const HistoryCategoryChips({

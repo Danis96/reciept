@@ -1,8 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reciep/database/app_database.dart';
+import 'package:refyn/database/app_database.dart';
 
-import 'package:reciep/app/app_root.dart';
+import 'package:refyn/app/app_root.dart';
 
 void main() {
   testWidgets('shows bottom navigation tabs', (WidgetTester tester) async {

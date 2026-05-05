@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/scan/action_utils/scan_action_utils.dart';
-import 'package:reciep/app/features/scan/controllers/scan_controller.dart';
-import 'package:reciep/app/features/scan/controllers/scan_view_state.dart';
-import 'package:reciep/app/features/scan/ui/widgets/recent_scans_section.dart';
-import 'package:reciep/app/features/scan/ui/widgets/scan_header_section.dart';
-import 'package:reciep/app/features/scan/ui/widgets/scan_surface_card.dart';
-import 'package:reciep/app/helpers/extensions/build_context_x.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/features/scan/action_utils/scan_action_utils.dart';
+import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
+import 'package:refyn/app/features/scan/controllers/scan_view_state.dart';
+import 'package:refyn/app/features/scan/ui/widgets/recent_scans_section.dart';
+import 'package:refyn/app/features/scan/ui/widgets/scan_header_section.dart';
+import 'package:refyn/app/features/scan/ui/widgets/scan_surface_card.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class ScanPage extends StatelessWidget {
   const ScanPage({super.key});

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 
 import '../utils/settings_pallete.dart';
 
@@ -12,7 +13,7 @@ class SettingsTitleBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'Settings',
+          context.l10n.settings,
           style: textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w700,
             fontSize: 22,
@@ -21,7 +22,7 @@ class SettingsTitleBlock extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Manage your preferences',
+          context.l10n.settingsPlaceholder,
           style: textTheme.titleMedium?.copyWith(
             fontSize: 16,
             color: SettingsPagePalette.mutedText(context),

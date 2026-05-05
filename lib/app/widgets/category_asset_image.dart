@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
 
 class CategoryAssetImage extends StatelessWidget {
   const CategoryAssetImage({

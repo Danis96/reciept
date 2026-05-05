@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/dashboard/action_utils/dashboard_action_utils.dart';
-import 'package:reciep/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
-import 'package:reciep/app/widgets/category_asset_image.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/features/dashboard/action_utils/dashboard_action_utils.dart';
+import 'package:refyn/app/features/dashboard/repository/dashboard_budget_progress_model.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/widgets/category_asset_image.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class HomeBudgetProgressItem extends StatelessWidget {
   const HomeBudgetProgressItem({
@@ -21,8 +22,12 @@ class HomeBudgetProgressItem extends StatelessWidget {
       context,
     );
     final String remainingText = item.remainingAmount >= 0
-        ? '${DashboardMoney.formatInt(item.remainingAmount)} KM left'
-        : '-${DashboardMoney.formatInt(item.remainingAmount.abs())} KM over';
+        ? context.l10n.remainingAmountLabel(
+            DashboardMoney.formatInt(item.remainingAmount),
+          )
+        : context.l10n.overBudgetLabel(
+            DashboardMoney.formatInt(item.remainingAmount.abs()),
+          );
     final theme = Theme.of(context);
 
     return Material(
@@ -86,7 +91,9 @@ class HomeBudgetProgressItem extends StatelessWidget {
               Row(
                 children: <Widget>[
                   Text(
-                    '${DashboardMoney.formatInt(item.spentAmount)} KM spent',
+                    context.l10n.spentAmountLabel(
+                      DashboardMoney.formatInt(item.spentAmount),
+                    ),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.secondary,
                       fontWeight: FontWeight.w600,
@@ -94,7 +101,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    '${DashboardMoney.formatInt(item.budgetAmount)} KM budget',
+                    '${DashboardMoney.formatInt(item.budgetAmount)} KM ${context.l10n.budget.toLowerCase()}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.secondary,
                       fontWeight: FontWeight.w600,
@@ -106,7 +113,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xxs),
                   child: Text(
-                    'You used ${(item.usageRatio * 100).round()}% of ${item.label} budget',
+                    '${context.l10n.usedPercentLabel((item.usageRatio * 100).round())} ${item.label}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: categoryColor,
                       fontWeight: FontWeight.w700,
@@ -117,7 +124,7 @@ class HomeBudgetProgressItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xxs),
                   child: Text(
-                    'Budget exceeded by ${DashboardMoney.formatInt(item.remainingAmount.abs())} KM',
+                    '${context.l10n.budget} ${context.l10n.overBudgetLabel(DashboardMoney.formatInt(item.remainingAmount.abs()))}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: HomeThemePalette.danger(context),
                       fontWeight: FontWeight.w700,

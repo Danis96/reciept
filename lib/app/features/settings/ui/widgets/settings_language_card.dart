@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_dropdown_surface.dart';
-import 'package:reciep/app/features/settings/ui/widgets/shared/settings_section_header.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_card_frame.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_dropdown_surface.dart';
+import 'package:refyn/app/features/settings/ui/widgets/shared/settings_section_header.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 
 class SettingsLanguageCard extends StatelessWidget {
   const SettingsLanguageCard({
@@ -15,12 +16,15 @@ class SettingsLanguageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final ThemeData theme = Theme.of(context);
     return SettingsCardFrame(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          const SettingsSectionHeader(icon: Icons.language, title: 'Language'),
+          SettingsSectionHeader(
+            icon: Icons.language,
+            title: context.l10n.language,
+          ),
           const SizedBox(height: 16),
           SettingsDropdownSurface(
             child: DropdownButtonHideUnderline(
@@ -34,9 +38,19 @@ class SettingsLanguageCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
                 borderRadius: BorderRadius.circular(10),
-                items: const <DropdownMenuItem<String>>[
-                  DropdownMenuItem<String>(value: 'en', child: Text('English')),
-                  DropdownMenuItem<String>(value: 'bs', child: Text('Bosnian')),
+                items: <DropdownMenuItem<String>>[
+                  DropdownMenuItem<String>(
+                    value: 'en',
+                    child: Text(context.l10n.languageEnglish),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: 'bs',
+                    child: Text(context.l10n.languageBosnian),
+                  ),
+                  DropdownMenuItem<String>(
+                    value: 'da',
+                    child: Text(context.l10n.languageDanish),
+                  ),
                 ],
                 onChanged: (String? value) {
                   if (value != null) {

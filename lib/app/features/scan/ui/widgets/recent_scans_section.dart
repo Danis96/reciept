@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/widgets/receipt_paper_card.dart';
-import 'package:reciep/theme/app_spacing.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/widgets/receipt_paper_card.dart';
+import 'package:refyn/theme/app_spacing.dart';
 
 class RecentScansSection extends StatelessWidget {
   const RecentScansSection({

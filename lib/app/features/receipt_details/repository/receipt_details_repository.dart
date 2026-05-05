@@ -1,8 +1,8 @@
-import 'package:reciep/app/features/budgets/repository/monthly_budget_sync_repository.dart';
-import 'package:reciep/app/features/export/repository/receipt_export_service.dart';
-import 'package:reciep/app/models/receipt/receipt_db_mapper.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/database/app_database.dart';
+import 'package:refyn/app/features/budgets/repository/monthly_budget_sync_repository.dart';
+import 'package:refyn/app/features/export/repository/receipt_export_service.dart';
+import 'package:refyn/app/models/receipt/receipt_db_mapper.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/database/app_database.dart';
 
 class ReceiptDetailsRepository {
   ReceiptDetailsRepository({

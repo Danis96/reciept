@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:reciep/app/features/scan/repository/receipt_ai_parser.dart';
+import 'package:refyn/app/features/scan/repository/receipt_ai_parser.dart';
 
 void main() {
   test('parses Bosnian fiscal structured JSON safely', () {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:reciep/app/features/history/ui/pages/history_page.dart';
-import 'package:reciep/app/features/scan/ui/pages/scan_page.dart';
-import 'package:reciep/app/features/settings/ui/pages/settings_page.dart';
+import 'package:refyn/app/features/history/ui/pages/history_page.dart';
+import 'package:refyn/app/features/scan/ui/pages/scan_page.dart';
+import 'package:refyn/app/features/settings/ui/pages/settings_page.dart';
 
 import '../../action_utils/dashboard_action_utils.dart';
 import '../../controllers/dashboard_controller.dart';

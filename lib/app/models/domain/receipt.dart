@@ -1,11 +1,11 @@
-import 'package:reciep/app/models/domain/receipt_item.dart';
-import 'package:reciep/app/models/receipt/fiscal_info_model.dart';
-import 'package:reciep/app/models/receipt/merchant_model.dart';
-import 'package:reciep/app/models/receipt/payment_info_model.dart';
-import 'package:reciep/app/models/receipt/receipt_info_model.dart';
-import 'package:reciep/app/models/receipt/receipt_item_model.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
-import 'package:reciep/app/models/receipt/receipt_totals_model.dart';
+import 'package:refyn/app/models/domain/receipt_item.dart';
+import 'package:refyn/app/models/receipt/fiscal_info_model.dart';
+import 'package:refyn/app/models/receipt/merchant_model.dart';
+import 'package:refyn/app/models/receipt/payment_info_model.dart';
+import 'package:refyn/app/models/receipt/receipt_info_model.dart';
+import 'package:refyn/app/models/receipt/receipt_item_model.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/models/receipt/receipt_totals_model.dart';
 
 class Receipt {
   const Receipt({

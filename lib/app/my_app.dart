@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SettingsController>(
       builder: (context, settingsController, _) {
+        Intl.defaultLocale = settingsController.locale.toLanguageTag();
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: AppLocalizations.fallback.appTitle,

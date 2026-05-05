@@ -1,4 +1,4 @@
-import 'package:reciep/app/features/budgets/repository/category_budget_catalog.dart';
+import 'package:refyn/app/features/budgets/repository/category_budget_catalog.dart';
 
 class ReceiptAiPromptBuilder {
   String build() => [
@@ -17,9 +17,12 @@ Is this image a receipt? A receipt has a merchant name, at least one priced item
 If NOT a receipt, return ONLY: {"notAReceipt":true,"reason":"<one sentence>"} — nothing else.''';
 
   static const String _imageQualitySection = '''
-Before extraction: can the receipt be read clearly enough to identify merchant, total, and every line item?',
-      'If the image is blurry, cropped, too dark/light, has glare, or even one line item or required field is not reliably readable, return ONLY: {"imageQualityIssue":true,"reason":"<one sentence>"}',
-      'Do not guess. Do not return extracted receipt data in that case.''';
+Before extraction, decide whether the receipt can be read clearly enough to identify merchant, total, and every line item.
+If the image is blurry, cropped, too dark or bright, has glare, or even one line item or required field is not reliably readable, return ONLY: {"imageQualityIssue":true,"reason":"<one sentence>"}.
+If the image contains two or more separate bills/documents, or the model cannot tell which bill is the primary target, return ONLY: {"imageQualityIssue":true,"reason":"<one sentence>"}.
+Do not guess. Do not return extracted receipt data in that case.''';
+
+
 
   static const String _taskSection =
       'Extract receipt data. Return ONE valid JSON object, no markdown, no extra text.';

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/shared/formatters.dart';
-import 'package:reciep/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
-import 'package:reciep/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/shared/formatters.dart';
+import 'package:refyn/app/features/receipt_details/ui/widgets/shared/receipt_card_shell.dart';
+import 'package:refyn/app/models/receipt/receipt_model.dart';
 
 class ReceiptOverviewCard extends StatelessWidget {
   const ReceiptOverviewCard({super.key, required this.receipt});
@@ -30,7 +31,7 @@ class ReceiptOverviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const CardLabel(text: 'Receipt Number'),
+                    CardLabel(text: context.l10n.receiptNumber),
                     const SizedBox(height: 6),
                     Text(
                       receiptNumber,
@@ -61,23 +62,23 @@ class ReceiptOverviewCard extends StatelessWidget {
           const SizedBox(height: 14),
           ReceiptInfoRow(
             icon: Icons.calendar_today_outlined,
-            label: 'Date',
+            label: context.l10n.date,
             value: DateFormat('MMMM d, y').format(receipt.createdAt),
           ),
           const SizedBox(height: 14),
           ReceiptInfoRow(
             icon: Icons.storefront_outlined,
-            label: 'Merchant',
+            label: context.l10n.merchant,
             value: receipt.merchant.name.trim().isEmpty
-                ? 'Unknown merchant'
+                ? context.l10n.unknownMerchant
                 : receipt.merchant.name.trim(),
           ),
           const SizedBox(height: 14),
           ReceiptInfoRow(
             icon: Icons.credit_card_outlined,
-            label: 'Payment Method',
+            label: context.l10n.paymentMethod,
             value: receipt.payment.method.trim().isEmpty
-                ? 'Unknown'
+                ? context.l10n.unknown
                 : receipt.payment.method.trim(),
           ),
         ],

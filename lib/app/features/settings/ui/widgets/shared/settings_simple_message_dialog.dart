@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 
 class SettingsSimpleMessageDialog extends StatelessWidget {
   const SettingsSimpleMessageDialog({
@@ -18,7 +19,7 @@ class SettingsSimpleMessageDialog extends StatelessWidget {
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Close'),
+          child: Text(context.l10n.close),
         ),
       ],
     );
