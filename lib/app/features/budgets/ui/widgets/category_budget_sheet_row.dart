@@ -40,7 +40,9 @@ class CategoryBudgetSheetRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final accent = CategoryPalette.primaryFor(category, context);
-    final String currencyCode = context.read<SettingsController>().currencyCode;
+    final String currencyCode = context
+        .watch<SettingsController>()
+        .currencyCode;
     final currentAmountLabel = currentAmount == null
         ? context.l10n.noBudgetSet
         : context.l10n.activeBudgetAmountLabel(
@@ -122,7 +124,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: _buildInputDecoration(context, accent),
+              decoration: _buildInputDecoration(context, accent, currencyCode),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -163,11 +165,15 @@ class CategoryBudgetSheetRow extends StatelessWidget {
     return const SizedBox(key: ValueKey('idle'), width: 22, height: 22);
   }
 
-  InputDecoration _buildInputDecoration(BuildContext context, Color accent) {
+  InputDecoration _buildInputDecoration(
+    BuildContext context,
+    Color accent,
+    String currencyCode,
+  ) {
     final borderColor = CategoryBudgetSheetPalette.cardBorder(context);
     return InputDecoration(
       prefixIcon: Icon(Icons.wallet_outlined, color: accent),
-      suffixText: currency,
+      suffixText: currencyCode,
       hintText: context.l10n.enterMonthlyBudget,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
