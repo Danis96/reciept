@@ -28,11 +28,11 @@ class CategoryBudgetDetailsSheet extends StatelessWidget {
     final String monthLabel = DateFormat('MMMM yyyy').format(DateTime.now());
     final String remainingText = details.remainingAmount >= 0
         ? context.l10n.remainingAmountLabel(
-            DashboardMoney.formatInt(details.remainingAmount),
+            DashboardMoney.formatDecimalConditionally(details.remainingAmount),
             details.currency,
           )
         : context.l10n.overBudgetLabel(
-            DashboardMoney.formatInt(details.remainingAmount.abs()),
+            DashboardMoney.formatDecimalConditionally(details.remainingAmount.abs()),
             details.currency,
           );
 
@@ -172,7 +172,7 @@ class CategoryBudgetDetailsHero extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Text(
             context.l10n.spentAmountLabel(
-              DashboardMoney.formatInt(details.spentAmount),
+              DashboardMoney.formatDecimalConditionally(details.spentAmount),
               details.currency,
             ),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -219,7 +219,7 @@ class CategoryBudgetDetailsStats extends StatelessWidget {
         Expanded(
           child: CategoryBudgetDetailsStatCard(
             label: context.l10n.budget,
-            value: '${DashboardMoney.formatInt(details.budgetAmount)} ${details.currency}',
+            value: '${DashboardMoney.formatDecimalConditionally(details.budgetAmount)} ${details.currency}',
             tone: categoryColor,
           ),
         ),
@@ -436,7 +436,7 @@ class CategoryBudgetDetailsItemRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Text(
-            '${DashboardMoney.formatInt(item.amount)} ${item.currency}',
+            '${DashboardMoney.formatDecimalConditionally(item.amount)} ${item.currency}',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),

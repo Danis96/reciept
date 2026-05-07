@@ -10,7 +10,13 @@
       "Bash(flutter pub *)",
       "Bash(dart run *)",
       "Bash(curl -s https://pub.dev/packages/wiggly_loaders)",
-      "WebFetch(domain:pub.dev)"
+      "WebFetch(domain:pub.dev)",
+      "Bash(find /Users/danispreldzic/Desktop/Danis/PROJECTS/athanor/lib -type f -name \"*introduc*\" | head -20)",
+      "Bash(find /Users/danispreldzic/Desktop/Danis/PROJECTS/athanor -type f -name \"*strings*\" | grep -E \"\\\\.\\(dart|json|yaml\\)\" | head -10)",
+      "Bash(find /Users/danispreldzic/Desktop/Danis/PROJECTS/athanor/lib -path \"*export*\" -name \"*.dart\" 2>/dev/null)",
+      "Read(//Users/danispreldzic/Desktop/Danis/PROJECTS/athanor/assets/fonts/**)",
+      "Read(//Users/danispreldzic/Desktop/Danis/PROJECTS/athanor/**)",
+      "Bash(mkdir -p /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/assets/fonts && cp /Users/danispreldzic/Desktop/Danis/PROJECTS/athanor/assets/fonts/NotoSans-*.ttf /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/assets/fonts/ && ls /Users/danispreldzic/Desktop/Danis/PROJECTS/reciept/assets/fonts/)"
     ]
   }
 }

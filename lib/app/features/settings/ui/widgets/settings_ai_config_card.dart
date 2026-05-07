@@ -615,7 +615,7 @@ class _AiConfigInfoSheetState extends State<_AiConfigInfoSheet>
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    final double maxSheetHeight = MediaQuery.sizeOf(context).height * 0.92;
+    final double maxSheetHeight = MediaQuery.sizeOf(context).height * 0.9;
 
     return Container(
       constraints: BoxConstraints(maxHeight: maxSheetHeight),
@@ -650,18 +650,10 @@ class _AiConfigInfoSheetState extends State<_AiConfigInfoSheet>
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          Container(
+                          SizedBox(
                             width: 44,
                             height: 44,
-                            decoration: BoxDecoration(
-                              color: colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.key_rounded,
-                              color: colorScheme.onPrimaryContainer,
-                              size: 22,
-                            ),
+                            child: ClipOval(child: Image.asset('assets/app_icon/receipt_app_icon_clean.png', fit: .contain)),
                           ),
                           const SizedBox(width: 14),
                           Expanded(

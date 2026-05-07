@@ -71,6 +71,11 @@ class AppTheme {
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.brandPrimary,
       ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       sliderTheme: const SliderThemeData(
         activeTrackColor: AppColors.brandPrimary,
         thumbColor: AppColors.brandPrimary,
@@ -146,6 +151,11 @@ class AppTheme {
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.brandPrimaryDark,
+      ),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       sliderTheme: const SliderThemeData(
         activeTrackColor: AppColors.brandPrimaryDark,

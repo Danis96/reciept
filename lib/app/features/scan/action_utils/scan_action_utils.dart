@@ -6,14 +6,12 @@ import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
 import 'package:refyn/app/features/scan/repository/scan_failure.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/widgets/app_snackbar.dart';
 
 class ScanActionUtils {
   const ScanActionUtils._();
 
-  static void handleFailure(
-      BuildContext context,
-      ScanController controller,
-      ) {
+  static void handleFailure(BuildContext context, ScanController controller) {
     final ScanFailure? failure = controller.consumeFailure();
     if (failure == null) {
       return;
@@ -61,9 +59,7 @@ class ScanActionUtils {
       return;
     }
     if (saved) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.scanReceiptSaved)));
+      AppSnackBar.success(context, context.l10n.scanReceiptSaved);
     }
   }
 
@@ -154,9 +150,7 @@ class ScanActionUtils {
 
     final double? total = double.tryParse(totalController.text.trim());
     if (total == null || total <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.scanTotalValidationError)),
-      );
+      AppSnackBar.error(context, context.l10n.scanTotalValidationError);
       return;
     }
 
@@ -169,15 +163,13 @@ class ScanActionUtils {
           : paymentController.text.trim(),
       total: total,
     );
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.scanDraftUpdated)));
+    AppSnackBar.success(context, context.l10n.scanDraftUpdated);
   }
 
   static Future<void> showErrorPopup(
-      BuildContext context,
-      ScanFailure failure,
-      ) async {
+    BuildContext context,
+    ScanFailure failure,
+  ) async {
     if (!context.mounted) {
       return;
     }
@@ -190,9 +182,7 @@ class ScanActionUtils {
             borderRadius: BorderRadius.circular(22),
           ),
           child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(22)),
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -202,7 +192,9 @@ class ScanActionUtils {
                   children: <Widget>[
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: colorScheme.error.withValues(alpha:0.16),
+                      backgroundColor: colorScheme.error.withValues(
+                        alpha: 0.16,
+                      ),
                       child: Icon(
                         Icons.warning_amber_rounded,
                         color: colorScheme.error,

@@ -169,6 +169,20 @@ class SettingsRepository {
     return receipts;
   }
 
+  Future<String> exportSelectedReceipts({
+    required List<ReceiptModel> receipts,
+    required ReceiptExportFormat format,
+  }) async {
+    if (receipts.isEmpty) {
+      throw StateError('No receipts selected for export.');
+    }
+    return _receiptExportService.exportReceipts(
+      receipts: receipts,
+      format: format,
+      scopeLabel: 'selected',
+    );
+  }
+
   Future<LocalBackupExportResult> exportBackup() {
     return _localBackupService.exportBackup();
   }

@@ -8,6 +8,7 @@ import 'package:refyn/app/features/receipt_details/controllers/receipt_details_c
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/models/receipt/receipt_item_model.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/widgets/app_snackbar.dart';
 import 'package:refyn/theme/app_spacing.dart';
 
 class ReceiptDetailsActionUtils {
@@ -38,10 +39,9 @@ class ReceiptDetailsActionUtils {
       ReceiptExportFormat.json => 'JSON',
       ReceiptExportFormat.pdf => 'PDF',
     };
-    ScaffoldMessenger.of(
+    AppSnackBar.success(
       context,
-    ).showSnackBar(
-      SnackBar(content: Text(context.l10n.fileSavedLabel(formatLabel, path))),
+      context.l10n.fileSavedLabel(formatLabel, path),
     );
   }
 
@@ -175,9 +175,7 @@ class ReceiptDetailsActionUtils {
           : paymentController.text.trim(),
     );
     if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(context.l10n.receiptUpdated)));
+    AppSnackBar.success(context, context.l10n.receiptUpdated);
   }
 
   static Future<void> showItemCategoryPicker(
@@ -196,108 +194,105 @@ class ReceiptDetailsActionUtils {
       text: item.name,
     );
 
-    final ({String category, String name})? editedItem =
-        await showModalBottomSheet<({String category, String name})>(
-          context: context,
-          isScrollControlled: true,
-          useSafeArea: true,
-          backgroundColor: Colors.transparent,
-          builder: (BuildContext sheetContext) {
-            final ThemeData theme = Theme.of(sheetContext);
-            final ColorScheme colorScheme = theme.colorScheme;
+    final ({String category, String name})?
+    editedItem = await showModalBottomSheet<({String category, String name})>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext sheetContext) {
+        final ThemeData theme = Theme.of(sheetContext);
+        final ColorScheme colorScheme = theme.colorScheme;
 
-            return StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                12,
+                AppSpacing.md,
+                AppSpacing.md + MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Center(
+                    child: Container(
+                      width: 44,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: colorScheme.outlineVariant,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
                     ),
                   ),
-                  padding: EdgeInsets.fromLTRB(
-                    AppSpacing.md,
-                    12,
-                    AppSpacing.md,
-                    AppSpacing.md +
-                        MediaQuery.of(sheetContext).viewInsets.bottom,
+                  const SizedBox(height: 18),
+                  Text(
+                    context.l10n.changeItemCategory,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Center(
-                        child: Container(
-                          width: 44,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: colorScheme.outlineVariant,
-                            borderRadius: BorderRadius.circular(999),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.name.trim().isEmpty
+                        ? context.l10n.unnamedItem
+                        : item.name.trim(),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: nameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.itemName,
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: CategoryBudgetCatalog.supportedCategories
+                        .map(
+                          (String category) => ChoiceChip(
+                            label: Text(context.l10n.categoryLabel(category)),
+                            selected: selectedCategory == category,
+                            onSelected: (_) {
+                              setState(() => selectedCategory = category);
+                            },
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        context.l10n.changeItemCategory,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        item.name.trim().isEmpty
-                            ? context.l10n.unnamedItem
-                            : item.name.trim(),
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      TextField(
-                        controller: nameController,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: InputDecoration(
-                          labelText: context.l10n.itemName,
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: CategoryBudgetCatalog.supportedCategories
-                            .map(
-                              (String category) => ChoiceChip(
-                                label: Text(
-                                  context.l10n.categoryLabel(category),
-                                ),
-                                selected: selectedCategory == category,
-                                onSelected: (_) {
-                                  setState(() => selectedCategory = category);
-                                },
-                              ),
-                            )
-                            .toList(growable: false),
-                      ),
-                      const SizedBox(height: 18),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton(
-                          onPressed: () => Navigator.of(sheetContext).pop((
-                            category: selectedCategory,
-                            name: nameController.text.trim(),
-                          )),
-                          child: Text(context.l10n.saveChanges),
-                        ),
-                      ),
-                    ],
+                        )
+                        .toList(growable: false),
                   ),
-                );
-              },
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(sheetContext).pop((
+                        category: selectedCategory,
+                        name: nameController.text.trim(),
+                      )),
+                      child: Text(context.l10n.saveChanges),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
+      },
+    );
 
     final String? saveCategory = editedItem?.category;
     final String normalizedName = editedItem?.name.trim() ?? '';
@@ -322,13 +317,10 @@ class ReceiptDetailsActionUtils {
     if (!context.mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          context.l10n.itemUpdatedLabel(
-            nextName.trim().isEmpty ? context.l10n.scanItems : nextName.trim(),
-          ),
-        ),
+    AppSnackBar.success(
+      context,
+      context.l10n.itemUpdatedLabel(
+        nextName.trim().isEmpty ? context.l10n.scanItems : nextName.trim(),
       ),
     );
   }
@@ -339,9 +331,7 @@ class ReceiptDetailsActionUtils {
   ) async {
     final String? imagePath = receipt.imagePath;
     if (imagePath == null || imagePath.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.noReceiptImageAvailable)),
-      );
+      AppSnackBar.warning(context, context.l10n.noReceiptImageAvailable);
       return;
     }
 

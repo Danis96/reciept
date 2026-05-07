@@ -10,7 +10,8 @@ import 'package:refyn/app/features/history/controllers/history_controller.dart';
 import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
 import 'package:refyn/l10n/app_localizations.dart';
-import 'package:refyn/routing/app_router.dart';
+import 'package:refyn/routing/route_arguments.dart';
+import 'package:refyn/routing/routes.dart';
 
 import '../../../../theme/category_palette.dart';
 import '../controllers/dashboard_controller.dart';
@@ -35,10 +36,10 @@ class DashboardActionUtils {
   }
 
   static Future<void> onBudgetSaved(
-      BuildContext context, {
-        required String category,
-        required double amount,
-      }) {
+    BuildContext context, {
+    required String category,
+    required double amount,
+  }) {
     return context.read<DashboardController>().upsertBudget(
       category: category,
       amount: amount,
@@ -46,16 +47,16 @@ class DashboardActionUtils {
   }
 
   static Future<void> onBudgetDeleted(
-      BuildContext context, {
-        required String category,
-      }) {
+    BuildContext context, {
+    required String category,
+  }) {
     return context.read<DashboardController>().deleteBudget(category);
   }
 
   static Future<void> onBudgetCategoryPressed(
-      BuildContext context, {
-        required String category,
-      }) async {
+    BuildContext context, {
+    required String category,
+  }) async {
     final DashboardCategoryDetailsModel details = await context
         .read<DashboardController>()
         .loadCategoryDetails(category);
@@ -75,34 +76,33 @@ class DashboardActionUtils {
   }
 
   static Future<void> onOpenReceipt(
-      BuildContext context,
-      ReceiptModel receipt,
-      ) async {
-    final DashboardController dashboardController =
-    context.read<DashboardController>();
-    final HistoryController historyController =
-    context.read<HistoryController>();
+    BuildContext context,
+    ReceiptModel receipt,
+  ) async {
+    final DashboardController dashboardController = context
+        .read<DashboardController>();
+    final HistoryController historyController = context
+        .read<HistoryController>();
+    final ScanController scanController = context.read<ScanController>();
     final Object? result = await Navigator.of(context).pushNamed(
-      AppRouter.receiptDetails,
-      arguments: ReceiptDetailsRouteArgs(
+      receiptDetails,
+      arguments: ReceiptDetailsPageArguments(
         receiptId: receipt.id,
-        heroTag: AppRouter.receiptHeroTag(
-          'home',
-          receipt.id,
-        ),
+        heroTag: receiptHeroTag('home', receipt.id),
       ),
     );
     if (result == true && context.mounted) {
       await dashboardController.refreshHome();
       await historyController.loadHistory();
+      await scanController.initialize();
     }
   }
 
   static Future<void> onManageBudgets(
-      BuildContext context, {
-        required List<DashboardBudgetProgressModel> budgetProgress,
-        required List<String> supportedCategories,
-      }) {
+    BuildContext context, {
+    required List<DashboardBudgetProgressModel> budgetProgress,
+    required List<String> supportedCategories,
+  }) {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -116,17 +116,10 @@ class DashboardActionUtils {
               item.category: item.budgetAmount,
           },
           onSave: (String category, double amount) {
-            return onBudgetSaved(
-              context,
-              category: category,
-              amount: amount,
-            );
+            return onBudgetSaved(context, category: category, amount: amount);
           },
           onDelete: (String category) {
-            return onBudgetDeleted(
-              context,
-              category: category,
-            );
+            return onBudgetDeleted(context, category: category);
           },
         );
       },
@@ -213,10 +206,9 @@ class HomeThemePalette {
   }
 
   static Color cardBorder(BuildContext context) {
-    return Theme.of(context)
-        .colorScheme
-        .onSurface
-        .withAlpha(_dark(context) ? 46 : 20); // 0.18 for dark, 0.08 for light
+    return Theme.of(context).colorScheme.onSurface.withAlpha(
+      _dark(context) ? 46 : 20,
+    ); // 0.18 for dark, 0.08 for light
   }
 
   static Color success(BuildContext context) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/features/budgets/ui/utils/budget_formatting.dart';
+import 'package:refyn/app/widgets/app_snackbar.dart';
 
 class BudgetsActionUtils {
   final BuildContext context;
@@ -46,12 +47,10 @@ class BudgetsActionUtils {
   }
 
   Future<void> onSave(String category) async {
-    final String text = controllers[category]!.text.trim();
+    final String text = controllers[category]!.text.trim().replaceAll(',', '.');
     final double? parsed = double.tryParse(text);
     if (parsed == null || parsed < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.enterValidBudgetAmount)),
-      );
+      AppSnackBar.error(context, context.l10n.enterValidBudgetAmount);
       return;
     }
 
@@ -81,13 +80,10 @@ class BudgetsActionUtils {
       setState(() {
         currentAmounts.remove(category);
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.l10n.budgetDeletedLabel(
-              CategoryBudgetLabel.shortLabel(category),
-            ),
-          ),
+      AppSnackBar.info(
+        context,
+        context.l10n.budgetDeletedLabel(
+          CategoryBudgetLabel.shortLabel(category),
         ),
       );
     } finally {
@@ -104,14 +100,9 @@ class BudgetsActionUtils {
         setState(() => successCategories.remove(category));
       }
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          context.l10n.budgetSavedLabel(
-            CategoryBudgetLabel.shortLabel(category),
-          ),
-        ),
-      ),
+    AppSnackBar.success(
+      context,
+      context.l10n.budgetSavedLabel(CategoryBudgetLabel.shortLabel(category)),
     );
   }
 }
