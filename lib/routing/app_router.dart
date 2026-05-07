@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:refyn/app/features/introduction/ui/pages/introduction_flow_page.dart';
 import 'package:refyn/app/features/receipt_details/controllers/receipt_details_controller.dart';
 import 'package:refyn/app/features/receipt_details/repository/receipt_details_repository.dart';
 import 'package:refyn/app/features/receipt_details/ui/pages/receipt_details_page.dart';
 import 'package:refyn/app/widgets/android_startup_splash_gate.dart';
-
-import '../app/features/dashboard/ui/pages/dashboard_shell_page.dart';
 
 class AppRouter {
   const AppRouter._();
@@ -39,7 +38,7 @@ class AppRouter {
         return _buildTransitionRoute(
           settings: settings,
           builder: (_) => const AndroidStartupSplashGate(
-            child: DashboardShellPage(),
+            child: IntroductionFlowPage(),
           ),
         );
     }

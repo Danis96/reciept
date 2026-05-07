@@ -165,6 +165,23 @@ class SettingsController extends ChangeNotifier {
     }
   }
 
+  Future<String> exportSelectedReceipts({
+    required List<ReceiptModel> receipts,
+    required ReceiptExportFormat format,
+  }) async {
+    _receiptExporting = true;
+    notifyListeners();
+    try {
+      return await _repository.exportSelectedReceipts(
+        receipts: receipts,
+        format: format,
+      );
+    } finally {
+      _receiptExporting = false;
+      notifyListeners();
+    }
+  }
+
   Future<LocalBackupImportResult> importBackup(String archivePath) async {
     _importing = true;
     notifyListeners();

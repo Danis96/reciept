@@ -10,7 +10,9 @@
       "Bash(flutter pub *)",
       "Bash(dart run *)",
       "Bash(curl -s https://pub.dev/packages/wiggly_loaders)",
-      "WebFetch(domain:pub.dev)"
+      "WebFetch(domain:pub.dev)",
+      "Bash(find /Users/danispreldzic/Desktop/Danis/PROJECTS/athanor/lib -type f -name \"*introduc*\" | head -20)",
+      "Bash(find /Users/danispreldzic/Desktop/Danis/PROJECTS/athanor -type f -name \"*strings*\" | grep -E \"\\\\.\\(dart|json|yaml\\)\" | head -10)"
     ]
   }
 }

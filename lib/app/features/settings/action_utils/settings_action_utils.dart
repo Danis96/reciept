@@ -10,8 +10,8 @@ import 'package:refyn/app/features/history/controllers/history_controller.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
 import 'package:refyn/app/features/scan/controllers/scan_controller.dart';
 import 'package:refyn/app/features/settings/controllers/settings_controller.dart';
+import 'package:refyn/app/features/settings/ui/widgets/export_receipt_picker_sheet.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
-import 'package:refyn/app/features/settings/ui/widgets/shared/settings_simple_message_dialog.dart';
 import 'package:refyn/app/shared/utils/app_url_launcher_utils.dart';
 import 'package:refyn/l10n/app_localizations.dart';
 
@@ -134,9 +134,31 @@ class SettingsActionUtils {
     ReceiptExportFormat format,
   ) async {
     try {
+      final List<ReceiptModel> allReceipts = await context
+          .read<SettingsController>()
+          .getReceiptsForExport();
+      if (!context.mounted) {
+        return;
+      }
+
+      final List<ReceiptModel>? selected =
+          await showModalBottomSheet<List<ReceiptModel>>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: false,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext sheetContext) {
+          return ExportReceiptPickerSheet(receipts: allReceipts);
+        },
+      );
+
+      if (selected == null || selected.isEmpty || !context.mounted) {
+        return;
+      }
+
       final String filePath = await context
           .read<SettingsController>()
-          .exportReceipts(format);
+          .exportSelectedReceipts(receipts: selected, format: format);
       if (!context.mounted) {
         return;
       }
@@ -180,11 +202,30 @@ class SettingsActionUtils {
 
   static Future<void> emailReceipts(BuildContext context) async {
     try {
-      final List<ReceiptModel> receipts = await context
+      final List<ReceiptModel> allReceipts = await context
           .read<SettingsController>()
           .getReceiptsForExport();
+      if (!context.mounted) {
+        return;
+      }
+
+      final List<ReceiptModel>? selected =
+          await showModalBottomSheet<List<ReceiptModel>>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: false,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext sheetContext) {
+          return ExportReceiptPickerSheet(receipts: allReceipts);
+        },
+      );
+
+      if (selected == null || selected.isEmpty || !context.mounted) {
+        return;
+      }
+
       final ReceiptReportEmailDraft draft = ReceiptReportEmailBuilder.build(
-        receipts,
+        selected,
       );
       final MailSendResult result = await MailHelper.compose(
         subject: draft.subject,
