@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:refyn/app/features/dashboard/controllers/dashboard_controller.dart';
 import 'package:refyn/app/features/history/controllers/history_controller.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
-import 'package:refyn/routing/app_router.dart';
+import 'package:refyn/routing/route_arguments.dart';
+import 'package:refyn/routing/routes.dart';
 
 class HistoryActionUtils {
   const HistoryActionUtils._();
@@ -48,18 +49,18 @@ class HistoryActionUtils {
   }
 
   static Future<void> onOpenDetails(
-      BuildContext context,
-      ReceiptModel receipt,
-      ) async {
+    BuildContext context,
+    ReceiptModel receipt,
+  ) async {
     final HistoryController historyController = context
         .read<HistoryController>();
     final DashboardController dashboardController = context
         .read<DashboardController>();
     final Object? result = await Navigator.of(context).pushNamed(
-      AppRouter.receiptDetails,
-      arguments: ReceiptDetailsRouteArgs(
+      receiptDetails,
+      arguments: ReceiptDetailsPageArguments(
         receiptId: receipt.id,
-        heroTag: AppRouter.receiptHeroTag('history', receipt.id),
+        heroTag: receiptHeroTag('history', receipt.id),
       ),
     );
     if (result == true && context.mounted) {

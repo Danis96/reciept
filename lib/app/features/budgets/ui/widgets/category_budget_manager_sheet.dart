@@ -47,7 +47,7 @@ class _CategoryBudgetManagerSheetState
         category: TextEditingController(
           text: _currentAmounts[category] == null
               ? ''
-              : CategoryBudgetMoney.formatInt(_currentAmounts[category]!),
+              : CategoryBudgetMoney.formatDecimalConditionally(_currentAmounts[category]!),
         ),
     };
 

@@ -6,6 +6,7 @@ import 'package:refyn/app/features/receipt_details/action_utils/receipt_details_
 import 'package:refyn/app/features/receipt_details/controllers/receipt_details_controller.dart';
 import 'package:refyn/app/features/receipt_details/ui/widgets/receipt_details_scaffold.dart';
 import 'package:refyn/app/models/receipt/receipt_model.dart';
+import 'package:refyn/app/widgets/app_snackbar.dart';
 import 'package:refyn/theme/app_spacing.dart';
 
 class ReceiptDetailsPage extends StatelessWidget {
@@ -77,11 +78,10 @@ class ReceiptDetailsPage extends StatelessWidget {
                   ),
                   onDelete: () =>
                       ReceiptDetailsActionUtils.showDeleteDialog(context),
-                  onShare: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.l10n.shareUnavailable)),
-                    );
-                  },
+                  onShare: () => AppSnackBar.warning(
+                    context,
+                    context.l10n.shareUnavailable,
+                  ),
                   onExportSelected: (format) =>
                       ReceiptDetailsActionUtils.onExport(
                         context,

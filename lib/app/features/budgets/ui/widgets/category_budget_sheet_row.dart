@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wiggly_loaders/wiggly_loaders.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
@@ -46,7 +47,7 @@ class CategoryBudgetSheetRow extends StatelessWidget {
     final currentAmountLabel = currentAmount == null
         ? context.l10n.noBudgetSet
         : context.l10n.activeBudgetAmountLabel(
-            CategoryBudgetMoney.formatInt(currentAmount!),
+            CategoryBudgetMoney.formatDecimalConditionally(currentAmount!),
             currencyCode,
           );
 
@@ -124,6 +125,10 @@ class CategoryBudgetSheetRow extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                _SingleDecimalSeparatorFormatter(),
+              ],
               decoration: _buildInputDecoration(context, accent, currencyCode),
             ),
           ),
@@ -232,5 +237,26 @@ class CategoryBudgetSheetRow extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _SingleDecimalSeparatorFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final String text = newValue.text;
+    int separatorCount = 0;
+    for (int i = 0; i < text.length; i++) {
+      final String c = text[i];
+      if (c == '.' || c == ',') {
+        separatorCount++;
+        if (separatorCount > 1) {
+          return oldValue;
+        }
+      }
+    }
+    return newValue;
   }
 }

@@ -8,6 +8,14 @@ class CategoryBudgetMoney {
   static String formatInt(double value) {
     return NumberFormat('0').format(value);
   }
+
+  static String formatDecimalConditionally(double value) {
+    if (value % 1 == 0) {
+      return NumberFormat('0').format(value);
+    } else {
+      return NumberFormat('0.00').format(value);
+    }
+  }
 }
 
 class CategoryBudgetLabel {

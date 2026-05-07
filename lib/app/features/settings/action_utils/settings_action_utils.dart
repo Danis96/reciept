@@ -13,6 +13,7 @@ import 'package:refyn/app/features/settings/controllers/settings_controller.dart
 import 'package:refyn/app/features/settings/ui/widgets/export_receipt_picker_sheet.dart';
 import 'package:refyn/app/helpers/extensions/build_context_x.dart';
 import 'package:refyn/app/shared/utils/app_url_launcher_utils.dart';
+import 'package:refyn/app/widgets/app_snackbar.dart';
 import 'package:refyn/l10n/app_localizations.dart';
 
 class SettingsActionUtils {
@@ -41,8 +42,9 @@ class SettingsActionUtils {
     if (!context.mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.currencySavedLabel(code.toUpperCase()))),
+    AppSnackBar.success(
+      context,
+      context.l10n.currencySavedLabel(code.toUpperCase()),
     );
   }
 
@@ -107,14 +109,11 @@ class SettingsActionUtils {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.l10n.backupReadyLabel(
-              result.receiptCount,
-              result.attachmentCount,
-            ),
-          ),
+      AppSnackBar.success(
+        context,
+        context.l10n.backupReadyLabel(
+          result.receiptCount,
+          result.attachmentCount,
         ),
       );
     } catch (error) {
@@ -143,14 +142,14 @@ class SettingsActionUtils {
 
       final List<ReceiptModel>? selected =
           await showModalBottomSheet<List<ReceiptModel>>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: false,
-        backgroundColor: Colors.transparent,
-        builder: (BuildContext sheetContext) {
-          return ExportReceiptPickerSheet(receipts: allReceipts);
-        },
-      );
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: false,
+            backgroundColor: Colors.transparent,
+            builder: (BuildContext sheetContext) {
+              return ExportReceiptPickerSheet(receipts: allReceipts);
+            },
+          );
 
       if (selected == null || selected.isEmpty || !context.mounted) {
         return;
@@ -183,11 +182,7 @@ class SettingsActionUtils {
         return;
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-        SnackBar(content: Text(context.l10n.exportReadyLabel(meta.label))),
-      );
+      AppSnackBar.success(context, context.l10n.exportReadyLabel(meta.label));
     } catch (error) {
       if (!context.mounted) {
         return;
@@ -211,14 +206,14 @@ class SettingsActionUtils {
 
       final List<ReceiptModel>? selected =
           await showModalBottomSheet<List<ReceiptModel>>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: false,
-        backgroundColor: Colors.transparent,
-        builder: (BuildContext sheetContext) {
-          return ExportReceiptPickerSheet(receipts: allReceipts);
-        },
-      );
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: false,
+            backgroundColor: Colors.transparent,
+            builder: (BuildContext sheetContext) {
+              return ExportReceiptPickerSheet(receipts: allReceipts);
+            },
+          );
 
       if (selected == null || selected.isEmpty || !context.mounted) {
         return;
@@ -241,19 +236,12 @@ class SettingsActionUtils {
 
       switch (result) {
         case MailSendResult.launched:
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.mailAppOpenedWithExport),
-            ),
-          );
+          AppSnackBar.info(context, context.l10n.mailAppOpenedWithExport);
           break;
         case MailSendResult.launchedWithoutAttachments:
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                context.l10n.mailAppOpenedManualAttachments,
-              ),
-            ),
+          AppSnackBar.warning(
+            context,
+            context.l10n.mailAppOpenedManualAttachments,
           );
           break;
         case MailSendResult.unavailable:
@@ -311,14 +299,11 @@ class SettingsActionUtils {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.l10n.backupRestoredLabel(
-              result.receiptCount,
-              result.attachmentCount,
-            ),
-          ),
+      AppSnackBar.success(
+        context,
+        context.l10n.backupRestoredLabel(
+          result.receiptCount,
+          result.attachmentCount,
         ),
       );
     } catch (error) {
@@ -354,9 +339,7 @@ class SettingsActionUtils {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.localDataCleared)));
+      AppSnackBar.success(context, context.l10n.localDataCleared);
     } catch (error) {
       if (!context.mounted) {
         return;

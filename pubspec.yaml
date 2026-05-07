@@ -82,3 +82,7 @@ flutter:
     - .env
     - assets/
     - assets/app_icon/
+    - assets/fonts/NotoSans-Regular.ttf
+    - assets/fonts/NotoSans-Bold.ttf
+    - assets/fonts/NotoSans-Italic.ttf
+    - assets/fonts/NotoSans-BoldItalic.ttf

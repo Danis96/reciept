@@ -11,6 +11,14 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final Color headingColor = colorScheme.onSurface;
+    final Color subtitleColor = colorScheme.secondary;
+    final Color badgeBg = colorScheme.primary.withValues(alpha: 0.10);
+    final Color badgeBorder = colorScheme.primary.withValues(alpha: 0.18);
+    final Color badgeText = colorScheme.primary;
+    final Color closeButtonBg = colorScheme.onSurface.withValues(alpha: 0.08);
+    final Color closeButtonIcon = colorScheme.onSurface;
 
     return Container(
       decoration: BoxDecoration(
@@ -25,7 +33,7 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
                 Text(
                   context.l10n.categoryBudgets,
                   style: theme.textTheme.headlineMedium?.copyWith(
-                    color: Colors.white,
+                    color: headingColor,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -33,7 +41,7 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
                 Text(
                   context.l10n.budgetSheetDescription,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha:0.74),
+                    color: subtitleColor,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -44,14 +52,14 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
                     vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:0.12),
+                    color: badgeBg,
                     borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: Colors.white.withValues(alpha:0.14)),
+                    border: Border.all(color: badgeBorder),
                   ),
                   child: Text(
                     context.l10n.activeBudgetsLabel(activeBudgets),
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white,
+                      color: badgeText,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -61,12 +69,12 @@ class CategoryBudgetSheetHeader extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Material(
-            color: Colors.white.withValues(alpha:0.12),
+            color: closeButtonBg,
             shape: const CircleBorder(),
             child: IconButton(
               onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(Icons.close_rounded),
-              color: Colors.white,
+              color: closeButtonIcon,
             ),
           ),
         ],
